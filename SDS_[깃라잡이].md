@@ -182,6 +182,75 @@
 - OSS 뉴스 목록 조회
 - OSS 뉴스 페이지로 이동
 
+**Use case #1 : 회원가입**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  신규 사용자가 깃라잡이를 이용하기 위해 깃허브 계정을 통해 회원으로 등록하는 기능
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 11
+
+- **Status**  
+  Analysis 
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  깃라잡이에 접속한 상태여야 한다.
+  로그인을 하지 않은 상태여야 한다.
+
+- **Trigger**  
+  사용자가 "회원가입" 버튼을 클릭했을 때 프로세스가 시작된다.
+
+- **Success Post Condition**  
+  GitHub 계정 정보가 OAuth를 통해 인증되고, 데이터베이스에 신규 사용자로 등록된다. 
+  이후 닉네임·선호분야·언어 설정 완료 후 프로필이 자동 생성된다.
+
+- **Failed Post Condition**  
+  GitHub 인증에 실패하거나 사용자 데이터 저장 중 오류가 발생한 경우, 회원가입이 완료되지 않으며 오류 메시지가 출력된다.
+
+---
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                       |
+| ---- | -------------------------------------------- |
+| S    | 사용자가 회원가입 버튼을 누른다.                           |
+| 1    | 사용자가 회원가입 버튼을 누를 때 시작된다.                     |
+| 2    | 시스템은 GitHub OAuth 인증 페이지로 리다이렉트한다.           |
+| 3    | 사용자가 GitHub 계정으로 로그인하고, 깃라잡이 앱의 접근 권한을 승인한다. |
+| 4    | 시스템은 해당 GitHub ID가 기존 등록된 사용자 계정인지 확인한다.     |
+| 5    | 등록된 사용자가 아니라면 추가 정보 입력 페이지를 표시한다.            |
+| 6    | 사용자는 닉네임, 기술 스택, 선호 언어를 입력하고 저장 버튼을 누른다.     |
+| 7    | 시스템은 사용자 정보를 데이터베이스에 저장하고, 프로필을 생성한다.        |
+| 8    | 회원가입 완료 메시지를 표시하고 메인 페이지로 이동한다.              |
+| 9    | 회원가입이 성공하면 끝난다.                              |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
 ---
 
 ## 3. Class diagram
