@@ -182,6 +182,9 @@
 - OSS 뉴스 목록 조회
 - OSS 뉴스 페이지로 이동
 
+---
+# 여기서부터 명세서 작성
+
 **Use case #1 : 회원가입**
 
 #### GENERAL CHARACTERISTICS
