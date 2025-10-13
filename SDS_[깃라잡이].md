@@ -551,6 +551,106 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+#### **Use case # : 스터디 상세 조회**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 선택한 스터디의 상세 정보를 조회하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 13
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 로그인 상태여야 한다.
+  
+
+- **Trigger**  
+  사용자가 스터디 목록에서 특정 스터디를 클릭할 때.
+  
+- **Success Post Condition**  
+  시스템이 해당 스터디의 상세 정보를 화면에 표시한다.
+  
+- **Failed Post Condition** 
+  스터디 정보가 존재하지 않거나 서버 오류가 발생하면 오류 메시지를 표시한다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action |
+| ---- | ------ |
+| S    |        |
+| 1    |        |
+| 2    |        |
+| 3    |        |
+| 4    |        |
+| 5    |        |
+| 6    |        |
+| 7    |        |
+| 8    |        |
+| 9    |        |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+
+
 ---
 ## 알림
 
