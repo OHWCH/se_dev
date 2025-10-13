@@ -17,7 +17,6 @@
 | | | | |
 | | | | |
 | | | | |
-
 ---
 
 ## Contents
@@ -136,7 +135,6 @@
 
 ## 스터디 관리
 - 스터디 생성
-- 스터디 수정
 - 스터디 삭제
 - 스터디 목록 조회
 - 스터디 상세 조회
@@ -185,7 +183,8 @@
 ---
 # 여기서부터 명세서 작성
 
-**Use case #1 : 회원가입**
+## 회원 관리
+#### **Use case #1 : 회원가입**
 
 #### GENERAL CHARACTERISTICS
 - **Summary**  
@@ -204,7 +203,7 @@
   2025. 10. 11
 
 - **Status**  
-  Analysis 
+  Design 
 
 - **Primary Actor**  
   User
@@ -223,7 +222,6 @@
 - **Failed Post Condition**  
   GitHub 인증에 실패하거나 사용자 데이터 저장 중 오류가 발생한 경우, 회원가입이 완료되지 않으며 오류 메시지가 출력된다.
 
----
 
 #### MAIN SUCCESS SCENARIO
 | Step | Action                                       |
@@ -239,20 +237,134 @@
 | 8    | 회원가입 완료 메시지를 표시하고 메인 페이지로 이동한다.              |
 | 9    | 회원가입이 성공하면 끝난다.                              |
 
----
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 
 
----
 
 #### RELATED INFORMATION
 - **Performance**: 
 - **Frequency**: 
 - **Concurrency**: 
 - **Due Date**: 
+
+---
+## 스터디 관리
+#### **Use case # : 스터디 생성**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 오픈소스 학습이나 프로젝트 협업을 위한 스터디를 새로 개설하는 기능이다.  
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 12
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자는 깃라잡이에 로그인한 상태여야 한다.
+  
+
+- **Trigger**  
+  사용자가 “스터디 생성” 버튼을 클릭하여 새 스터디를 개설하려고 할 때
+  
+- **Success Post Condition**  
+  새 스터디가 데이터베이스에 성공적으로 등록된다.
+  스터디를 개설한 유저는 "스터디장"권한을 얻는다.
+  생성된 스터디는 스터디 목록 및 상세 페이지에서 조회 가능해진다.
+  스터디 생성 완료 메시지가 표시되며, 스터디 홈 화면으로 이동한다.
+  
+- **Failed Post Condition** 
+  필수 입력 항목 누락, 중복된 스터디명, 서버 오류 등의 이유로 스터디 생성이 완료되지 않는다.
+  오류 메시지가 표시되고, 사용자는 수정 후 다시 시도할 수 있다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action |
+| ---- | ------ |
+| S    |        |
+| 1    |        |
+| 2    |        |
+| 3    |        |
+| 4    |        |
+| 5    |        |
+| 6    |        |
+| 7    |        |
+| 8    |        |
+| 9    |        |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+---
+## 알림
+
+---
+## 게시판
+
+---
+## 오픈소스 이슈 관리
+
+---
+## 기여도 및 도전과제
 
 ---
 
