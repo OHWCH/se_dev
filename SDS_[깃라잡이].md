@@ -354,6 +354,107 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+
+#### **Use case # : 스터디 삭제**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  스터디장이 자신이 개설한 스터디를 삭제하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 13
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  스터디장 권한을 가지고 있어야 한다.
+  
+
+- **Trigger**  
+  스터디장이 "스터디 삭제"버튼을 클릭한 경우
+  
+- **Success Post Condition**  
+  스터디와 관련된 모든 정보가 삭제되고, 스터디 목록 화면으로 이동한다.
+  
+- **Failed Post Condition** 
+  권한이 없거나 오류가 발생하면 삭제되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action |
+| ---- | ------ |
+| S    |        |
+| 1    |        |
+| 2    |        |
+| 3    |        |
+| 4    |        |
+| 5    |        |
+| 6    |        |
+| 7    |        |
+| 8    |        |
+| 9    |        |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+
+
 ---
 ## 알림
 
