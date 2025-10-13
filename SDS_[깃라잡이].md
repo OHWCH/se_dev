@@ -453,7 +453,103 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+#### **Use case # : 스터디 목록 조회**
 
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 개설된 모든 스터디의 목록을 조회하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 13
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 로그인 상태여야 한다.
+  
+
+- **Trigger**  
+  사용자가 "스터디 찾기"버튼을 누를 경우
+  
+- **Success Post Condition**  
+  등록된 스터디 목록을 화면에 출력한다.
+  
+- **Failed Post Condition** 
+  서버 오류나 네트워크 장애로 목록을 불러오지 못하면 오류 메시지를 표시한다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action |
+| ---- | ------ |
+| S    |        |
+| 1    |        |
+| 2    |        |
+| 3    |        |
+| 4    |        |
+| 5    |        |
+| 6    |        |
+| 7    |        |
+| 8    |        |
+| 9    |        |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
 
 ---
 ## 알림
