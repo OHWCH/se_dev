@@ -184,7 +184,7 @@
 # 여기서부터 명세서 작성
 
 ## 회원 관리
-#### **Use case #1 : 회원가입**
+### **Use case #1 : 회원가입**
 
 #### GENERAL CHARACTERISTICS
 - **Summary**  
@@ -250,9 +250,107 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+### **Use case # : 로그인**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 GitHub 계정을 통해 깃라잡이에 로그인하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 13
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 깃라잡이에 계정이 등록되어 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 "GitHub로 로그인" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  시스템이 GitHub 인증을 완료하고 사용자를 메인 페이지로 이동시킨다.
+  
+- **Failed Post Condition** 
+  인증 실패나 승인 거부 시 로그인되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action |
+| ---- | ------ |
+| S    |        |
+| 1    |        |
+| 2    |        |
+| 3    |        |
+| 4    |        |
+| 5    |        |
+| 6    |        |
+| 7    |        |
+| 8    |        |
+| 9    |        |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
 ---
 ## 스터디 관리
-#### **Use case # : 스터디 생성**
+### **Use case # : 스터디 생성**
 
   
 
@@ -355,7 +453,7 @@
 - **Due Date**: 
 
 
-#### **Use case # : 스터디 삭제**
+### **Use case # : 스터디 삭제**
 
   
 
@@ -453,7 +551,7 @@
 - **Concurrency**: 
 - **Due Date**: 
 
-#### **Use case # : 스터디 목록 조회**
+### **Use case # : 스터디 목록 조회**
 
   
 
