@@ -446,6 +446,104 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+### **Use case # : 프로필 조회**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 자신의 프로필 정보를 조회하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 13
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자는 깃라잡이에 로그인된 상태여야 한다.
+  
+
+- **Trigger**  
+  사용자가 프로필 아이콘을 클릭할 때.
+  
+- **Success Post Condition**  
+  "내 프로필" 페이지로 이동하고, 닉네임, 기술 스택, 선호 언어, OSS기여도등을 보여준다.
+  
+- **Failed Post Condition** 
+  프로필 정보를 불러오지 못하면 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action |
+| ---- | ------ |
+| S    |        |
+| 1    |        |
+| 2    |        |
+| 3    |        |
+| 4    |        |
+| 5    |        |
+| 6    |        |
+| 7    |        |
+| 8    |        |
+| 9    |        |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
 ---
 ## 스터디 관리
 ### **Use case # : 스터디 생성**
