@@ -1396,6 +1396,100 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+### **Use case # : 스터디 탈퇴**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  스터디에 속한 사용자가 스터디를 탈퇴하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 14
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  해당 스터디 멤버에 등록되어 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 스터디 상세 페이지에서 "스터디 탈퇴" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  사용자가 스터디 멤버 목록에서 제거된다.
+  
+- **Failed Post Condition** 
+  탈퇴가 정상적으로 처리되지 않고 오류메시지를 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 상세 페이지에서 "스터디 탈퇴" 버튼을 클릭한다.            |
+| 1    | 사용자가 스터디 탈퇴 버튼을 클릭할 때 시작된다.                     |
+| 2    | 시스템은 사용자의 로그인 상태와 스터디 멤버 여부를 확인한다.              |
+| 3    | 시스템은 사용자에게 탈퇴 여부를 묻는 팝업창을 표시한다.                 |
+| 4    | 사용자가 "확인"버튼을 누르면 시스템은 해당 사용자를 스터디 멤버 목록에서 제거한다. |
+| 5    | 탈퇴 완료 팝업 메시지를 표시하고 스터디 목록 페이지로 이동시킨다.           |
+| 6    | 탈퇴가 성공적으로 처리되면 종료된다.                            |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
 
 ---
 ## 알림
