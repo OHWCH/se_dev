@@ -1300,6 +1300,101 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+### **Use case # : 스터디 참여 승인/거절**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  스터디장이 참여 신청 목록을 확인하고, 신청자의 스터디 참여를 승인하거나 거절하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 14
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  스터디장 권한을 가지고 있어야하며, 스터디에 참여 신청이 존재해야 한다.
+  
+
+- **Trigger**  
+  스터디장이 알림 또는 스터디 상세 페이지에서 신청자 목록을 확인하고 "승인" 또는 "거절" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  승인: 신청자가 스터디 멤버로 등록되고, 승인 알림이 전송된다.
+  거절: 신청자에게 거절 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  요청이 처리되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                  |
+| ---- | --------------------------------------- |
+| S    | 스터디장이 스터디 참여 신청 목록을 확인한다.               |
+| 1    | 스터디장이 스터디 참여 신청 목록에 접근할 때 시작된다.         |
+| 2    | 시스템은 스터디장 권한을 확인하고, 대기 중인 신청자 목록을 표시한다. |
+| 3    | 스터디장이 신청자 옆의 "승인" 또는 "거절" 버튼을 클릭한다.     |
+| 4    | 선택된 동작에 따라 신청자의 상태를 "승인" 또는 "거절"로 변경한다. |
+| 5    | 처리 결과를 신청자에게 알림으로 전송한다.                 |
+| 6    | 참여 신청에 대한 처리가 완료되면 종료된다.                |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
 
 
 ---
