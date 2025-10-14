@@ -1204,6 +1204,100 @@
 - **Performance**: 
 - **Frequency**: 
 - **Concurrency**: 
+- **Due Date**:
+
+### **Use case # : 스터디 참여 신청**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 스터디에 참여 신청을 하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 14
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자는 로그인 상태이며, 해당 스터디의 멤버가 아니어야 한다.
+  
+
+- **Trigger**  
+  사용자가 스터디 상세 페이지에서 "스터디 참여 신청" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  참여 신청 정보가 스터디장에게 알림으로 전송된다.
+  
+- **Failed Post Condition** 
+  요청이 처리되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                      |
+| ---- | ------------------------------------------- |
+| S    | 사용자가 스터디 상세 페이지에서 "스터디 참여 신청" 버튼을 클릭한다.     |
+| 1    | 사용자가 가입 신청 버튼을 클릭할 때 시작된다.                  |
+| 2    | 시스템은 스터디에 속한 유저인지 확인한다.                     |
+| 3    | 시스템은 신청 가능한 상태일 경우 스터디장에게 새 참여 신청 알림을 전송한다. |
+| 4    | 사용자에게 "참여 신청이 완료되었습니다." 메시지를 표시한다.          |
+| 5    | 신청이 정상적으로 접수되면 종료된다.                        |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
 - **Due Date**: 
 
 
