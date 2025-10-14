@@ -827,6 +827,102 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+### **Use case # : 스터디 수정**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  스터디장이 스터디의 정보, 상태를 변경할 수 있는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  정동현
+
+  
+
+- **Last Update**  
+  2025. 10. 14
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 스터디장 권한을 가지고 있어야 한다
+  
+
+- **Trigger**  
+  스터디장이 스터디 상세화면에서 "정보 수정"을 클릭할 때.
+  
+- **Success Post Condition**  
+  수정된 스터디 정보가 데이터베이스에 저장되고, 최신 내용이 화면에 반영된다.
+  
+- **Failed Post Condition** 
+  수정이 반영되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                           |
+| ---- | ------------------------------------------------ |
+| S    | 스터디장이 스터디 상세 페이지에서 "정보 수정" 버튼을 클릭한다.             |
+| 1    | 스터디장이 수정 버튼을 클릭할 때 시작된다.                         |
+| 2    | 시스템은 스터디장 권한을 확인하고, 기존 스터디 정보를 수정 가능한 입력창에 표시한다. |
+| 3    | 스터디장은 스터디명, 설명, 모집 구분 등의 항목을 수정한다.               |
+| 4    | 스터디장이 저장 버튼을 클릭하면 시스템은 입력값의 유효성을 검사한다.           |
+| 5    | 검증이 완료되면 시스템은 변경된 정보를 데이터베이스에 반영한다.              |
+| 6    | 수정 완료 메시지를 표시하고 갱신된 스터디 상세 페이지를 보여준다.            |
+| 7    | 수정이 성공적으로 완료되면 종료된다.                             |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
 
 ### **Use case # : 스터디 삭제**
 
@@ -1016,7 +1112,7 @@
 - **Concurrency**: 
 - **Due Date**: 
 
-#### **Use case # : 스터디 상세 조회**
+### **Use case # : 스터디 상세 조회**
 
   
 
