@@ -1491,6 +1491,676 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+### **Use case # : 스터디 강퇴**
+  
+
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  스터디 리더가 특정 스터디 구성원을 강제로 탈퇴시키는 기능
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김동규
+
+  
+
+- **Last Update**  
+  2025. 10. 16
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User (팀 리더)
+
+  
+
+- **Preconditions**  
+  스터디 리더 계정으로 로그인되어 있어야 한다.
+  스터디가 존재하고, 강퇴 대상 사용자가 그 스터디의 구성원이어야 한다.
+  리더 권한이 존재 해야한다.
+  
+
+- **Trigger**  
+  사용자(리더)가 스터디 상세 페이지에서 "스터디 강퇴" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  사용자가 스터디 멤버 목록에서 제거된다.
+  강퇴된 사용자에게 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  권한이나 서버 오류 발생 시 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 리더가 스터디 구성원 목록에서 특정 사용자의 '강퇴' 버튼을 클릭한다.            |
+| 1    | 시스템이 리더의 권한을 검증한다.                     |
+| 2    | 시스템은 '정말 강퇴하시겠습니까?' 확인 메시지를 띄운다.              |
+| 3    | 리더가 '확인'을 누른다.                 |
+| 4    | 시스템은 해당 사용자를 스터디 멤버 목록에서 제거한다.     |
+| 5    | 시스템은 강퇴된 사용자에게 알림을 전송한다.           |
+| 6    | "구성원이 강퇴되었습니다." 메시지를 표시한다.                            |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|   1a | 리더가 아닌 사용자가 강퇴 기능을 실행할 경우 "권한이 없습니다."를 출력한다. |
+|   2a   | 리더가 '취소'를 선택하면 강퇴 요청이 취소된다.        |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+### **Use case # : 스터디 일정 등록**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 참여 중인 스터디의 새로운 일정을 등록하는 기능
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김동규
+
+  
+
+- **Last Update**  
+  2025. 10. 16
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User (리더 또는 권한자)
+
+  
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  해당 스터디 멤버에 등록되어 있어야 한다.
+  일정등록 권한이 있어야 한다
+  
+
+- **Trigger**  
+  사용자가 "일정 등록" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  입련한 일정 정보가 저장되고 스터디 캘린더에 반영된다.
+  등록 완료 메시지가 표시된다.
+  
+- **Failed Post Condition** 
+  필수 입력값 누락시 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 상세 페이지에서 "일정 등록" 버튼을 클릭한다.            |
+| 1    | 시스템은 일정 등록 폼(날짜, 시간, 장소, 메모 등)을 표시한다.                    |
+| 2    | 사용자는 일정 정보를 입력 후 '저장' 버튼을 클릭한다.
+| 3    | 시스템은 입력값을 검증한다.              |
+| 4    | 일정 등록이 성공하면 스터디 캘린더에 해당 일정이 표시된다.                 |
+| 5    | 시스템은 '일정이 등록되었습니다.' 메시지를 표시한다. |
+| 6    | 스터디 멤버들에게 알림이 전송된다.           |                            
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| 2a | 필수 입력 항목이 누락되면 '저장' 버튼이 비활성화된다.|
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+### **Use case # : 스터디 일정 수정**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  기존에 등록된 스터디 일정을 수정하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김동규
+
+  
+
+- **Last Update**  
+  2025. 10. 16
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User (스터디 리더 또는 권한자)
+
+  
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  수정하려는 일정이 존재해야 하고 권한이 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 "수정" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  수정된 일정 정보가 반영된다.
+  
+- **Failed Post Condition** 
+  일정수정이 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 "수정" 버튼을 클릭한다.            |
+| 1    | 시스템은 해당 일정의 기존 정보를 수정 폼에 표시한다.                    |
+| 2    | 사용자는 변경할 내용을 입력하고 '저장' 버튼을 클릭한다.              |
+| 3    | 시스템은 변경 사항을 검증한다.                 |
+| 4    | 시스템은 수정된 정보를 업데이트 하고 변경사항을 반영한다. |
+| 5    | 시스템이 "일정 수정 완료" 메시지를 표시한다          |
+| 6    | 스터디 멤버에게 알림을 전송한다.                            |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|   2a   |  필수 입력 항목 누락 시 저장이 제한된다.                |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+### **Use case # : 스터디 일정 삭제**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  기존에 등록된 스터디 일정을 삭제하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김동규
+
+  
+
+- **Last Update**  
+  2025. 10. 16
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User (스터디 리더 또는 권한자)
+
+  
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  수정하려는 일정이 존재해야 하고 권한이 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 "삭제" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  일정이 데이터베이스에서 삭제되고 화면에서 즉시 제거된다.
+  
+- **Failed Post Condition** 
+  일정삭제가 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 "삭제" 버튼을 클릭한다.            |
+| 1    | 시스템은 "정말 삭제하시겠습니까?" 확인 팝업을 표시한다.                   |
+| 2    | 사용자가 삭제를 확정한다.             |
+| 3    | 시스템은 해당 일정을 데이터베이스에서 삭제한다.               |
+| 4    | 삭제가 완료되면 화면에서 즉시 반영된다. |
+| 5    | 시스템이 "일정 삭제 완료" 메시지를 표시한다.         |
+| 6    | 스터디 멤버에게 알림을 전송한다.                            |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|   1a   |  '취소' 선택 시 삭제 요청이 취소된다.             |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+### **Use case # : 스터디 화상채팅방 생성**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  스터디 구성원들이 참여할 수 있는 화상채팅방을 새로 개설하는 기능
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김동규
+
+  
+
+- **Last Update**  
+  2025. 10. 16
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  스터디가 존재해야 한다.
+  
+
+- **Trigger**  
+  사용자가 스터디 페이지에서 "화상채팅방 생성" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  화상채팅방이 생성되고, 고유 방 ID가 발급된다.
+  스터디 구성원들에게 "화상 채팅방 개설" 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  화상채팅방 개설이 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 페이지에서 '화상채팅방 생성' 버튼을 클릭한다.           |
+| 1    | 시스템은 새로운 화상채팅방을 생성한다.                   |
+| 2    | 고유한 방 ID와 접근 URL을 발급한다.              |
+| 3    | 생성된 방 정보를 데이터베이스에 저장한다.                |
+| 4    | 스터디 구성원들에게 화상채팅방 초대 알림을 전송한다. |
+| 5    | 시스템은 "화상채팅방이 생성되었습니다." 메시지를 표시한다.        |
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+### **Use case # : 스터디 화상채팅방 종료**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  화상채팅이 끝난 후 세션을 종료하는 기능
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김동규
+
+  
+
+- **Last Update**  
+  2025. 10. 16
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  방 생성자로 로그인 되어있어야 한다.
+  해당 화상채팅방이 활성화된 상태여야 한다.
+  
+
+- **Trigger**  
+  사용자가 화상채팅 중 "종료" 버튼을 클릭했을 때
+  
+- **Success Post Condition**  
+  화상채팅방 세션이 종료되고, 모든 사용자가 퇴장 처리된다.
+  
+- **Failed Post Condition** 
+  화상채팅방 종료가 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 화상채팅 인터페이스에서 '종료' 버튼을 클릭한다.           |
+| 1    | 시스템은 현재 화상채팅 세션을 종료하고 모든 사용자를 강제 퇴장 시킨다.            |
+| 2    | 고유한 방 ID와 접근 URL을 발급한다.              |
+| 3    | 시스템은 "화상채팅방이 종료되었습니다." 메시지를 표시한다.        |
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
+### **Use case # : 스터디 화상채팅방 입장**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  스터디 구성원이 생성된 화상채팅방에 입장하는 기능
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김동규
+
+  
+
+- **Last Update**  
+  2025. 10. 16
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  로그인 상태여야 한다.
+  해당 스터디의 구성원이어야 하며, 화상채팅방이 활성 상태여야 한다.
+  
+
+- **Trigger**  
+  사용자가 스터디 페이지 또는 초대 알림에서 "입장" 버튼을 클릭했을 때 시작된다.
+  
+- **Success Post Condition**  
+  사용자가 화상채팅방에 정상적으로 입장하고, 오디오·비디오 스트림이 연결된다.
+  
+- **Failed Post Condition** 
+  방이 존재하지 않거나 이미 종료된 경우 입장이 거부된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 페이지에서 '화상채팅방 입장' 버튼(또는 URL)을 클릭한다.        |
+| 1    | 시스템은 사용자 로그인 및 스터디 참여 여부를 검증한다.         |
+| 2    | 시스템은 해당 방의 활성 상태를 확인한다.             |
+| 3    | 사용자가 방에 연결되고, 오디오/비디오 스트림이 초기화 된다.       |
+| 4    | 시스템은 참가자 목록에 해당 사용자를 추가한다.       |
+| 5    | "화상채팅방에 입장했습니다." 메시지가 표시된다.      |
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|   1a   |      비회원일 경우 로그인 페이지로 이동한다            |
+|   1a   |      스터디 구성원이 아닐 경우 "입장 권한이 없습니다" 메시지를 표시한다.            |
+|   2a   |      이미 종료된 경우 "화상채팅방이 종료되었습니다." 메시지를 표시한다.           |
+|   3a   |      네트워크 오류 발생 시 '재접속' 옵션을 제공한다.           |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+
+#### RELATED INFORMATION
+- **Performance**: 
+- **Frequency**: 
+- **Concurrency**: 
+- **Due Date**: 
+
 ---
 ## 알림
 
