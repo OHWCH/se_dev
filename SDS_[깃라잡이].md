@@ -2390,12 +2390,435 @@
 - **Concurrency**: 
 - **Due Date**: 
 
+### **Use case # : 스터디 화상채팅방 퇴장**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 진행 중인 화상채팅방에서 퇴장하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김성민
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 활성화된 화상채팅방에 참여 중이어야 한다.
+  
+
+- **Trigger**  
+  사용자가 화상채팅방 인터페이스에서 '퇴장' 버튼을 클릭했을 때
+  
+- **Success Post Condition**  
+  사용자가 세션에서 정상적으로 분리되고 참가자 목록에서 제거된다.
+  
+- **Failed Post Condition** 
+  네트워크/서버 오류로 퇴장이 완료되지 않으면 오류 메세지를 표시한다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 화상채팅방 화면에서 '퇴장' 버튼을 클릭한다.        |
+| 1    | 시스템은 로그인 및 참여 상태를 검증한다.             |
+| 2    | 시스템은 사용자의 화상채팅 세션 연결을 안전하게 종료한다.  |
+| 3    | 시스템은 참가자 목록에서 사용자를 제거하고 남은 참가자에게 퇴장 알림을 전송한다.                 |
+| 4    | 시스템은 사용자를 스터디 상세 페이지로 이동시키고 “퇴장했습니다.” 메시지를 표시한다.   |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  1a  | 이미 세션이 종료된 경우 안내 메시지만 표시한다. |
+|  2a  | 네트워크 장애 발생 시 로컬 UI에서 “ 네트워크 오류발생 ” 상태 표시 후 재시도 옵션을 제공한다.          |
+|  3a  | 퇴장 후 품질 평가(선택 사항) 팝업을 노출하여 피드백을 받는다.             |
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 퇴장 처리 < 1초, 알림 전송 지연 < 2초
+
+- **Frequency**: 세션 종료 시 사용자 수만큼 발생 가능
+
+- **Concurrency**: 다중 퇴장 이벤트 동시 처리 가능해야 함
+
+- **Due Date**: 2025. 11 .01 (예정)
+- 
 ---
 ## 알림
 
 ---
 ## 게시판
+### **Use case # : 게시글 작성**
 
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 게시판에 새로운 게시글을 등록하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김성민
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 쓰기 권한이 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 게시판 목록/상단의 '새 글 작성' 버튼을 클릭 후 제목/본문(필수)/첨부(선택)를 작성하고 저장 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  게시글이 저장되고 게시판 목록에 글이 노출된다.
+  필요 시 구독자에게 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  검증/저장 실패 시 오류 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 “새 글 작성”을 클릭하고 제목/본문(필수), 첨부(선택)를 입력한다.        |
+| 1    | 시스템이 로그인·쓰기 권한을 검증한다.             |
+| 2    | 시스템이 입력값(길이, 금칙어, 파일 형식/용량)을 검증한다.  |
+| 3    | 게시글을 저장한다.                |
+| 4    | “게시글이 등록되었습니다.” 메시지를 표시하고 상세 화면으로 이동한다.   |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  2a  | 쓰기 권한이 없는 경우 "작성 권한이 없습니다." 메시지를 출력한다. |
+|  2b  | 필수값 누락/제한 초과/첨부 업로드 실패의 경우 에러 메시지를 출력한다.          |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 저장 < 500ms(텍스트 기준)
+
+- **Frequency**: 중간~높음
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : 게시글 수정**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 게시판의 게시글을 수정한다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김성민
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 작성자 본인이거나 게시판 관리 권한을 보유하여야 한다.
+  
+
+- **Trigger**  
+  사용자가 게시글 상세의 '수정' 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  사용자가 내용을 수정하고 변경 사항을 저장한다.
+  
+- **Failed Post Condition** 
+  권한/검증/저장 오류 시 오류 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 “수정”을 클릭하여 수정 폼을 연다.       |
+| 1    | 시스템이 권한을 검증하고 기존 데이터/첨부를 로드한다.             |
+| 2    | 사용자가 변경 후 “저장”을 클릭한다.  |
+| 3    | 시스템이 검증 후 저장하고 “수정이 완료되었습니다.” 메시지를 표시한다.              |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  1a  | 수정 권한이 없는 경우 "수정 권한이 없습니다." 메시지를 출력한다. |
+|      |                                                             |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 로드 < 300ms, 저장 < 500ms
+
+- **Frequency**: 게시글당 0~N회
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : 게시글 삭제**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 게시판의 게시글을 삭제한다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User/Admin level  
+
+  
+
+- **Author**  
+  김성민
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User / Admin
+
+  
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 작성자 본인이거나 게시판 관리 권한을 보유하여야 한다.
+  
+
+- **Trigger**  
+  사용자가 게시글 상세의 '삭제' 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  게시글이 목록에서 삭제된다.
+  
+- **Failed Post Condition** 
+  권한/검증/저장 오류 시 삭제 불가 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 “삭제” 클릭 후 확인한다.       |
+| 1    | 시스템이 권한을 검증한다.             |
+| 2    | 게시글이 목록에서 영구 삭제된다.  |
+| 3    | “삭제되었습니다.” 메시지 표시 후 목록으로 이동한다.             |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  1a  | 수정 권한이 없는 경우 "수정 권한이 없습니다." 메시지를 출력한다. |
+|      |                                                             |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: Delete < 300ms
+
+- **Frequency**: 게시글당 0~N회
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : 게시글 숨김**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 게시판의 게시글을 삭제한다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User/Admin level  
+
+  
+
+- **Author**  
+  김성민
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User / Admin
+
+  
+
+- **Preconditions**  
+  
+  
+
+- **Trigger**  
+ 
+  
+- **Success Post Condition**  
+  
+  
+- **Failed Post Condition** 
+  
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    |       |
+| 1    |             |
+| 2    |   |
+| 3    |              |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|    |  |
+|      |                                                             |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 
+
+- **Frequency**: 
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+- 
 ---
 ## 오픈소스 이슈 관리
 
