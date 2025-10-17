@@ -2821,6 +2821,534 @@
 - 
 ---
 ## 오픈소스 이슈 관리
+### **Use case # : Good First Issue 이슈 목록 조회**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김관호
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
+  
+- **Failed Post Condition** 
+  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
+| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
+| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
+| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
+| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
+|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
+|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+
+- **Frequency**: 높음
+
+- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : 이슈 북마크 저장**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 관심 있는 이슈를 개인 북마크 목록에 저장하여 나중에 쉽게 접근할 수 있게 하는 기능다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김관호
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  북마크하려는 이슈가 화면에 표시되어 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 특정 이슈 옆의 "북마크" 아이콘을 클릭했을 때
+  
+- **Success Post Condition**  
+  이슈 정보가 해당 사용자의 개인 북마크 목록에 추가되고, 아이콘의 상태가 "북마크됨" 상태로 변경된다.
+  
+- **Failed Post Condition** 
+  네트워크 오류 또는 DB 저장 오류로 인해 북마크 저장에 실패하며, 오류 메시지가 사용자에게 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 이슈 목록 또는 상세 화면에서 북마크할 이슈의 아이콘을 클릭한다.       |
+| 1    | 시스템은 해당 이슈의 고유 ID와 현재 사용자 ID를 식별한다.             |
+| 2    | 시스템은 해당 이슈-사용자 조합이 이미 북마크 목록에 존재하는지 확인한다.  |
+| 3    | 존재하지 않는다면, 시스템은 이슈 정보를 사용자 북마크 DB 테이블에 추가한다.              |
+| 4    | 시스템은 북마크 아이콘의 상태를 활성화(저장됨) 상태로 업데이트하고, "북마크에 저장되었습니다." 알림 메시지를 표시한다.  |
+| 5    | 프로세스가 종료된다.  |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  2a  | 이슈가 이미 북마크 목록에 존재하는 경우, Use case #3 (이슈 북마크 삭제) 프로세스를 대신 실행한다. |
+|  3a  | DB 저장 중 오류 발생 시, "북마크 저장에 실패했습니다. 다시 시도해 주세요." 오류 메시지를 표시한다. |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 북마크 아이콘 클릭 후 DB 저장 및 아이콘 상태 변경 < 500ms
+
+- **Frequency**: 보통
+
+- **Concurrency**: 사용자의 개인 DB 쓰기 작업이므로, 동시성 충돌 발생 확률은 낮으나, 트랜잭션 안전성을 확보 필
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : Good First Issue 이슈 목록 조회**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김관호
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
+  
+- **Failed Post Condition** 
+  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
+| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
+| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
+| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
+| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
+|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
+|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+
+- **Frequency**: 높음
+
+- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : Good First Issue 이슈 목록 조회**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김관호
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
+  
+- **Failed Post Condition** 
+  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
+| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
+| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
+| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
+| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
+|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
+|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+
+- **Frequency**: 높음
+
+- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : Good First Issue 이슈 목록 조회**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김관호
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
+  
+- **Failed Post Condition** 
+  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
+| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
+| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
+| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
+| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
+|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
+|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+
+- **Frequency**: 높음
+
+- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : Good First Issue 이슈 목록 조회**
+
+  
+
+#### GENERAL CHARACTERISTICS
+
+- **Summary**    
+  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이이다.
+
+- **Scope**  
+  깃라잡이
+
+  
+
+- **Level**  
+  User level  
+
+  
+
+- **Author**  
+  김관호
+
+  
+
+- **Last Update**  
+  2025. 10. 17
+
+  
+
+- **Status**  
+  Design
+
+  
+
+- **Primary Actor**  
+  User
+
+  
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
+  
+
+- **Trigger**  
+  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
+  
+- **Failed Post Condition** 
+  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
+| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
+| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
+| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
+| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+  
+  
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
+|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
+|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+
+  
+  
+  
+
+#### RELATED INFORMATION
+
+- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+
+- **Frequency**: 높음
+
+- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+
 
 ---
 ## 기여도 및 도전과제
