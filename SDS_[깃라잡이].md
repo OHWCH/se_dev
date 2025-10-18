@@ -3122,7 +3122,7 @@
 
 - **Performance**: 북마크 삭제 요청 후 DB 삭제 및 화면 업데이트 < 500ms
 
-- **Frequency**: 보
+- **Frequency**: 보통
 
 - **Concurrency**: 개인 DB에 대한 삭제 작업이므로, 데이터 무결성에 중점을 둔 트랜잭션 처리가 필요
 
