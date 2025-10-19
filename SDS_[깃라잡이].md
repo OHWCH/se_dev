@@ -3392,9 +3392,459 @@
 - **Due Date**: 2025. 11 .01 (예정)
 
 
+## 기여도 및 도전과제
+  ----
+### **Use case # : 도전과제 진행 상태 조회**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  사용자가 현재 진행 중인 오픈소스 도전과제의 목록과 달성률을 확인하는 기능  
+
+- **Scope**  
+  깃라잡이 시스템  
+
+- **Level**  
+  User level  
+
+- **Author**  
+  오원창  
+
+- **Last Update**  
+  2025. 10. 20.  
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인한 상태여야 하며, 하나 이상의 도전과제가 등록되어 있어야 한다.  
+
+- **Trigger**  
+  사용자가 ‘도전과제 진행 현황’ 메뉴를 클릭할 때  
+
+- **Success Post Condition**  
+  사용자에게 현재 진행 중인 도전과제 목록과 각 과제의 진행률이 표시된다.  
+
+- **Failed Post Condition**  
+  시스템 오류로 인해 도전과제 진행 상태를 불러오지 못한다.  
 
 ---
-## 기여도 및 도전과제
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 도전과제 진행 현황을 확인한다. |
+| 1 | 이 Use case는 사용자가 ‘도전과제 진행 현황’ 버튼을 클릭할 때 시작된다. |
+| 2 | 시스템은 DB에서 사용자의 도전과제 데이터를 조회한다. |
+| 3 | 각 과제의 이름, 진행률, 달성 조건을 사용자 화면에 표시한다. |
+| 4 | 이 Use case는 모든 과제의 정보가 정상적으로 표시되면 종료된다. |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 2 | 2a. DB 연결이 실패한 경우 <br>…2a1. “진행 현황을 불러올 수 없습니다.” 라는 오류 메시지를 출력한다. |
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 2 seconds  
+- **Frequency**:  ()
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 03.
+
+---
+
+### **Use case # : 도전과제 완료**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  사용자가 도전과제의 모든 조건을 충족했을 때 과제를 완료 처리하는 기능  
+
+- **Scope**  
+  깃라잡이 시스템  
+
+- **Level**  
+  User level  
+
+- **Author**  
+  오원창  
+
+- **Last Update**  
+  2025. 10. 20.  
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User  
+
+- **Preconditions**  
+  사용자가 로그인한 상태이며, 특정 도전과제의 모든 조건을 달성해야 한다.  
+
+- **Trigger**  
+  도전과제 조건을 충족했을 때 또는 ‘완료하기’ 버튼을 클릭했을 때  
+
+- **Success Post Condition**  
+  과제 상태가 ‘완료됨’으로 변경되고 보상이 지급된다.  
+
+- **Failed Post Condition**  
+  보상 지급 과정에서 오류가 발생한다.  
+
+---
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 도전과제를 완료한다. |
+| 1 | 이 Use case는 사용자가 과제 조건을 충족했을 때 시작된다. |
+| 2 | 시스템은 조건 검증 후 완료 여부를 판정한다. |
+| 3 | 완료된 과제 상태를 DB에 갱신하고 보상을 지급한다. |
+| 4 | 사용자 화면에 “과제가 완료되었습니다.” 메시지를 표시한다. |
+| 5 | Use case 종료. |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 2 | 2a. 일부 조건이 충족되지 않은 경우 <br>…2a1. “아직 완료 조건을 만족하지 않았습니다.” 메시지를 표시한다. |
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 3 seconds  
+- **Frequency**:
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 03.
+
+---
+
+### **Use case # : 오픈소스 기여 배지 획득**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  사용자가 일정 조건을 만족할 때 자동으로 오픈소스 기여 배지를 획득하는 기능  
+
+- **Scope**  
+  깃라잡이 시스템  
+
+- **Level**  
+  User level  
+
+- **Author**  
+  오원창  
+
+- **Last Update**  
+  2025. 10. 20.  
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User 
+
+- **Preconditions**  
+  사용자가 로그인 상태이며, 배지 획득 조건(기여도, 완료 과제 수 등)을 충족해야 한다.  
+
+- **Trigger**  
+  조건 충족 시 자동 또는 이벤트 발생 시 서버에 의해 실행  
+
+- **Success Post Condition**  
+  신규 배지가 사용자 계정에 추가된다.  
+
+- **Failed Post Condition**  
+  시스템 오류로 인해 배지 등록에 실패한다.  
+
+---
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 배지를 획득한다. |
+| 1 | 시스템이 배지 조건 충족 여부를 주기적으로 점검한다. |
+| 2 | 조건을 만족하면 해당 배지를 생성하여 사용자 계정에 추가한다. |
+| 3 | 사용자 화면에 배지 획득 알림을 표시한다. |
+| 4 | Use case 종료. |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 2 | 2a. 동일한 배지를 이미 보유 중인 경우 <br>…2a1. “이미 획득한 배지입니다.” 메시지를 표시한다. |
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 3 seconds  
+- **Frequency**:
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 03.
+
+---
+
+### **Use case # : 오픈소스 기여 배지 조회**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  사용자가 보유 중인 오픈소스 기여 배지를 목록으로 확인하는 기능  
+
+- **Scope**  
+  깃라잡이 시스템  
+
+- **Level**  
+  User level  
+
+- **Author**  
+  오원창  
+
+- **Last Update**  
+  2025. 10. 20.  
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User 
+
+- **Preconditions**  
+  사용자가 로그인되어 있어야 한다.  
+
+- **Trigger**  
+  사용자가 ‘내 배지 보기’ 메뉴를 클릭할 때  
+
+- **Success Post Condition**  
+  보유 배지 목록과 획득일, 배지 설명이 화면에 표시된다.  
+
+- **Failed Post Condition**  
+  배지 목록을 불러오지 못한다.  
+
+---
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 보유 배지를 조회한다. |
+| 1 | 사용자가 ‘내 배지 보기’ 버튼을 클릭한다. |
+| 2 | 시스템이 사용자 ID를 기반으로 DB에서 배지 정보를 조회한다. |
+| 3 | 사용자 화면에 배지 이름, 획득일, 설명이 목록 형태로 표시된다. |
+| 4 | Use case 종료. |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 2 | 2a. 서버 연결 실패 <br>…2a1. “배지 목록을 불러올 수 없습니다.” 메시지를 표시한다. |
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 2 seconds  
+- **Frequency**:
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 03.
+
+---
+
+### **Use case # : 오픈소스 기여도 랭킹 확인**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  사용자가 전체 사용자 중 자신의 오픈소스 기여 순위를 확인하는 기능  
+
+- **Scope**  
+  깃라잡이 시스템  
+
+- **Level**  
+  User level  
+
+- **Author**  
+  오원창  
+
+- **Last Update**  
+  2025. 10. 20.  
+
+- **Status**  
+  Design  
+
+- **Primary Actor**  
+  User 
+
+- **Preconditions**  
+  시스템에 여러 사용자의 기여도 데이터가 저장되어 있어야 한다.  
+
+- **Trigger**  
+  사용자가 ‘기여도 랭킹 보기’ 메뉴를 클릭할 때  
+
+- **Success Post Condition**  
+  전체 사용자 순위표와 자신의 순위가 화면에 표시된다.  
+
+- **Failed Post Condition**  
+  랭킹 정보를 불러오지 못한다.  
+
+---
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 오픈소스 기여도 랭킹을 확인한다. |
+| 1 | 사용자가 ‘기여도 랭킹 보기’ 버튼을 클릭한다. |
+| 2 | 시스템이 모든 사용자 기여 데이터를 조회하고 점수를 기준으로 정렬한다. |
+| 3 | 사용자 화면에 순위, 닉네임, 점수가 표시된다. |
+| 4 | 사용자의 현재 순위를 강조하여 표시한다. |
+| 5 | Use case 종료. |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 2 | 2a. 서버 연결 실패 시 <br>…2a1. “랭킹 정보를 불러올 수 없습니다.” 메시지를 표시한다. |
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 3 seconds  
+- **Frequency**:
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 03.
+
+---
+
+### **Use case # : OSS 뉴스 목록 조회**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  사용자가 최신 오픈소스 관련 뉴스 피드를 조회하는 기능  
+
+- **Scope**  
+  깃라잡이 시스템  
+
+- **Level**  
+  User level  
+
+- **Author**  
+  오원창  
+
+- **Last Update**  
+  2025. 10. 20.  
+
+- **Status**  
+  Design 
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  시스템이 외부 OSS 뉴스 API 또는 내부 뉴스 DB와 연결되어 있어야 한다.  
+
+- **Trigger**  
+  사용자가 ‘OSS 뉴스 보기’ 메뉴를 클릭할 때  
+
+- **Success Post Condition**  
+  최신 뉴스 목록이 화면에 제목, 출처, 발행일과 함께 표시된다.  
+
+- **Failed Post Condition**  
+  뉴스 목록을 불러오지 못한다.  
+
+---
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 오픈소스 뉴스를 조회한다. |
+| 1 | 사용자가 ‘OSS 뉴스 보기’ 버튼을 클릭한다. |
+| 2 | 시스템이 외부 뉴스 API를 호출하여 최신 데이터를 받아온다. |
+| 3 | 받아온 뉴스 정보를 목록 형태로 가공한다. |
+| 4 | 사용자 화면에 뉴스 제목, 출처, 발행일, 링크를 표시한다. |
+| 5 | Use case 종료. |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 2 | 2a. API 호출 실패 시 <br>…2a1. “뉴스를 불러올 수 없습니다.” 메시지를 표시한다. |
+| 3 | 3a. 뉴스 데이터가 비어 있을 경우 <br>…3a1. “표시할 뉴스가 없습니다.” 메시지를 표시한다. |
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 2 seconds  
+- **Frequency**:
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 03.
+
+---
+
+### **Use case # : OSS 뉴스 페이지로 이동**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  사용자가 선택한 뉴스 항목의 원문 페이지로 이동하는 기능  
+
+- **Scope**  
+  깃라잡이 시스템  
+
+- **Level**  
+  User level  
+
+- **Author**  
+  오원창  
+
+- **Last Update**  
+  2025. 10. 20.  
+
+- **Status**  
+  Design  
+
+- **Primary Actor**  
+  User  
+
+- **Preconditions**  
+  사용자가 뉴스 목록을 조회한 상태여야 한다.  
+
+- **Trigger**  
+  사용자가 뉴스 항목을 클릭했을 때  
+
+- **Success Post Condition**  
+  선택한 뉴스의 외부 링크로 브라우저 새 탭이 열리고 원문 페이지로 이동한다.  
+
+- **Failed Post Condition**  
+  링크 오류로 인해 뉴스 페이지 이동에 실패한다.  
+
+---
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 선택한 뉴스의 원문 페이지로 이동한다. |
+| 1 | 뉴스 목록 화면에서 이동할 뉴스 항목을 클릭한다. |
+| 2 | 시스템이 해당 뉴스의 URL을 확인한다. |
+| 3 | 브라우저 새 탭에서 해당 링크를 연다. |
+| 4 | 뉴스 원문 페이지가 정상적으로 표시된다. |
+| 5 | Use case 종료. |
+
+---
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 3 | 3a. 링크가 유효하지 않거나 만료된 경우 <br>…3a1. “잘못된 링크입니다.” 메시지를 표시한다. |
+| 3 | 3b. 외부 페이지 연결이 차단된 경우 <br>…3b1. “페이지를 불러올 수 없습니다.” 메시지를 표시한다. |
+
+---
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 2 seconds  
+- **Frequency**: 
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 03.
 
 ---
 
