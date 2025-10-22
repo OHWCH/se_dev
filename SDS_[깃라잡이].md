@@ -58,73 +58,6 @@
 - Make detailed description for each use case (Use case description).  
 - 12pt, 160%.  
 
-### <Form of Use case description> 이건 예시
-**Use case #2 : Log-in**
-
-#### GENERAL CHARACTERISTICS
-- **Summary**  
-  자원봉사자와 사회복지기관이 VMS 사용을 위해 회원인증을 받기 위한 기능  
-
-- **Scope**  
-  VMS (Volunteer Management System)  
-
-- **Level**  
-  User level  
-
-- **Author**  
-  김철민  
-
-- **Last Update**  
-  2025. 10. 27.  
-
-- **Status**  
-  Analysis (Finalize)  
-
-- **Primary Actor**  
-  자원봉사자, 사회복지기관  
-
-- **Preconditions**  
-  봉사활동을 예약하려는 자원봉사자들과 사회복지기관이 VMS에 회원가입 상태여야 한다.  
-
-- **Trigger**  
-  VMS에 로그인하기 위해 아이디와 비밀번호를 입력한 후 회원 인증을 받으려고 할 때  
-
-- **Success Post Condition**  
-  자원봉사자와 사회복지기관은 VMS 사용 허가를 받는다. 이후 VMS의 모든 기능을 이용할 수 있다.  
-
-- **Failed Post Condition**  
-  자원봉사자와 사회복지기관은 VMS를 사용하기 위한 허가를 얻지 못한다. VMS에서 봉사활동검색 기능만 이용할 수 있다.  
-
----
-
-#### MAIN SUCCESS SCENARIO
-| Step | Action |
-|------|--------|
-| S | 회원이 VMS에 로그인한다. |
-| 1 | 이 Use case는 회원이 VMS에 로그인할 때 시작된다. |
-| 2 | 회원은 VMS에서 ID와 Password를 입력하고 로그인 버튼을 클릭한다. |
-| 3 | VMS에 등록된 회원인지 체크해보고 등록된 회원이라면 로그인에 성공한다. |
-| 4 | 이 Use case는 로그인이 성공하면 끝난다. |
-
----
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-|------|------------------|
-| 3 | 3a. 아이디나 비밀번호가 잘못되어 로그인에 실패한다. |
-|    | …3a1. 아이디나 비밀번호가 잘못되었다는 메시지를 보여준다. |
-|    | …3a2. 아이디와 비밀번호를 입력하는 단계로 돌아간다. (Use case #2-2) |
-
----
-
-#### RELATED INFORMATION
-- **Performance**: ≤ 2 seconds  
-- **Frequency**: 회원당 하루에 평균 2번  
-- **Concurrency**: 제한 없음  
-- **Due Date**: 2025.11.03.
-
-### 우리가 해야할 기능
-
 ## 회원 관리
 - 회원가입
 - 소셜 로그인
@@ -133,7 +66,7 @@
 - 프로필 조회
 - 프로필 수정
 - 알림 내역 조회
-- vscode.dev열기기
+- vscode.dev열기
 
 ## 스터디 관리
 - 스터디 생성
@@ -183,8 +116,6 @@
 - OSS 뉴스 페이지로 이동
 
 ---
-# 여기서부터 명세서 작성
-
 ## 회원 관리
 ### **Use case #1 : 회원가입**
 
@@ -262,9 +193,7 @@
 - **Concurrency**: 최대 500명 동시 가입 처리 가능하도록 서버 및 API 스케일링 설정.
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case # : 로그인**
-
-  
+### **Use case #2 : 로그인**
 
 #### GENERAL CHARACTERISTICS
 
@@ -274,39 +203,26 @@
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
-  User level  
-
-  
+  User level
 
 - **Author**  
   박솔
 
-  
-
 - **Last Update**  
   2025. 10. 16
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
 
-  
-
 - **Preconditions**  
-  - 깃라잡이에 접속한 상탱여야 한다.
+  - 깃라잡이에 접속한 상태태여야 한다.
   - 사용자가 GitHub 계정을 보유하고 있어야 한다.
   - 깃라잡이에 해당 GitHub 계정으로 이미 회원가입되어 있어야 한다.
   
-
 - **Trigger**  
   사용자가 “GitHub로 로그인” 버튼을 클릭했을 때 프로세스가 시작된다.
   
@@ -319,7 +235,6 @@
   - 오류 메시지와 함께 재시도 또는 회원가입 안내 메시지가 표시된다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action |
 | ---- | ------ |
 | S    |   사용자가 “GitHub로 로그인” 버튼을 클릭한다.     |
@@ -333,11 +248,7 @@
 | 8    |    시스템은 로그인 성공 메시지를 표시하고 메인 페이지로 이동한다.    |
 | 9    |   로그인 프로세스가 완료된다.     |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |  2a    |     사용자가 GitHub 로그인 중 권한 승인을 거부하면 로그인 프로세스가 중단되고, 로그인 페이지로 복귀한다.             |
@@ -346,12 +257,8 @@
 |  6a   | 데이터베이스에 해당 GitHub ID가 존재하지 않으면 “등록되지 않은 계정입니다. 회원가입을 진행해주세요.” 메시지를 표시한다.  |
 |  7a   | 세션 생성 중 서버 오류가 발생하면 “로그인 중 문제가 발생했습니다.” 메시지와 함께 재시도 버튼이 활성화된다.  |
 |  8a   | 로그인 성공 후 원래 접근하려던 보호 페이지가 있었다면, 메인 페이지 대신 해당 페이지로 이동한다.  |
-  
-  
-  
 
 #### RELATED INFORMATION
-
 - **Performance**:
   - GitHub 인증 포함 전체 로그인 프로세스는 평균 3초 이내에 완료되어야 한다.
   - 세션 또는 JWT 발급은 1초 이내에 처리되어야 한다.
@@ -363,12 +270,7 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-
-
-
-### **Use case # : 로그아웃**
-
-  
+### **Use case #3 : 로그아웃**
 
 #### GENERAL CHARACTERISTICS
 
@@ -378,37 +280,24 @@
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
-  User level  
-
+  User level
   
-
 - **Author**  
   박솔
-
-  
 
 - **Last Update**  
   2025. 10. 16
 
-  
-
 - **Status**  
   Design
-
-  
 
 - **Primary Actor**  
   User
 
-  
-
 - **Preconditions**  
  - 사용자는 깃라잡이에 로그인된 상태여야 한다.
  - 활성화된 세션 또는 JWT토큰이 존재해야 한다.
-  
 
 - **Trigger**  
   사용자가 “로그아웃” 버튼을 클릭했을 때 프로세스가 시작된다.
@@ -422,7 +311,6 @@
   - 오류 메시지가 표시되고, 사용자는 재시도할 수 있다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                            |
 | ---- | --------------------------------- |
 | S    | 사용자가 상단 메뉴 또는 프로필 메뉴에서 “로그아웃” 버튼을 클릭한다.    |
@@ -434,11 +322,7 @@
 | 6    | 사용자를 로그인 페이지 또는 메인 랜딩 페이지로 리다이렉트한다.  |
 | 7    | 로그아웃 프로세스가 완료된다.  |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |  2a    |   사용자가 “취소”를 선택하면 로그아웃 요청이 취소되고, 현재 페이지에 머무른다.               |
@@ -446,69 +330,46 @@
 |  4a    | 클라이언트 저장소 삭제 실패 시(브라우저 보안 제한 등), 사용자에게 수동 로그아웃 안내를 표시한다.   |
 |  6a    | 다중 기기 세션이 존재할 경우, “모든 기기에서 로그아웃” 옵션을 추가로 제공한다.   |
   
-  
-  
-
 #### RELATED INFORMATION
-
 - **Performance**: 로그아웃 요청 처리 및 리다이렉트는 평균 1초 이내에 완료되어야 한다.
 
 - **Frequency**:
   - 일반적으로 사용자는 세션 종료 시 1회 수행한다.
   - 자동 로그아웃(세션 만료)은 시스템에 의해 주기적으로 발생할 수 있다.
   
-
 - **Concurrency**: 동시 로그아웃 요청 2,000 RPS까지 안정적으로 처리 가능해야 한다.
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-
-
-### **Use case # : 회원 탈퇴**
-
-  
+### **Use case #4 : 회원 탈퇴**
 
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   - 사용자가 깃라잡이에서 자신의 계정을 영구적으로 삭제하는 기능이다. 사용자는 탈퇴 시 모든 개인 데이터가 삭제되며, 이후 동일한 GitHub 계정으로 재가입이 필요하다.
 
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
   User level  
-
-  
 
 - **Author**  
   박솔
 
-  
-
 - **Last Update**  
   2025. 10. 16
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
-
   
-
 - **Preconditions**  
   - 사용자가 깃라잡이에 로그인된 상태여야 한다.
   - 사용자 계정이 활성 상태여야 한다.
   - 탈퇴 시 삭제되는 데이터(프로필, 알림, 활동, 로그 등)에 대한 안내가 사전에 제공 되어야 한다.
   
-
 - **Trigger**  
   사용자가 "회원 탈퇴" 버튼을 클릭할 때 프로세스가 시작된다.
   
@@ -522,7 +383,6 @@
   - 시스템은 오류 로그를 남기고 사용자는 재시도할 수 있다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                                     |
 | ---- | ------------------------------------------ |
 | S    | 사용자가 마이페이지 또는 설정 화면에서 “회원 탈퇴” 버튼을 클릭한다.                    |
@@ -537,12 +397,7 @@
 | 9    | 사용자는 로그인 페이지 또는 메인 랜딩 페이지로 리다이렉트된다.  |
 | 10    | 회원 탈퇴 프로세스가 종료된다.  |
 
-
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |  1a    |   사용자가 “아니오”를 클릭하면 탈퇴 절차가 중단되고 설정 페이지로 복귀한다.              |
@@ -550,12 +405,8 @@
 |  5a    | 일부 데이터(법적 보존 데이터, 로그 등)는 정책상 일정 기간 보관 후 자동 삭제된다.   |
 |  6a    | 세션 만료 요청 실패 시, 클라이언트 측에서 강제 로그아웃 처리를 수행한다.   |
 |  7a    | DB 접근 오류나 트랜잭션 실패 발생 시 “탈퇴 중 오류가 발생했습니다.” 메시지와 함께 재시도 안내를 표시한다.   |
-  
-  
-  
 
 #### RELATED INFORMATION
-
 - **Performance**:
   - 데이터 삭제 및 세션 종료눈 평균 3초 이내에 완료되어야 한다.
   - 대량 데이터 삭제는 백그라운드(비동기 큐) 처리로 전환 가능하다.
@@ -566,53 +417,34 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-
-
-
-### **Use case # : 프로필 조회**
-
-  
+### **Use case #5 : 프로필 조회**
 
 #### GENERAL CHARACTERISTICS
-
-- **Summary**    
+- **Summary**   
   사용자가 자신의 프로필 정보를 조회하는 기능이다. 사용자는 닉네임, 기술 스택, 선호 언어, 활동 내역 등 기본 정보를 조회할 수 있다.
 
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
   User level  
-
-  
 
 - **Author**  
   박솔
 
-  
-
 - **Last Update**  
   2025. 10. 16
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
-
-  
 
 - **Preconditions**  
   - 사용자는 깃라잡이에 로그인된 상태여야 한다.
   - 사용자의 프로필 데이터가 데이터베이스에 저장되어 있어야 한다.
   
-
 - **Trigger**  
   사용자가 “프로필 보기” 또는 자신의 아바타/닉네임을 클릭했을 때 프로세스가 시작된다.
   
@@ -625,7 +457,6 @@
   데이터베이스 연결 오류 또는 사용자 정보 불러오기 실패 시, 프로필 페이지가 표시되지 않고 오류 메시지가 나타난다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                              |
 | ---- | ----------------------------------- |
 | S    | 용자가 상단 메뉴에서 자신의 아바타 또는 닉네임을 클릭한다.                |
@@ -637,21 +468,13 @@
 | 6    | 사용자가 프로필 페이지에서 “수정하기” 버튼을 클릭하면, 프로필 수정(Use case #6)으로 연결된다.  |
 | 7    | 프로필 조회 프로세스가 종료된다.  |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |  1a    |   인증 토큰이 만료되었을 경우, “로그인이 필요합니다.” 메시지를 표시하고 로그인 페이지로 이동한다.               |
 |  2a    |  데이터베이스 접근 실패 시, “프로필 정보를 불러올 수 없습니다.” 메시지를 표시하고 재시도 버튼을 활성화한다.                |
 |  3a    | 일부 필드 값이 누락된 경우, 시스템은 기본값(예: “미입력”)을 표시한다.  |
 |  4a    | 네트워크 지연으로 정보 표시가 늦어질 경우, 로딩 스피너를 표시한다.  |
-
-  
-  
-  
 
 #### RELATED INFORMATION
 
@@ -663,53 +486,35 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-
-
-### **Use case # : 프로필 수정**
-
-  
+### **Use case #6 : 프로필 수정**
 
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   로그인한 사용자가 자신의 프로필(닉네임, 소개, 기술 스택, 선호 언어, 프로필 이미지 등)을 수정하는 기능이다.
 
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
-  User level  
-
-  
+  User level 
 
 - **Author**  
   박솔
-
   
-
 - **Last Update**  
   2025. 10. 16
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
-
-  
 
 - **Preconditions**  
   - 사용자는 깃라잡이에 로그인된 상태여야 한다.
   - 사용자 프로필 데이터가 DB에 존재해야 한다.
   - (이미지 업로드 시) 허용 확장자/용량/가로세로 제한 정책이 사전에 정의돼 있어야 한다. -> 선택사항
   
-
 - **Trigger**  
   사용자가 "프로필 수정" 버튼을 클릭할 때, 프로세스가 시작된다.
   
@@ -722,7 +527,6 @@
   - 기존 프로필 값은 유지된다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                                             |
 | ---- | -------------------------------------------------- |
 | S    | 사용자가 프로필 페이지에서 “프로필 수정” 버튼을 클릭한다.                            |
@@ -736,11 +540,7 @@
 | 8    | 프로필 수정 이력이 감사 로그에 기록된다.  |
 | 9    | 프로세스가 종료된다. |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 | 3a     | 검증 실패(닉네임 중복/금칙어, 글자수 초과, 기술 스택 최대 개수 초과 등) → 필드별 에러 메시지와 포커스 이동 후 재입력 유도. |
@@ -750,12 +550,8 @@
 | 6a   | DB 트랜잭션 실패/타임아웃 → “저장 중 오류가 발생했습니다” 메시지와 재시도 버튼 제공. |
 | 7a   | 캐시 미갱신/지연 → 강제 새로고침 안내 또는 최신 데이터 재조회 처리. |
 | 7b   | 일부 필드만 저장됨(부분 실패) → 롤백 정책에 따라 전체 취소 후 사용자에게 재시도 안내. |
-  
-  
-  
 
 #### RELATED INFORMATION
-
 - **Performance**: 저장 API p95 ≤ 500ms(이미지 업로드 제외), 이미지 업로드 포함 p95 ≤ 2.5s.
 
 - **Frequency**: 사용자는 필요 시 수시로 수정할 수 있다(일 0~3회 예상).
@@ -765,50 +561,33 @@
 - **Due Date**: 2025. 11. 01 (예정)
 
 
-  ### **Use case # : 알림내역 조회**
-
-  
-
+  ### **Use case #7 : 알림내역 조회**
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   로그인한 사용자가 자신의 시스템 알림(멘션, 시스템 공지, 댓글/이슈 업데이트 등) 내역을 조회하는 기능이다.
 
 - **Scope**  
   깃라잡이
-
   
-
 - **Level**  
   User level  
-
-  
 
 - **Author**  
   박솔
 
-  
-
 - **Last Update**  
   2025. 10. 16
 
-  
-
 - **Status**  
   Design
-
   
-
 - **Primary Actor**  
   User
-
-  
 
 - **Preconditions**  
  - 사용자가 깃라잡이에 계정이 등록되어 있어야 한다.
  - 사용자별 알림 데이터가 존재해야 한다(읽음/안읽음 상태 포함).
   
-
 - **Trigger**  
  사용자가 상단 벨 아이콘 또는 “알림” 메뉴를 클릭한다.
   
@@ -820,7 +599,6 @@
   조회 실패 시 오류 메시지를 표시하고 재시도 UI를 제공한다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action |
 | ---- | ------ |
 | S    | 사용자가 상단의 벨 아이콘(또는 “알림” 메뉴)을 클릭한다.  |
@@ -833,21 +611,14 @@
 | 7    |사용자는 무한 스크롤/“더 보기”로 추가 알림을 로드할 수 있다.|
 | 8    |프로세스가 종료된다.|
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |  1a    |인증 만료 → “로그인이 필요합니다.” 알림 후 로그인 페이지로 이동.|
 |   2a   |DB/네트워크 오류 → “알림을 불러올 수 없습니다.” + 재시도 버튼.|
 |  3a    |알림 없음 → “새 알림이 없습니다.” 플레이스홀더 표시.|
 |  5a    |대상 리소스가 삭제/권한 없음 → “대상을 표시할 수 없습니다.” 메시지와 홈으로 안내.|
-|  6a    |읽음 처리 실패 → UI 롤백 후 재시도 안내(네트워크 복구 시 재시도).|
-
-  
-  
+|  6a    |읽음 처리 실패 → UI 롤백 후 재시도 안내(네트워크 복구 시 재시도).|  
 
 #### RELATED INFORMATION
 
@@ -859,52 +630,35 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-
-  ### **Use case # : vscode.dev 열기 **
-
-  
+### **Use case #8 : vscode.dev 열기 **  
 
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   사용자가 브라우저에서 vscode.dev을 열어 지정된 GitHub 리포지토리를 즉시 편집/탐색하는 기능이다.
 
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**
   User level  
-
   
-
 - **Author**  
   박솔
-
-  
 
 - **Last Update** 
   2025. 10. 16
 
-  
-
 - **Status** 
   Design
 
-  
-
 - **Primary Actor** 
   User
-
-  
 
 - **Preconditions**  
  - 지원 브라우저 환경(팝업 허용, 3rd-party 쿠키 설정 등)이어야 한다.
  - 열 대상 리포지토리의 owner/repo 또는 URL이 확보되어 있어야 한다.
  - Private 리포의 경우 GitHub 인증 권한이 있어야 한다.
   
-
 - **Trigger**  
   사용자가 “vscode.dev 열기” 버튼을 클릭한다.
   
@@ -915,7 +669,6 @@
   팝업 차단/권한 부족/리포 파라미터 누락 시 오류 메시지를 표시하고 재시도 또는 설정 변경을 안내한다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action |
 | ---- | ------ |
 | S    |  사용자가 리포지토리 컨텍스트 화면에서 “vscode.dev 열기” 버튼을 본다.      |
@@ -928,11 +681,7 @@
 | 7    |프로세스가 종료된다.|
 
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |  2a    |리포 파라미터 누락 → 최근 사용 리포 선택 모달 표시 또는 입력 유도.|
@@ -941,8 +690,6 @@
 |  5a    |	네트워크 지연/로드 실패 → 로딩 재시도, 네트워크 확인 안내.|
   
   
-  
-
 #### RELATED INFORMATION
 
 - **Performance**: 새 탭 오픈 즉시, vscode.dev 초기 로드 p95 ≤ 3s(네트워크 의존).
@@ -953,53 +700,35 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-
-
 ---
 ## 스터디 관리
-### **Use case # : 스터디 생성**
-
-  
+### **Use case #9 : 스터디 생성**
 
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   사용자가 오픈소스 학습이나 프로젝트 협업을 위한 스터디를 새로 개설하는 기능이다.  
 
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
   User level  
-
-  
 
 - **Author**  
   정동현
 
-  
-
 - **Last Update**  
   2025. 10. 12
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
-
-  
 
 - **Preconditions**  
   사용자는 깃라잡이에 로그인한 상태여야 한다.
   
-
 - **Trigger**  
   사용자가 “스터디 생성” 버튼을 클릭하여 새 스터디를 개설하려고 할 때
   
@@ -1014,7 +743,6 @@
   오류 메시지가 표시되고, 사용자는 수정 후 다시 시도할 수 있다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                                       |
 | ---- | -------------------------------------------- |
 | S    | 사용자가 "스터디 생성" 버튼을 클릭한다.                      |
@@ -1025,19 +753,12 @@
 | 5    | 스터디 생성 완료 메시지를 표시하고 스터디 상세 페이지로 이동한다.        |
 | 6    | 스터디가 성공적으로 생성되면 종료된다.                        |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |      |                  |
 |      |                  |
   
-  
-  
-
 #### RELATED INFORMATION
 
 - **Performance**:
@@ -1048,57 +769,39 @@
 
 - **Due Date**:
 
-
-
 #### RELATED INFORMATION
 - **Performance**: 
 - **Frequency**: 
 - **Concurrency**: 
 - **Due Date**: 
 
-### **Use case # : 스터디 수정**
-
-  
+### **Use case #10 : 스터디 수정**
 
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   스터디장이 스터디의 정보, 상태를 변경할 수 있는 기능이다.
-
+  
 - **Scope**  
   깃라잡이
-
-  
 
 - **Level**  
   User level  
 
-  
-
 - **Author**  
   정동현
-
-  
 
 - **Last Update**  
   2025. 10. 14
 
-  
-
 - **Status**  
   Design
-
-  
 
 - **Primary Actor**  
   User
 
-  
-
 - **Preconditions**  
   사용자가 스터디장 권한을 가지고 있어야 한다
   
-
 - **Trigger**  
   스터디장이 스터디 상세화면에서 "정보 수정"을 클릭할 때.
   
@@ -1109,7 +812,6 @@
   수정이 반영되지 않고 오류 메시지가 표시된다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                                           |
 | ---- | ------------------------------------------------ |
 | S    | 스터디장이 스터디 상세 페이지에서 "정보 수정" 버튼을 클릭한다.             |
@@ -1121,21 +823,13 @@
 | 6    | 수정 완료 메시지를 표시하고 갱신된 스터디 상세 페이지를 보여준다.            |
 | 7    | 수정이 성공적으로 완료되면 종료된다.                             |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |      |                  |
 |      |                  |
-  
-  
-  
-
+   
 #### RELATED INFORMATION
-
 - **Performance**:
 
 - **Frequency**:
@@ -1144,57 +838,38 @@
 
 - **Due Date**:
 
-
-
 #### RELATED INFORMATION
 - **Performance**: 
 - **Frequency**: 
 - **Concurrency**: 
 - **Due Date**: 
 
-
-### **Use case # : 스터디 삭제**
-
-  
+### **Use case #11 : 스터디 삭제**
 
 #### GENERAL CHARACTERISTICS
-
-- **Summary**    
+- **Summary**  
   스터디장이 자신이 개설한 스터디를 삭제하는 기능이다.
 
 - **Scope**  
   깃라잡이
-
   
-
 - **Level**  
   User level  
 
-  
-
 - **Author**  
   정동현
-
-  
-
+ 
 - **Last Update**  
   2025. 10. 13
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
 
-  
-
 - **Preconditions**  
   스터디장 권한을 가지고 있어야 한다.
-  
 
 - **Trigger**  
   스터디장이 "스터디 삭제"버튼을 클릭한 경우
@@ -1206,7 +881,6 @@
   권한이 없거나 오류가 발생하면 삭제되지 않고 오류 메시지가 표시된다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                                         |
 | ---- | ---------------------------------------------- |
 | S    | 스터디장이 스터디 상세 페이지에서 "스터디 삭제" 버튼을 클릭한다.          |
@@ -1215,18 +889,12 @@
 | 3    | 사용자가 삭제를 확정하면 시스템은 해당 스터디의 데이터를 데이터베이스에서 삭제한다. |
 | 4    | 시스템은 삭제 완료 메시지를 표시하고 스터디 목록 페이지로 이동시킨다.        |
 | 5    | 스터디가 성공적으로 삭제되면 종료된다.                          |
-
   
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |      |                  |
 |      |                  |
-  
-  
   
 
 #### RELATED INFORMATION
@@ -1239,57 +907,39 @@
 
 - **Due Date**:
 
-
-
 #### RELATED INFORMATION
 - **Performance**: 
 - **Frequency**: 
 - **Concurrency**: 
 - **Due Date**: 
 
-### **Use case # : 스터디 목록 조회**
-
-  
+### **Use case #12 : 스터디 목록 조회**
 
 #### GENERAL CHARACTERISTICS
-
-- **Summary**    
+- **Summary**   
   사용자가 개설된 모든 스터디의 목록을 조회하는 기능이다.
 
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
   User level  
-
-  
 
 - **Author**  
   정동현
 
-  
-
 - **Last Update**  
   2025. 10. 13
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
-
-  
 
 - **Preconditions**  
   사용자가 로그인 상태여야 한다.
   
-
 - **Trigger**  
   사용자가 "스터디 찾기"버튼을 누를 경우
   
@@ -1300,7 +950,6 @@
   서버 오류나 네트워크 장애로 목록을 불러오지 못하면 오류 메시지를 표시한다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                                |
 | ---- | ------------------------------------- |
 | S    | 사용자가 "스터디 조회"를 클릭한다.                  |
@@ -1310,21 +959,13 @@
 | 4    | 사용자는 관심 있는 스터디를 선택하여 상세 조회로 이동할 수 있다. |
 | 5    | 스터디 목록이 성공적으로 표시되면 종료된다.              |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |      |                  |
 |      |                  |
-  
-  
-  
 
 #### RELATED INFORMATION
-
 - **Performance**:
 
 - **Frequency**:
@@ -1333,56 +974,38 @@
 
 - **Due Date**:
 
-
-
 #### RELATED INFORMATION
 - **Performance**: 
 - **Frequency**: 
 - **Concurrency**: 
 - **Due Date**: 
 
-### **Use case # : 스터디 상세 조회**
-
-  
+### **Use case #13 : 스터디 상세 조회**
 
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   사용자가 선택한 스터디의 상세 정보를 조회하는 기능이다.
 
 - **Scope**  
   깃라잡이
 
-  
-
 - **Level**  
   User level  
-
-  
 
 - **Author**  
   정동현
 
-  
-
 - **Last Update**  
   2025. 10. 13
-
-  
 
 - **Status**  
   Design
 
-  
-
 - **Primary Actor**  
   User
 
-  
-
 - **Preconditions**  
   사용자가 로그인 상태여야 한다.
-  
 
 - **Trigger**  
   사용자가 스터디 목록에서 특정 스터디를 클릭할 때.
@@ -1394,7 +1017,6 @@
   스터디 정보가 존재하지 않거나 서버 오류가 발생하면 오류 메시지를 표시한다.
   
 #### MAIN SUCCESS SCENARIO
-
 | Step | Action                             |
 | ---- | ---------------------------------- |
 | S    | 사용자가 스터디 목록에서 특정 스터디를 클릭한다.        |
@@ -1404,21 +1026,13 @@
 | 4    | 사용자는 표시된 상세 페이지에서 참가 신청을 할 수 있다.   |
 | 5    | 스터디 정보가 정상적으로 표시되면 종료된다.           |
 
-  
-  
-
 #### EXTENSION SCENARIOS
-
 | Step | Branching Action |
 | ---- | ---------------- |
 |      |                  |
 |      |                  |
-  
-  
-  
 
 #### RELATED INFORMATION
-
 - **Performance**:
 
 - **Frequency**:
@@ -1427,16 +1041,13 @@
 
 - **Due Date**:
 
-
-
 #### RELATED INFORMATION
 - **Performance**: 
 - **Frequency**: 
 - **Concurrency**: 
 - **Due Date**:
 
-### **Use case # : 스터디 참여 신청**
-
+### **Use case #14 : 스터디 참여 신청**
   
 
 #### GENERAL CHARACTERISTICS
