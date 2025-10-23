@@ -59,66 +59,67 @@
 - 12pt, 160%.  
 
 ## 회원 관리
-- 회원가입
-- 소셜 로그인
-- 로그아웃
-- 회원 탈퇴
-- 프로필 조회
-- 프로필 수정
-- 알림 내역 조회
-- vscode.dev열기
+1. 회원가입
+2. 소셜 로그인
+3. 로그아웃
+4. 회원 탈퇴
+5. 프로필 조회
+6. 프로필 수정
 
 ## 스터디 관리
-- 스터디 생성
-- 스터디 삭제
-- 스터디 목록 조회
-- 스터디 상세 조회
-- 스터디 참여 신청
-- 스터디 참여 승인/거절
-- 스터디 탈퇴
-- 스터디 강퇴
-- 스터디 일정 등록/수정/삭제
-- 스터디 실시간 채팅
-- 스터디 화상채팅방 생성
-- 스터디 화상채팅방 종료
-- 스터디 화상채팅방 입장
-- 스터디 화상채팅방 퇴장
+7. 스터디 생성
+8. 스터디 수정
+9. 스터디 삭제
+10. 스터디 목록 조회
+11. 스터디 상세 조회
+12. 스터디 참여 신청
+13. 스터디 참여 승인/거절
+14. 스터디 탈퇴
+15. 스터디 강퇴
+16. 스터디 일정 등록
+17. 스터디 일정 수정
+18. 스터디 일정 삭제
+19. 스터디 실시간 채팅
+20. 스터디 화상채팅방 생성
+21. 스터디 화상채팅방 종료
+22. 스터디 화상채팅방 입장
+23. 스터디 화상채팅방 퇴장
 
 ## 알림
-- 알림 내역 조회
+24. 알림 내역 조회
 
 ## 게시판
-- 게시글 작성
-- 게시글 수정
-- 게시글 삭제 (작성자, 관리자)
-- 게시글 목록 조회
-- 게시글 상세 조회
-- 댓글 작성
-- 댓글 수정
-- 댓글 삭제
-- QnA 게시글 작성
-- QnA 게시글 답변 등록
+25. 게시글 작성
+26. 게시글 수정
+27. 게시글 삭제 (작성자, 관리자)
+28. 게시글 목록 조회
+29. 게시글 상세 조회
+30. 댓글 작성
+31. 댓글 수정
+32. 댓글 삭제
+33. QnA 게시글 작성
+34. QnA 게시글 답변 등록
 
 ## 오픈소스 이슈 관리
-- Good First Issue 이슈 목록 조회
-- 이슈 북마크 저장
-- 이슈 북마크 삭제
-- 키워드 검색
-- OSS 이슈 이동
-- vscode.dev 열기
+35. Good First Issue 이슈 목록 조회
+36. 이슈 북마크 저장
+37. 이슈 북마크 삭제
+38. 키워드 검색
+39. OSS 이슈 이동
+40. vscode.dev 열기
 
 ## 기여도 및 도전과제
-- 도전과제 진행 상태 조회
-- 도전과제 완료
-- 오픈소스 기여 배지 획득/조회
-- 오픈소스 기여도 랭킹 확인
-- OSS 뉴스 목록 조회
-- OSS 뉴스 페이지로 이동
+41. 도전과제 진행 상태 조회
+42. 도전과제 완료
+43. 오픈소스 기여 배지 획득/조회
+44. 오픈소스 기여도 랭킹 확인
+45. OSS 뉴스 목록 조회
+46. OSS 뉴스 페이지로 이동
 
 ---
 ## 회원 관리
-### **Use case #1 : 회원가입**
 
+### **Use case #1 : 회원가입**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   신규 사용자가 깃라잡이를 이용하기 위해 깃허브 계정을 통해 회원으로 등록하는 기능
@@ -194,9 +195,7 @@
 - **Due Date**: 2025. 11. 01 (예정)
 
 ### **Use case #2 : 로그인**
-
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   기존 사용자가 GitHub 계정을 통해 깃라잡이에 로그인하여 개인화된 서비스를 이용하는 기능이다.
 
@@ -260,8 +259,8 @@
 
 #### RELATED INFORMATION
 - **Performance**:
-  - GitHub 인증 포함 전체 로그인 프로세스는 평균 3초 이내에 완료되어야 한다.
-  - 세션 또는 JWT 발급은 1초 이내에 처리되어야 한다.
+- GitHub 인증 포함 전체 로그인 프로세스는 평균 3초 이내에 완료되어야 한다.
+- 세션 또는 JWT 발급은 1초 이내에 처리되어야 한다.
 
 - **Frequency**:사용자는 필요 시 여러 번 로그인할 수 있다.
 (자동 로그인 설정 시 로그인 빈도는 감소함)
@@ -271,9 +270,7 @@
 - **Due Date**: 2025. 11. 01 (예정)
 
 ### **Use case #3 : 로그아웃**
-
 #### GENERAL CHARACTERISTICS
-
 - **Summary**    
   로그인한 사용자가 깃라잡이에서 자신의 세션을 종료하여 로그아웃하는 기능이다.
 
@@ -342,7 +339,6 @@
 - **Due Date**: 2025. 11. 01 (예정)
 
 ### **Use case #4 : 회원 탈퇴**
-
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   - 사용자가 깃라잡이에서 자신의 계정을 영구적으로 삭제하는 기능이다. 사용자는 탈퇴 시 모든 개인 데이터가 삭제되며, 이후 동일한 GitHub 계정으로 재가입이 필요하다.
@@ -418,7 +414,6 @@
 - **Due Date**: 2025. 11. 01 (예정)
 
 ### **Use case #5 : 프로필 조회**
-
 #### GENERAL CHARACTERISTICS
 - **Summary**   
   사용자가 자신의 프로필 정보를 조회하는 기능이다. 사용자는 닉네임, 기술 스택, 선호 언어, 활동 내역 등 기본 정보를 조회할 수 있다.
@@ -487,7 +482,6 @@
 - **Due Date**: 2025. 11. 01 (예정)
 
 ### **Use case #6 : 프로필 수정**
-
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   로그인한 사용자가 자신의 프로필(닉네임, 소개, 기술 스택, 선호 언어, 프로필 이미지 등)을 수정하는 기능이다.
@@ -560,8 +554,1013 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
+---
 
-  ### **Use case #7 : 알림내역 조회**
+## 스터디 관리
+### **Use case #7 : 스터디 생성**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 오픈소스 학습이나 프로젝트 협업을 위한 스터디를 새로 개설하는 기능이다.  
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 12
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자는 깃라잡이에 로그인한 상태여야 한다.
+  
+- **Trigger**  
+  사용자가 “스터디 생성” 버튼을 클릭하여 새 스터디를 개설하려고 할 때
+  
+- **Success Post Condition**  
+  새 스터디가 데이터베이스에 성공적으로 등록된다.
+  스터디를 개설한 유저는 "스터디장"권한을 얻는다.
+  생성된 스터디는 스터디 목록 및 상세 페이지에서 조회 가능해진다.
+  스터디 생성 완료 메시지가 표시되며, 스터디 홈 화면으로 이동한다.
+  
+- **Failed Post Condition** 
+  필수 입력 항목 누락, 중복된 스터디명, 서버 오류 등의 이유로 스터디 생성이 완료되지 않는다.
+  오류 메시지가 표시되고, 사용자는 수정 후 다시 시도할 수 있다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                       |
+| ---- | -------------------------------------------- |
+| S    | 사용자가 "스터디 생성" 버튼을 클릭한다.                      |
+| 1    | 사용자가 스터디 생성 버튼을 클릭할 때 시작된다.                  |
+| 2    | 사용자는 스터디명, 주제, 소개, 모집 인원, 기술 스택 등의 정보를 입력한다. |
+| 3    | 사용자가 저장 버튼을 누르면 시스템은 입력값을 검증한다.              |
+| 4    | 검증이 완료되면 시스템은 새로운 스터디 정보를 데이터베이스에 저장한다.      |
+| 5    | 스터디 생성 완료 메시지를 표시하고 스터디 상세 페이지로 이동한다.        |
+| 6    | 스터디가 성공적으로 생성되면 종료된다.                        |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #8 : 스터디 수정**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  스터디장이 스터디의 정보, 상태를 변경할 수 있는 기능이다.
+  
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 14
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 스터디장 권한을 가지고 있어야 한다
+  
+- **Trigger**  
+  스터디장이 스터디 상세화면에서 "정보 수정"을 클릭할 때.
+  
+- **Success Post Condition**  
+  수정된 스터디 정보가 데이터베이스에 저장되고, 최신 내용이 화면에 반영된다.
+  
+- **Failed Post Condition** 
+  수정이 반영되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                           |
+| ---- | ------------------------------------------------ |
+| S    | 스터디장이 스터디 상세 페이지에서 "정보 수정" 버튼을 클릭한다.             |
+| 1    | 스터디장이 수정 버튼을 클릭할 때 시작된다.                         |
+| 2    | 시스템은 스터디장 권한을 확인하고, 기존 스터디 정보를 수정 가능한 입력창에 표시한다. |
+| 3    | 스터디장은 스터디명, 설명, 모집 구분 등의 항목을 수정한다.               |
+| 4    | 스터디장이 저장 버튼을 클릭하면 시스템은 입력값의 유효성을 검사한다.           |
+| 5    | 검증이 완료되면 시스템은 변경된 정보를 데이터베이스에 반영한다.              |
+| 6    | 수정 완료 메시지를 표시하고 갱신된 스터디 상세 페이지를 보여준다.            |
+| 7    | 수정이 성공적으로 완료되면 종료된다.                             |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+   
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #9 : 스터디 삭제**
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  스터디장이 자신이 개설한 스터디를 삭제하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+  
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+ 
+- **Last Update**  
+  2025. 10. 13
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  스터디장 권한을 가지고 있어야 한다.
+
+- **Trigger**  
+  스터디장이 "스터디 삭제"버튼을 클릭한 경우
+  
+- **Success Post Condition**  
+  스터디와 관련된 모든 정보가 삭제되고, 스터디 목록 화면으로 이동한다.
+  
+- **Failed Post Condition** 
+  권한이 없거나 오류가 발생하면 삭제되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                         |
+| ---- | ---------------------------------------------- |
+| S    | 스터디장이 스터디 상세 페이지에서 "스터디 삭제" 버튼을 클릭한다.          |
+| 1    | 사용자가 스터디 삭제 버튼을 클릭할 때 시작된다.                    |
+| 2    | 시스템은 스터디장 권한을 확인하고, 삭제 여부를 묻는 확인창을 표시한다.       |
+| 3    | 사용자가 삭제를 확정하면 시스템은 해당 스터디의 데이터를 데이터베이스에서 삭제한다. |
+| 4    | 시스템은 삭제 완료 메시지를 표시하고 스터디 목록 페이지로 이동시킨다.        |
+| 5    | 스터디가 성공적으로 삭제되면 종료된다.                          |
+  
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #10 : 스터디 목록 조회**
+#### GENERAL CHARACTERISTICS
+- **Summary**   
+  사용자가 개설된 모든 스터디의 목록을 조회하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 13
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 로그인 상태여야 한다.
+  
+- **Trigger**  
+  사용자가 "스터디 찾기"버튼을 누를 경우
+  
+- **Success Post Condition**  
+  등록된 스터디 목록을 화면에 출력한다.
+  
+- **Failed Post Condition** 
+  서버 오류나 네트워크 장애로 목록을 불러오지 못하면 오류 메시지를 표시한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                |
+| ---- | ------------------------------------- |
+| S    | 사용자가 "스터디 조회"를 클릭한다.                  |
+| 1    | 사용자가 스터디 목록 페이지에 접근할 때 시작된다.          |
+| 2    | 시스템은 데이터베이스에서 등록된 모든 스터디 정보를 조회한다.    |
+| 3    | 조회된 스터디 목록을 이름과 주제로 정렬하여 화면에 표시한다.    |
+| 4    | 사용자는 관심 있는 스터디를 선택하여 상세 조회로 이동할 수 있다. |
+| 5    | 스터디 목록이 성공적으로 표시되면 종료된다.              |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #11 : 스터디 상세 조회**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 선택한 스터디의 상세 정보를 조회하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 13
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 로그인 상태여야 한다.
+
+- **Trigger**  
+  사용자가 스터디 목록에서 특정 스터디를 클릭할 때.
+  
+- **Success Post Condition**  
+  시스템이 해당 스터디의 상세 정보를 화면에 표시한다.
+  
+- **Failed Post Condition** 
+  스터디 정보가 존재하지 않거나 서버 오류가 발생하면 오류 메시지를 표시한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 스터디 목록에서 특정 스터디를 클릭한다.        |
+| 1    | 사용자가 스터디를 선택할 때 시작된다.              |
+| 2    | 시스템은 해당 스터디의 상세 정보를 데이터베이스에서 조회한다. |
+| 3    | 조회된 정보를 화면에 표시한다.                  |
+| 4    | 사용자는 표시된 상세 페이지에서 참가 신청을 할 수 있다.   |
+| 5    | 스터디 정보가 정상적으로 표시되면 종료된다.           |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #12 : 스터디 참여 신청**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 스터디에 참여 신청을 하는 기능이다.
+  
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 14
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자는 로그인 상태이며, 해당 스터디의 멤버가 아니어야 한다.
+  
+- **Trigger**  
+  사용자가 스터디 상세 페이지에서 "스터디 참여 신청" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  참여 신청 정보가 스터디장에게 알림으로 전송된다.
+  
+- **Failed Post Condition** 
+  요청이 처리되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+
+| Step | Action                                      |
+| ---- | ------------------------------------------- |
+| S    | 사용자가 스터디 상세 페이지에서 "스터디 참여 신청" 버튼을 클릭한다.     |
+| 1    | 사용자가 가입 신청 버튼을 클릭할 때 시작된다.                  |
+| 2    | 시스템은 스터디에 속한 유저인지 확인한다.                     |
+| 3    | 시스템은 신청 가능한 상태일 경우 스터디장에게 새 참여 신청 알림을 전송한다. |
+| 4    | 사용자에게 "참여 신청이 완료되었습니다." 메시지를 표시한다.          |
+| 5    | 신청이 정상적으로 접수되면 종료된다.                        |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #13 : 스터디 참여 승인/거절**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  스터디장이 참여 신청 목록을 확인하고, 신청자의 스터디 참여를 승인하거나 거절하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+  
+- **Author**  
+  정동현
+  
+- **Last Update**  
+  2025. 10. 14
+
+- **Status**  
+  Design
+  
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  스터디장 권한을 가지고 있어야하며, 스터디에 참여 신청이 존재해야 한다.
+  
+- **Trigger**  
+  스터디장이 알림 또는 스터디 상세 페이지에서 신청자 목록을 확인하고 "승인" 또는 "거절" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  승인: 신청자가 스터디 멤버로 등록되고, 승인 알림이 전송된다.
+  거절: 신청자에게 거절 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  요청이 처리되지 않고 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                  |
+| ---- | --------------------------------------- |
+| S    | 스터디장이 스터디 참여 신청 목록을 확인한다.               |
+| 1    | 스터디장이 스터디 참여 신청 목록에 접근할 때 시작된다.         |
+| 2    | 시스템은 스터디장 권한을 확인하고, 대기 중인 신청자 목록을 표시한다. |
+| 3    | 스터디장이 신청자 옆의 "승인" 또는 "거절" 버튼을 클릭한다.     |
+| 4    | 선택된 동작에 따라 신청자의 상태를 "승인" 또는 "거절"로 변경한다. |
+| 5    | 처리 결과를 신청자에게 알림으로 전송한다.                 |
+| 6    | 참여 신청에 대한 처리가 완료되면 종료된다.                |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #14 : 스터디 탈퇴**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  스터디에 속한 사용자가 스터디를 탈퇴하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 14
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  해당 스터디 멤버에 등록되어 있어야 한다.
+  
+- **Trigger**  
+  사용자가 스터디 상세 페이지에서 "스터디 탈퇴" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  사용자가 스터디 멤버 목록에서 제거된다.
+  
+- **Failed Post Condition** 
+  탈퇴가 정상적으로 처리되지 않고 오류메시지를 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 상세 페이지에서 "스터디 탈퇴" 버튼을 클릭한다.            |
+| 1    | 사용자가 스터디 탈퇴 버튼을 클릭할 때 시작된다.                     |
+| 2    | 시스템은 사용자의 로그인 상태와 스터디 멤버 여부를 확인한다.              |
+| 3    | 시스템은 사용자에게 탈퇴 여부를 묻는 팝업창을 표시한다.                 |
+| 4    | 사용자가 "확인"버튼을 누르면 시스템은 해당 사용자를 스터디 멤버 목록에서 제거한다. |
+| 5    | 탈퇴 완료 팝업 메시지를 표시하고 스터디 목록 페이지로 이동시킨다.           |
+| 6    | 탈퇴가 성공적으로 처리되면 종료된다.                            |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #15 : 스터디 강퇴**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  스터디 리더가 특정 스터디 구성원을 강제로 탈퇴시키는 기능
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김동규
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User (팀 리더)
+
+- **Preconditions**  
+  스터디 리더 계정으로 로그인되어 있어야 한다.
+  스터디가 존재하고, 강퇴 대상 사용자가 그 스터디의 구성원이어야 한다.
+  리더 권한이 존재 해야한다.
+  
+- **Trigger**  
+  사용자(리더)가 스터디 상세 페이지에서 "스터디 강퇴" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  사용자가 스터디 멤버 목록에서 제거된다.
+  강퇴된 사용자에게 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  권한이나 서버 오류 발생 시 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 리더가 스터디 구성원 목록에서 특정 사용자의 '강퇴' 버튼을 클릭한다.            |
+| 1    | 시스템이 리더의 권한을 검증한다.                     |
+| 2    | 시스템은 '정말 강퇴하시겠습니까?' 확인 메시지를 띄운다.              |
+| 3    | 리더가 '확인'을 누른다.                 |
+| 4    | 시스템은 해당 사용자를 스터디 멤버 목록에서 제거한다.     |
+| 5    | 시스템은 강퇴된 사용자에게 알림을 전송한다.           |
+| 6    | "구성원이 강퇴되었습니다." 메시지를 표시한다.                            |
+
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|   1a | 리더가 아닌 사용자가 강퇴 기능을 실행할 경우 "권한이 없습니다."를 출력한다. |
+|   2a   | 리더가 '취소'를 선택하면 강퇴 요청이 취소된다.        |
+  
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+### **Use case #16 : 스터디 일정 등록**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 참여 중인 스터디의 새로운 일정을 등록하는 기능
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김동규
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User (리더 또는 권한자)
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  해당 스터디 멤버에 등록되어 있어야 한다.
+  일정등록 권한이 있어야 한다
+  
+- **Trigger**  
+  사용자가 "일정 등록" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  입련한 일정 정보가 저장되고 스터디 캘린더에 반영된다.
+  등록 완료 메시지가 표시된다.
+  
+- **Failed Post Condition** 
+  필수 입력값 누락시 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 상세 페이지에서 "일정 등록" 버튼을 클릭한다.            |
+| 1    | 시스템은 일정 등록 폼(날짜, 시간, 장소, 메모 등)을 표시한다.                    |
+| 2    | 사용자는 일정 정보를 입력 후 '저장' 버튼을 클릭한다.
+| 3    | 시스템은 입력값을 검증한다.              |
+| 4    | 일정 등록이 성공하면 스터디 캘린더에 해당 일정이 표시된다.                 |
+| 5    | 시스템은 '일정이 등록되었습니다.' 메시지를 표시한다. |
+| 6    | 스터디 멤버들에게 알림이 전송된다.           |                            
+  
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| 2a | 필수 입력 항목이 누락되면 '저장' 버튼이 비활성화된다.|
+|      |                  |
+|      |                  |
+
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+
+### **Use case #17 : 스터디 일정 수정**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  기존에 등록된 스터디 일정을 수정하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level** 
+  User level  
+
+- **Author**  
+  김동규
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User (스터디 리더 또는 권한자)
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  수정하려는 일정이 존재해야 하고 권한이 있어야 한다.
+  
+- **Trigger**  
+  사용자가 "수정" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  수정된 일정 정보가 반영된다.
+  
+- **Failed Post Condition** 
+  일정수정이 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 "수정" 버튼을 클릭한다.            |
+| 1    | 시스템은 해당 일정의 기존 정보를 수정 폼에 표시한다.                    |
+| 2    | 사용자는 변경할 내용을 입력하고 '저장' 버튼을 클릭한다.              |
+| 3    | 시스템은 변경 사항을 검증한다.                 |
+| 4    | 시스템은 수정된 정보를 업데이트 하고 변경사항을 반영한다. |
+| 5    | 시스템이 "일정 수정 완료" 메시지를 표시한다          |
+| 6    | 스터디 멤버에게 알림을 전송한다.                            |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|   2a   |  필수 입력 항목 누락 시 저장이 제한된다.                |
+|      |                  |
+  
+
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #18 : 스터디 일정 삭제**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  기존에 등록된 스터디 일정을 삭제하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김동규
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User (스터디 리더 또는 권한자)
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  수정하려는 일정이 존재해야 하고 권한이 있어야 한다.
+  
+- **Trigger**  
+  사용자가 "삭제" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  일정이 데이터베이스에서 삭제되고 화면에서 즉시 제거된다.
+  
+- **Failed Post Condition** 
+  일정삭제가 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 "삭제" 버튼을 클릭한다.            |
+| 1    | 시스템은 "정말 삭제하시겠습니까?" 확인 팝업을 표시한다.                   |
+| 2    | 사용자가 삭제를 확정한다.             |
+| 3    | 시스템은 해당 일정을 데이터베이스에서 삭제한다.               |
+| 4    | 삭제가 완료되면 화면에서 즉시 반영된다. |
+| 5    | 시스템이 "일정 삭제 완료" 메시지를 표시한다.         |
+| 6    | 스터디 멤버에게 알림을 전송한다.                            |  
+  
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|   1a   |  '취소' 선택 시 삭제 요청이 취소된다.             |
+|      |                  |    
+
+#### RELATED INFORMATION
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #20 : 스터디 화상채팅방 생성**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  스터디 구성원들이 참여할 수 있는 화상채팅방을 새로 개설하는 기능
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김동규
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자는 로그인 상태여야 한다
+  스터디가 존재해야 한다.
+  
+- **Trigger**  
+  사용자가 스터디 페이지에서 "화상채팅방 생성" 버튼을 클릭할 때.
+  
+- **Success Post Condition**  
+  화상채팅방이 생성되고, 고유 방 ID가 발급된다.
+  스터디 구성원들에게 "화상 채팅방 개설" 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  화상채팅방 개설이 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 페이지에서 '화상채팅방 생성' 버튼을 클릭한다.           |
+| 1    | 시스템은 새로운 화상채팅방을 생성한다.                   |
+| 2    | 고유한 방 ID와 접근 URL을 발급한다.              |
+| 3    | 생성된 방 정보를 데이터베이스에 저장한다.                |
+| 4    | 스터디 구성원들에게 화상채팅방 초대 알림을 전송한다. |
+| 5    | 시스템은 "화상채팅방이 생성되었습니다." 메시지를 표시한다.        |
+  
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #21 : 스터디 화상채팅방 종료**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  화상채팅이 끝난 후 세션을 종료하는 기능
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김동규
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  방 생성자로 로그인 되어있어야 한다.
+  해당 화상채팅방이 활성화된 상태여야 한다.
+
+- **Trigger**  
+  사용자가 화상채팅 중 "종료" 버튼을 클릭했을 때
+  
+- **Success Post Condition**  
+  화상채팅방 세션이 종료되고, 모든 사용자가 퇴장 처리된다.
+  
+- **Failed Post Condition** 
+  화상채팅방 종료가 정상적으로 처리되지 않고 오류메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 화상채팅 인터페이스에서 '종료' 버튼을 클릭한다.           |
+| 1    | 시스템은 현재 화상채팅 세션을 종료하고 모든 사용자를 강제 퇴장 시킨다.            |
+| 2    | 고유한 방 ID와 접근 URL을 발급한다.              |
+| 3    | 시스템은 "화상채팅방이 종료되었습니다." 메시지를 표시한다.        |
+  
+#### EXTENSION SCENARIOS
+
+| Step | Branching Action |
+| ---- | ---------------- |
+|      |                  |
+|      |                  |
+  
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #22 : 스터디 화상채팅방 입장**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  스터디 구성원이 생성된 화상채팅방에 입장하는 기능
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김동규
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  로그인 상태여야 한다.
+  해당 스터디의 구성원이어야 하며, 화상채팅방이 활성 상태여야 한다.
+  
+- **Trigger**  
+  사용자가 스터디 페이지 또는 초대 알림에서 "입장" 버튼을 클릭했을 때 시작된다.
+  
+- **Success Post Condition**  
+  사용자가 화상채팅방에 정상적으로 입장하고, 오디오·비디오 스트림이 연결된다.
+  
+- **Failed Post Condition** 
+  방이 존재하지 않거나 이미 종료된 경우 입장이 거부된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                          |
+| ---- | ----------------------------------------------- |
+| S    | 사용자가 스터디 페이지에서 '화상채팅방 입장' 버튼(또는 URL)을 클릭한다.        |
+| 1    | 시스템은 사용자 로그인 및 스터디 참여 여부를 검증한다.         |
+| 2    | 시스템은 해당 방의 활성 상태를 확인한다.             |
+| 3    | 사용자가 방에 연결되고, 오디오/비디오 스트림이 초기화 된다.       |
+| 4    | 시스템은 참가자 목록에 해당 사용자를 추가한다.       |
+| 5    | "화상채팅방에 입장했습니다." 메시지가 표시된다.      |
+  
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|   1a   |      비회원일 경우 로그인 페이지로 이동한다            |
+|   1a   |      스터디 구성원이 아닐 경우 "입장 권한이 없습니다" 메시지를 표시한다.            |
+|   2a   |      이미 종료된 경우 "화상채팅방이 종료되었습니다." 메시지를 표시한다.           |
+|   3a   |      네트워크 오류 발생 시 '재접속' 옵션을 제공한다.           |
+  
+#### RELATED INFORMATION
+
+- **Performance**:
+
+- **Frequency**:
+
+- **Concurrency**:
+
+- **Due Date**:
+
+### **Use case #23 : 스터디 화상채팅방 퇴장**
+
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 진행 중인 화상채팅방에서 퇴장하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 17
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 활성화된 화상채팅방에 참여 중이어야 한다.
+
+- **Trigger**  
+  사용자가 화상채팅방 인터페이스에서 '퇴장' 버튼을 클릭했을 때
+  
+- **Success Post Condition**  
+  사용자가 세션에서 정상적으로 분리되고 참가자 목록에서 제거된다.
+  
+- **Failed Post Condition** 
+  네트워크/서버 오류로 퇴장이 완료되지 않으면 오류 메세지를 표시한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 화상채팅방 화면에서 '퇴장' 버튼을 클릭한다.        |
+| 1    | 시스템은 로그인 및 참여 상태를 검증한다.             |
+| 2    | 시스템은 사용자의 화상채팅 세션 연결을 안전하게 종료한다.  |
+| 3    | 시스템은 참가자 목록에서 사용자를 제거하고 남은 참가자에게 퇴장 알림을 전송한다.                 |
+| 4    | 시스템은 사용자를 스터디 상세 페이지로 이동시키고 “퇴장했습니다.” 메시지를 표시한다.   |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|  1a  | 이미 세션이 종료된 경우 안내 메시지만 표시한다. |
+|  2a  | 네트워크 장애 발생 시 로컬 UI에서 “ 네트워크 오류발생 ” 상태 표시 후 재시도 옵션을 제공한다.          |
+|  3a  | 퇴장 후 품질 평가(선택 사항) 팝업을 노출하여 피드백을 받는다.             |
+  
+#### RELATED INFORMATION
+
+- **Performance**: 퇴장 처리 < 1초, 알림 전송 지연 < 2초
+
+- **Frequency**: 세션 종료 시 사용자 수만큼 발생 가능
+
+- **Concurrency**: 다중 퇴장 이벤트 동시 처리 가능해야 함
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+## 알림
+### **Use case #24 : 알림내역 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   로그인한 사용자가 자신의 시스템 알림(멘션, 시스템 공지, 댓글/이슈 업데이트 등) 내역을 조회하는 기능이다.
@@ -630,8 +1629,551 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #8 : vscode.dev 열기 **  
+---
 
+## 게시판
+### **Use case #25 : 게시글 작성**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 게시판에 새로운 게시글을 등록하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 17
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 쓰기 권한이 있어야 한다.
+
+- **Trigger**  
+  사용자가 게시판 목록/상단의 '새 글 작성' 버튼을 클릭 후 제목/본문(필수)/첨부(선택)를 작성하고 저장 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  게시글이 저장되고 게시판 목록에 글이 노출된다.
+  필요 시 구독자에게 알림이 전송된다.
+  
+- **Failed Post Condition** 
+  검증/저장 실패 시 오류 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 “새 글 작성”을 클릭하고 제목/본문(필수), 첨부(선택)를 입력한다.        |
+| 1    | 시스템이 로그인·쓰기 권한을 검증한다.             |
+| 2    | 시스템이 입력값(길이, 금칙어, 파일 형식/용량)을 검증한다.  |
+| 3    | 게시글을 저장한다.                |
+| 4    | “게시글이 등록되었습니다.” 메시지를 표시하고 상세 화면으로 이동한다.   |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|  2a  | 쓰기 권한이 없는 경우 "작성 권한이 없습니다." 메시지를 출력한다. |
+|  2b  | 필수값 누락/제한 초과/첨부 업로드 실패의 경우 에러 메시지를 출력한다.          |
+
+#### RELATED INFORMATION
+- **Performance**: 저장 < 500ms(텍스트 기준)
+
+- **Frequency**: 중간~높음
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #26 : 게시글 수정**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 게시판의 게시글을 수정한다.
+
+- **Scope**  
+  깃라잡이
+  
+- **Level**  
+  User level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 17
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 작성자 본인이거나 게시판 관리 권한을 보유하여야 한다.
+  
+- **Trigger**  
+  사용자가 게시글 상세의 '수정' 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  사용자가 내용을 수정하고 변경 사항을 저장한다.
+  
+- **Failed Post Condition** 
+  권한/검증/저장 오류 시 오류 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 “수정”을 클릭하여 수정 폼을 연다.       |
+| 1    | 시스템이 권한을 검증하고 기존 데이터/첨부를 로드한다.             |
+| 2    | 사용자가 변경 후 “저장”을 클릭한다.  |
+| 3    | 시스템이 검증 후 저장하고 “수정이 완료되었습니다.” 메시지를 표시한다.              |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|  1a  | 수정 권한이 없는 경우 "수정 권한이 없습니다." 메시지를 출력한다. |
+|      |                                                             |
+
+#### RELATED INFORMATION
+- **Performance**: 로드 < 300ms, 저장 < 500ms
+
+- **Frequency**: 게시글당 0~N회
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #27 : 게시글 삭제**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 게시판의 게시글을 삭제한다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User/Admin level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 17
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User / Admin
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 작성자 본인이거나 게시판 관리 권한을 보유하여야 한다.
+  
+- **Trigger**  
+  사용자가 게시글 상세의 '삭제' 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  게시글이 목록에서 삭제된다.
+  
+- **Failed Post Condition** 
+  권한/검증/저장 오류 시 삭제 불가 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 “삭제” 클릭 후 확인한다.       |
+| 1    | 시스템이 권한을 검증한다.             |
+| 2    | 게시글이 목록에서 영구 삭제된다.  |
+| 3    | “삭제되었습니다.” 메시지 표시 후 목록으로 이동한다.             |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|  1a  | 수정 권한이 없는 경우 "수정 권한이 없습니다." 메시지를 출력한다. |
+|      |                                                             |
+
+#### RELATED INFORMATION
+
+- **Performance**: Delete < 300ms
+
+- **Frequency**: 게시글당 0~N회
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case # : 게시글 숨김**
+나중에 보면 말해주세요 게시글 숨김은 없었던거같은데~
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 게시판의 게시글을 삭제한다.
+  
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User/Admin level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 17
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User / Admin
+  
+- **Preconditions**  
+  
+- **Trigger**  
+ 
+- **Success Post Condition**  
+  
+- **Failed Post Condition** 
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    |       |
+| 1    |             |
+| 2    |   |
+| 3    |              |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|    |  |
+|      |                                                             |
+
+#### RELATED INFORMATION
+
+- **Performance**: 
+
+- **Frequency**: 
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+---
+## 오픈소스 이슈 관리
+### **Use case #35 : Good First Issue 이슈 목록 조회**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김관호
+
+- **Last Update**  
+  2025. 10. 17
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
+  
+- **Trigger**  
+  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
+  
+- **Failed Post Condition** 
+  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
+| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
+| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
+| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
+| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
+|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
+|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+
+#### RELATED INFORMATION
+- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+
+- **Frequency**: 높음
+
+- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #36 : 이슈 북마크 저장**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 관심 있는 이슈를 개인 북마크 목록에 저장하여 나중에 쉽게 접근할 수 있게 하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김관호
+
+- **Last Update**  
+  2025. 10. 17
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  북마크하려는 이슈가 화면에 표시되어 있어야 한다.
+  
+- **Trigger**  
+  사용자가 특정 이슈 옆의 "북마크" 아이콘을 클릭했을 때
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
+  
+- **Failed Post Condition** 
+  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
+| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
+| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
+| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
+| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
+|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
+|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+
+#### RELATED INFORMATION
+
+- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+
+- **Frequency**: 높음
+
+- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #37 : 이슈 북마크 삭제**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 이전에 저장했던 이슈 북마크를 개인 목록에서 제거하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김관호
+
+- **Last Update**  
+  2025. 10. 18
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  삭제하려는 이슈가 이미 북마크 목록에 저장되어 있어야 한다.
+  
+- **Trigger**  
+  사용자가 북마크됨 상태의 아이콘을 다시 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  이슈 정보가 해당 사용자의 북마크 목록에서 제거되고, 아이콘의 상태가 "북마크 안 함" 상태로 변경된다.
+  
+- **Failed Post Condition** 
+  DB 삭제 오류로 인해 북마크 제거에 실패하며, 오류 메시지가 사용자에게 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 북마크 목록 또는 이슈 상세 화면에서 활성화된 북마크 아이콘을 클릭한다.        |
+| 1    | 시스템은 해당 이슈의 고유 ID와 현재 사용자 ID를 식별한다.             |
+| 2    | 시스템은 해당 이슈-사용자 조합의 정보를 사용자 북마크 DB 테이블에서 삭제한다.  |
+| 3    | 시스템은 북마크 아이콘의 상태를 비활성화 상태로 업데이트하고, "북마크에서 삭제되었습니다." 알림 메시지를 표시한다. |
+| 4    | 사용자가 북마크 목록 화면에서 삭제를 수행했다면, 해당 항목을 목록에서 즉시 제거한다.   |
+| 5    | 프로세스가 종료된다.  |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+|  2a  | DB 삭제 중 오류 발생 시, "북마크 삭제에 실패했습니다. 관리자에게 문의하세요." 오류 메시지를 표시한다. |
+|  3a  | 북마크 삭제에 성공했으나 아이콘 업데이트가 실패한 경우, 로그를 기록하고 목록만 업데이트한다.      |
+
+#### RELATED INFORMATION
+
+- **Performance**: 북마크 삭제 요청 후 DB 삭제 및 화면 업데이트 < 500ms
+
+- **Frequency**: 보통
+
+- **Concurrency**: 개인 DB에 대한 삭제 작업이므로, 데이터 무결성에 중점을 둔 트랜잭션 처리가 필요
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #38 : 키워드 검색**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 입력한 키워드를 기반으로 오픈소스 이슈 및 리포지토리를 검색하는 기능이다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김관호
+
+- **Last Update**  
+  2025. 10. 18
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 검색 기능을 이용할 수 있는 화면에 진입해 있어야 한다.
+
+- **Trigger**  
+  사용자가 검색 입력 창에 키워드를 입력하고 검색 버튼을 클릭하거나 Enter 키를 눌렀을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  검색 결과가 이슈, 리포지토리 등 카테고리별로 분리되어 목록 형태로 화면에 표시된다.
+  
+- **Failed Post Condition** 
+  검색 서버와의 통신 오류, 유효하지 않은 검색어로 인해 검색 결과를 반환하지 못하며, 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 검색 입력 창에 검색 키워드를 입력하고 검색을 요청한다.       |
+| 1    | 시스템은 입력된 키워드의 유효성을 검사한다 (최소 길이, 특수 문자 등).           |
+| 2    | 시스템은 키워드를 포함하여 GitHub Search API 또는 내부 검색 인덱스에 검색 요청을 보낸다.  |
+| 3    | 시스템은 검색 결과를 수신하고, 이를 이슈, 리포지토리 등 카테고리별로 구분하여 정렬한다.          |
+| 4    | 검색 결과를 페이지네이션 형태로 사용자에게 표시하며, 각 결과 항목에는 제목, 출처, 간단한 요약 정보가 포함된다.   |
+| 5    | 프로세스가 종료된다.  |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+|  1a  | 키워드 유효성 검사 실패 시, “유효하지 않은 검색어입니다. 다시 확인해 주세요.” 메시지를 표시한다. |
+|  3a  | 검색 결과가 없는 경우, “일치하는 검색 결과가 없습니다.” 메시지를 표시하고, 관련 추천 검색어를 제시한다.    |
+|  4a  | GitHub API의 속도 제한(Rate Limit)에 걸린 경우, 사용자에게 잠시 후 다시 시도하도록 안내한다. |
+
+#### RELATED INFORMATION
+
+- **Performance**: 검색 요청부터 결과 표시 < 2s
+
+- **Frequency**: 매우 높음
+
+- **Concurrency**: 최대 2,000명의 동시 검색 요청을 처리할 수 있도록 설계되어야 하며, API Rate Limit 관리가 핵심
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #39 : OSS 이슈 이동**
+#### GENERAL CHARACTERISTICS
+- **Summary**  
+  깃라잡이에서 확인한 이슈를 실제 GitHub의 해당 이슈 페이지로 이동하여 상세 내용을 확인하고 기여할 수 있게 하는 기능이다.
+
+- **Scope**  
+  깃라잡이, Github
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김관호
+
+- **Last Update**  
+  2025. 10. 18
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+  사용자가 이슈 목록 또는 상세 화면을 보고 있어야 한다.
+  해당 이슈가 유효한 GitHub URL을 가지고 있어야 한다.
+  
+- **Trigger**  
+  사용자가 이슈 상세 화면 또는 목록에서 “GitHub에서 보기” 버튼을 클릭했을 때 프로세스가 시작된다.
+  
+- **Success Post Condition**  
+  사용자의 웹 브라우저가 GitHub의 해당 이슈 페이지로 성공적으로 리다이렉트된다.
+  
+- **Failed Post Condition** 
+  유효하지 않은 URL이거나 네트워크 오류 발생 시, 이동에 실패하며 오류 메시지가 표시된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 이슈 상세 화면에서 “GitHub에서 보기” 버튼을 클릭한다.        |
+| 1    | 시스템은 클릭된 이슈에 연결된 고유 GitHub URL을 식별한다.             |
+| 2    | 시스템은 해당 URL로 사용자를 새 탭에 리다이렉트한다.  |
+| 3    | GitHub 서버는 해당 이슈 페이지를 사용자에게 표시한다.           |
+| 4    | 프로세스가 종료된다.   |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+|  1a  | 이슈에 연결된 GitHub URL이 유효하지 않거나 누락된 경우, “GitHub 이슈 링크를 찾을 수 없습니다.” 메시지를 표시한다. |
+|  2a  | 브라우저 설정(팝업 차단 등)으로 인해 새 탭을 열 수 없는 경우, 사용자에게 팝업 차단 해제를 유도하는 메시지를 표시한다.     |
+
+#### RELATED INFORMATION
+
+- **Performance**: 버튼 클릭부터 리다이렉트 처리 < 300ms 
+
+- **Frequency**: 보통 
+
+- **Concurrency**: 단순 리다이렉션이므로 서버 부하에 큰 영향은 없으나, 로그 기록 시 동시 트래픽을 고려
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #40 : vscode.dev 열기 **  
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   사용자가 브라우저에서 vscode.dev을 열어 지정된 GitHub 리포지토리를 즉시 편집/탐색하는 기능이다.
@@ -700,2313 +2242,11 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
----
-## 스터디 관리
-### **Use case #9 : 스터디 생성**
-
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  사용자가 오픈소스 학습이나 프로젝트 협업을 위한 스터디를 새로 개설하는 기능이다.  
-
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level  
-
-- **Author**  
-  정동현
-
-- **Last Update**  
-  2025. 10. 12
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자는 깃라잡이에 로그인한 상태여야 한다.
-  
-- **Trigger**  
-  사용자가 “스터디 생성” 버튼을 클릭하여 새 스터디를 개설하려고 할 때
-  
-- **Success Post Condition**  
-  새 스터디가 데이터베이스에 성공적으로 등록된다.
-  스터디를 개설한 유저는 "스터디장"권한을 얻는다.
-  생성된 스터디는 스터디 목록 및 상세 페이지에서 조회 가능해진다.
-  스터디 생성 완료 메시지가 표시되며, 스터디 홈 화면으로 이동한다.
-  
-- **Failed Post Condition** 
-  필수 입력 항목 누락, 중복된 스터디명, 서버 오류 등의 이유로 스터디 생성이 완료되지 않는다.
-  오류 메시지가 표시되고, 사용자는 수정 후 다시 시도할 수 있다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                                       |
-| ---- | -------------------------------------------- |
-| S    | 사용자가 "스터디 생성" 버튼을 클릭한다.                      |
-| 1    | 사용자가 스터디 생성 버튼을 클릭할 때 시작된다.                  |
-| 2    | 사용자는 스터디명, 주제, 소개, 모집 인원, 기술 스택 등의 정보를 입력한다. |
-| 3    | 사용자가 저장 버튼을 누르면 시스템은 입력값을 검증한다.              |
-| 4    | 검증이 완료되면 시스템은 새로운 스터디 정보를 데이터베이스에 저장한다.      |
-| 5    | 스터디 생성 완료 메시지를 표시하고 스터디 상세 페이지로 이동한다.        |
-| 6    | 스터디가 성공적으로 생성되면 종료된다.                        |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-  
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case #10 : 스터디 수정**
-
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  스터디장이 스터디의 정보, 상태를 변경할 수 있는 기능이다.
-  
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level  
-
-- **Author**  
-  정동현
-
-- **Last Update**  
-  2025. 10. 14
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자가 스터디장 권한을 가지고 있어야 한다
-  
-- **Trigger**  
-  스터디장이 스터디 상세화면에서 "정보 수정"을 클릭할 때.
-  
-- **Success Post Condition**  
-  수정된 스터디 정보가 데이터베이스에 저장되고, 최신 내용이 화면에 반영된다.
-  
-- **Failed Post Condition** 
-  수정이 반영되지 않고 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                                           |
-| ---- | ------------------------------------------------ |
-| S    | 스터디장이 스터디 상세 페이지에서 "정보 수정" 버튼을 클릭한다.             |
-| 1    | 스터디장이 수정 버튼을 클릭할 때 시작된다.                         |
-| 2    | 시스템은 스터디장 권한을 확인하고, 기존 스터디 정보를 수정 가능한 입력창에 표시한다. |
-| 3    | 스터디장은 스터디명, 설명, 모집 구분 등의 항목을 수정한다.               |
-| 4    | 스터디장이 저장 버튼을 클릭하면 시스템은 입력값의 유효성을 검사한다.           |
-| 5    | 검증이 완료되면 시스템은 변경된 정보를 데이터베이스에 반영한다.              |
-| 6    | 수정 완료 메시지를 표시하고 갱신된 스터디 상세 페이지를 보여준다.            |
-| 7    | 수정이 성공적으로 완료되면 종료된다.                             |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-   
-#### RELATED INFORMATION
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case #11 : 스터디 삭제**
-
-#### GENERAL CHARACTERISTICS
-- **Summary**  
-  스터디장이 자신이 개설한 스터디를 삭제하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-  
-- **Level**  
-  User level  
-
-- **Author**  
-  정동현
- 
-- **Last Update**  
-  2025. 10. 13
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  스터디장 권한을 가지고 있어야 한다.
-
-- **Trigger**  
-  스터디장이 "스터디 삭제"버튼을 클릭한 경우
-  
-- **Success Post Condition**  
-  스터디와 관련된 모든 정보가 삭제되고, 스터디 목록 화면으로 이동한다.
-  
-- **Failed Post Condition** 
-  권한이 없거나 오류가 발생하면 삭제되지 않고 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                                         |
-| ---- | ---------------------------------------------- |
-| S    | 스터디장이 스터디 상세 페이지에서 "스터디 삭제" 버튼을 클릭한다.          |
-| 1    | 사용자가 스터디 삭제 버튼을 클릭할 때 시작된다.                    |
-| 2    | 시스템은 스터디장 권한을 확인하고, 삭제 여부를 묻는 확인창을 표시한다.       |
-| 3    | 사용자가 삭제를 확정하면 시스템은 해당 스터디의 데이터를 데이터베이스에서 삭제한다. |
-| 4    | 시스템은 삭제 완료 메시지를 표시하고 스터디 목록 페이지로 이동시킨다.        |
-| 5    | 스터디가 성공적으로 삭제되면 종료된다.                          |
-  
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case #12 : 스터디 목록 조회**
-
-#### GENERAL CHARACTERISTICS
-- **Summary**   
-  사용자가 개설된 모든 스터디의 목록을 조회하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level  
-
-- **Author**  
-  정동현
-
-- **Last Update**  
-  2025. 10. 13
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자가 로그인 상태여야 한다.
-  
-- **Trigger**  
-  사용자가 "스터디 찾기"버튼을 누를 경우
-  
-- **Success Post Condition**  
-  등록된 스터디 목록을 화면에 출력한다.
-  
-- **Failed Post Condition** 
-  서버 오류나 네트워크 장애로 목록을 불러오지 못하면 오류 메시지를 표시한다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                                |
-| ---- | ------------------------------------- |
-| S    | 사용자가 "스터디 조회"를 클릭한다.                  |
-| 1    | 사용자가 스터디 목록 페이지에 접근할 때 시작된다.          |
-| 2    | 시스템은 데이터베이스에서 등록된 모든 스터디 정보를 조회한다.    |
-| 3    | 조회된 스터디 목록을 이름과 주제로 정렬하여 화면에 표시한다.    |
-| 4    | 사용자는 관심 있는 스터디를 선택하여 상세 조회로 이동할 수 있다. |
-| 5    | 스터디 목록이 성공적으로 표시되면 종료된다.              |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-
-#### RELATED INFORMATION
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case #13 : 스터디 상세 조회**
-
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  사용자가 선택한 스터디의 상세 정보를 조회하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level  
-
-- **Author**  
-  정동현
-
-- **Last Update**  
-  2025. 10. 13
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자가 로그인 상태여야 한다.
-
-- **Trigger**  
-  사용자가 스터디 목록에서 특정 스터디를 클릭할 때.
-  
-- **Success Post Condition**  
-  시스템이 해당 스터디의 상세 정보를 화면에 표시한다.
-  
-- **Failed Post Condition** 
-  스터디 정보가 존재하지 않거나 서버 오류가 발생하면 오류 메시지를 표시한다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 스터디 목록에서 특정 스터디를 클릭한다.        |
-| 1    | 사용자가 스터디를 선택할 때 시작된다.              |
-| 2    | 시스템은 해당 스터디의 상세 정보를 데이터베이스에서 조회한다. |
-| 3    | 조회된 정보를 화면에 표시한다.                  |
-| 4    | 사용자는 표시된 상세 페이지에서 참가 신청을 할 수 있다.   |
-| 5    | 스터디 정보가 정상적으로 표시되면 종료된다.           |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-
-#### RELATED INFORMATION
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**:
-
-### **Use case #14 : 스터디 참여 신청**
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 스터디에 참여 신청을 하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  정동현
-
-  
-
-- **Last Update**  
-  2025. 10. 14
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자는 로그인 상태이며, 해당 스터디의 멤버가 아니어야 한다.
-  
-
-- **Trigger**  
-  사용자가 스터디 상세 페이지에서 "스터디 참여 신청" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  참여 신청 정보가 스터디장에게 알림으로 전송된다.
-  
-- **Failed Post Condition** 
-  요청이 처리되지 않고 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                      |
-| ---- | ------------------------------------------- |
-| S    | 사용자가 스터디 상세 페이지에서 "스터디 참여 신청" 버튼을 클릭한다.     |
-| 1    | 사용자가 가입 신청 버튼을 클릭할 때 시작된다.                  |
-| 2    | 시스템은 스터디에 속한 유저인지 확인한다.                     |
-| 3    | 시스템은 신청 가능한 상태일 경우 스터디장에게 새 참여 신청 알림을 전송한다. |
-| 4    | 사용자에게 "참여 신청이 완료되었습니다." 메시지를 표시한다.          |
-| 5    | 신청이 정상적으로 접수되면 종료된다.                        |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 참여 승인/거절**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  스터디장이 참여 신청 목록을 확인하고, 신청자의 스터디 참여를 승인하거나 거절하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  정동현
-
-  
-
-- **Last Update**  
-  2025. 10. 14
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  스터디장 권한을 가지고 있어야하며, 스터디에 참여 신청이 존재해야 한다.
-  
-
-- **Trigger**  
-  스터디장이 알림 또는 스터디 상세 페이지에서 신청자 목록을 확인하고 "승인" 또는 "거절" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  승인: 신청자가 스터디 멤버로 등록되고, 승인 알림이 전송된다.
-  거절: 신청자에게 거절 알림이 전송된다.
-  
-- **Failed Post Condition** 
-  요청이 처리되지 않고 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                  |
-| ---- | --------------------------------------- |
-| S    | 스터디장이 스터디 참여 신청 목록을 확인한다.               |
-| 1    | 스터디장이 스터디 참여 신청 목록에 접근할 때 시작된다.         |
-| 2    | 시스템은 스터디장 권한을 확인하고, 대기 중인 신청자 목록을 표시한다. |
-| 3    | 스터디장이 신청자 옆의 "승인" 또는 "거절" 버튼을 클릭한다.     |
-| 4    | 선택된 동작에 따라 신청자의 상태를 "승인" 또는 "거절"로 변경한다. |
-| 5    | 처리 결과를 신청자에게 알림으로 전송한다.                 |
-| 6    | 참여 신청에 대한 처리가 완료되면 종료된다.                |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 탈퇴**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  스터디에 속한 사용자가 스터디를 탈퇴하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  정동현
-
-  
-
-- **Last Update**  
-  2025. 10. 14
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  해당 스터디 멤버에 등록되어 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 스터디 상세 페이지에서 "스터디 탈퇴" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  사용자가 스터디 멤버 목록에서 제거된다.
-  
-- **Failed Post Condition** 
-  탈퇴가 정상적으로 처리되지 않고 오류메시지를 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 사용자가 스터디 상세 페이지에서 "스터디 탈퇴" 버튼을 클릭한다.            |
-| 1    | 사용자가 스터디 탈퇴 버튼을 클릭할 때 시작된다.                     |
-| 2    | 시스템은 사용자의 로그인 상태와 스터디 멤버 여부를 확인한다.              |
-| 3    | 시스템은 사용자에게 탈퇴 여부를 묻는 팝업창을 표시한다.                 |
-| 4    | 사용자가 "확인"버튼을 누르면 시스템은 해당 사용자를 스터디 멤버 목록에서 제거한다. |
-| 5    | 탈퇴 완료 팝업 메시지를 표시하고 스터디 목록 페이지로 이동시킨다.           |
-| 6    | 탈퇴가 성공적으로 처리되면 종료된다.                            |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 강퇴**
-  
-
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  스터디 리더가 특정 스터디 구성원을 강제로 탈퇴시키는 기능
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김동규
-
-  
-
-- **Last Update**  
-  2025. 10. 16
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User (팀 리더)
-
-  
-
-- **Preconditions**  
-  스터디 리더 계정으로 로그인되어 있어야 한다.
-  스터디가 존재하고, 강퇴 대상 사용자가 그 스터디의 구성원이어야 한다.
-  리더 권한이 존재 해야한다.
-  
-
-- **Trigger**  
-  사용자(리더)가 스터디 상세 페이지에서 "스터디 강퇴" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  사용자가 스터디 멤버 목록에서 제거된다.
-  강퇴된 사용자에게 알림이 전송된다.
-  
-- **Failed Post Condition** 
-  권한이나 서버 오류 발생 시 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 리더가 스터디 구성원 목록에서 특정 사용자의 '강퇴' 버튼을 클릭한다.            |
-| 1    | 시스템이 리더의 권한을 검증한다.                     |
-| 2    | 시스템은 '정말 강퇴하시겠습니까?' 확인 메시지를 띄운다.              |
-| 3    | 리더가 '확인'을 누른다.                 |
-| 4    | 시스템은 해당 사용자를 스터디 멤버 목록에서 제거한다.     |
-| 5    | 시스템은 강퇴된 사용자에게 알림을 전송한다.           |
-| 6    | "구성원이 강퇴되었습니다." 메시지를 표시한다.                            |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|   1a | 리더가 아닌 사용자가 강퇴 기능을 실행할 경우 "권한이 없습니다."를 출력한다. |
-|   2a   | 리더가 '취소'를 선택하면 강퇴 요청이 취소된다.        |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 일정 등록**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 참여 중인 스터디의 새로운 일정을 등록하는 기능
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김동규
-
-  
-
-- **Last Update**  
-  2025. 10. 16
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User (리더 또는 권한자)
-
-  
-
-- **Preconditions**  
-  사용자는 로그인 상태여야 한다
-  해당 스터디 멤버에 등록되어 있어야 한다.
-  일정등록 권한이 있어야 한다
-  
-
-- **Trigger**  
-  사용자가 "일정 등록" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  입련한 일정 정보가 저장되고 스터디 캘린더에 반영된다.
-  등록 완료 메시지가 표시된다.
-  
-- **Failed Post Condition** 
-  필수 입력값 누락시 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 사용자가 스터디 상세 페이지에서 "일정 등록" 버튼을 클릭한다.            |
-| 1    | 시스템은 일정 등록 폼(날짜, 시간, 장소, 메모 등)을 표시한다.                    |
-| 2    | 사용자는 일정 정보를 입력 후 '저장' 버튼을 클릭한다.
-| 3    | 시스템은 입력값을 검증한다.              |
-| 4    | 일정 등록이 성공하면 스터디 캘린더에 해당 일정이 표시된다.                 |
-| 5    | 시스템은 '일정이 등록되었습니다.' 메시지를 표시한다. |
-| 6    | 스터디 멤버들에게 알림이 전송된다.           |                            
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| 2a | 필수 입력 항목이 누락되면 '저장' 버튼이 비활성화된다.|
-|      |                  |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 일정 수정**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  기존에 등록된 스터디 일정을 수정하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김동규
-
-  
-
-- **Last Update**  
-  2025. 10. 16
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User (스터디 리더 또는 권한자)
-
-  
-
-- **Preconditions**  
-  사용자는 로그인 상태여야 한다
-  수정하려는 일정이 존재해야 하고 권한이 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 "수정" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  수정된 일정 정보가 반영된다.
-  
-- **Failed Post Condition** 
-  일정수정이 정상적으로 처리되지 않고 오류메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 사용자가 "수정" 버튼을 클릭한다.            |
-| 1    | 시스템은 해당 일정의 기존 정보를 수정 폼에 표시한다.                    |
-| 2    | 사용자는 변경할 내용을 입력하고 '저장' 버튼을 클릭한다.              |
-| 3    | 시스템은 변경 사항을 검증한다.                 |
-| 4    | 시스템은 수정된 정보를 업데이트 하고 변경사항을 반영한다. |
-| 5    | 시스템이 "일정 수정 완료" 메시지를 표시한다          |
-| 6    | 스터디 멤버에게 알림을 전송한다.                            |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|   2a   |  필수 입력 항목 누락 시 저장이 제한된다.                |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 일정 삭제**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  기존에 등록된 스터디 일정을 삭제하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김동규
-
-  
-
-- **Last Update**  
-  2025. 10. 16
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User (스터디 리더 또는 권한자)
-
-  
-
-- **Preconditions**  
-  사용자는 로그인 상태여야 한다
-  수정하려는 일정이 존재해야 하고 권한이 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 "삭제" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  일정이 데이터베이스에서 삭제되고 화면에서 즉시 제거된다.
-  
-- **Failed Post Condition** 
-  일정삭제가 정상적으로 처리되지 않고 오류메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 사용자가 "삭제" 버튼을 클릭한다.            |
-| 1    | 시스템은 "정말 삭제하시겠습니까?" 확인 팝업을 표시한다.                   |
-| 2    | 사용자가 삭제를 확정한다.             |
-| 3    | 시스템은 해당 일정을 데이터베이스에서 삭제한다.               |
-| 4    | 삭제가 완료되면 화면에서 즉시 반영된다. |
-| 5    | 시스템이 "일정 삭제 완료" 메시지를 표시한다.         |
-| 6    | 스터디 멤버에게 알림을 전송한다.                            |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|   1a   |  '취소' 선택 시 삭제 요청이 취소된다.             |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 화상채팅방 생성**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  스터디 구성원들이 참여할 수 있는 화상채팅방을 새로 개설하는 기능
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김동규
-
-  
-
-- **Last Update**  
-  2025. 10. 16
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자는 로그인 상태여야 한다
-  스터디가 존재해야 한다.
-  
-
-- **Trigger**  
-  사용자가 스터디 페이지에서 "화상채팅방 생성" 버튼을 클릭할 때.
-  
-- **Success Post Condition**  
-  화상채팅방이 생성되고, 고유 방 ID가 발급된다.
-  스터디 구성원들에게 "화상 채팅방 개설" 알림이 전송된다.
-  
-- **Failed Post Condition** 
-  화상채팅방 개설이 정상적으로 처리되지 않고 오류메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 사용자가 스터디 페이지에서 '화상채팅방 생성' 버튼을 클릭한다.           |
-| 1    | 시스템은 새로운 화상채팅방을 생성한다.                   |
-| 2    | 고유한 방 ID와 접근 URL을 발급한다.              |
-| 3    | 생성된 방 정보를 데이터베이스에 저장한다.                |
-| 4    | 스터디 구성원들에게 화상채팅방 초대 알림을 전송한다. |
-| 5    | 시스템은 "화상채팅방이 생성되었습니다." 메시지를 표시한다.        |
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 화상채팅방 종료**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  화상채팅이 끝난 후 세션을 종료하는 기능
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김동규
-
-  
-
-- **Last Update**  
-  2025. 10. 16
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  방 생성자로 로그인 되어있어야 한다.
-  해당 화상채팅방이 활성화된 상태여야 한다.
-  
-
-- **Trigger**  
-  사용자가 화상채팅 중 "종료" 버튼을 클릭했을 때
-  
-- **Success Post Condition**  
-  화상채팅방 세션이 종료되고, 모든 사용자가 퇴장 처리된다.
-  
-- **Failed Post Condition** 
-  화상채팅방 종료가 정상적으로 처리되지 않고 오류메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 사용자가 화상채팅 인터페이스에서 '종료' 버튼을 클릭한다.           |
-| 1    | 시스템은 현재 화상채팅 세션을 종료하고 모든 사용자를 강제 퇴장 시킨다.            |
-| 2    | 고유한 방 ID와 접근 URL을 발급한다.              |
-| 3    | 시스템은 "화상채팅방이 종료되었습니다." 메시지를 표시한다.        |
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|      |                  |
-|      |                  |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 화상채팅방 입장**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  스터디 구성원이 생성된 화상채팅방에 입장하는 기능
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김동규
-
-  
-
-- **Last Update**  
-  2025. 10. 16
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  로그인 상태여야 한다.
-  해당 스터디의 구성원이어야 하며, 화상채팅방이 활성 상태여야 한다.
-  
-
-- **Trigger**  
-  사용자가 스터디 페이지 또는 초대 알림에서 "입장" 버튼을 클릭했을 때 시작된다.
-  
-- **Success Post Condition**  
-  사용자가 화상채팅방에 정상적으로 입장하고, 오디오·비디오 스트림이 연결된다.
-  
-- **Failed Post Condition** 
-  방이 존재하지 않거나 이미 종료된 경우 입장이 거부된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                                          |
-| ---- | ----------------------------------------------- |
-| S    | 사용자가 스터디 페이지에서 '화상채팅방 입장' 버튼(또는 URL)을 클릭한다.        |
-| 1    | 시스템은 사용자 로그인 및 스터디 참여 여부를 검증한다.         |
-| 2    | 시스템은 해당 방의 활성 상태를 확인한다.             |
-| 3    | 사용자가 방에 연결되고, 오디오/비디오 스트림이 초기화 된다.       |
-| 4    | 시스템은 참가자 목록에 해당 사용자를 추가한다.       |
-| 5    | "화상채팅방에 입장했습니다." 메시지가 표시된다.      |
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-| ---- | ---------------- |
-|   1a   |      비회원일 경우 로그인 페이지로 이동한다            |
-|   1a   |      스터디 구성원이 아닐 경우 "입장 권한이 없습니다" 메시지를 표시한다.            |
-|   2a   |      이미 종료된 경우 "화상채팅방이 종료되었습니다." 메시지를 표시한다.           |
-|   3a   |      네트워크 오류 발생 시 '재접속' 옵션을 제공한다.           |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**:
-
-- **Frequency**:
-
-- **Concurrency**:
-
-- **Due Date**:
-
-
-
-#### RELATED INFORMATION
-- **Performance**: 
-- **Frequency**: 
-- **Concurrency**: 
-- **Due Date**: 
-
-### **Use case # : 스터디 화상채팅방 퇴장**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 진행 중인 화상채팅방에서 퇴장하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김성민
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 로그인 상태이며 활성화된 화상채팅방에 참여 중이어야 한다.
-  
-
-- **Trigger**  
-  사용자가 화상채팅방 인터페이스에서 '퇴장' 버튼을 클릭했을 때
-  
-- **Success Post Condition**  
-  사용자가 세션에서 정상적으로 분리되고 참가자 목록에서 제거된다.
-  
-- **Failed Post Condition** 
-  네트워크/서버 오류로 퇴장이 완료되지 않으면 오류 메세지를 표시한다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 화상채팅방 화면에서 '퇴장' 버튼을 클릭한다.        |
-| 1    | 시스템은 로그인 및 참여 상태를 검증한다.             |
-| 2    | 시스템은 사용자의 화상채팅 세션 연결을 안전하게 종료한다.  |
-| 3    | 시스템은 참가자 목록에서 사용자를 제거하고 남은 참가자에게 퇴장 알림을 전송한다.                 |
-| 4    | 시스템은 사용자를 스터디 상세 페이지로 이동시키고 “퇴장했습니다.” 메시지를 표시한다.   |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|  1a  | 이미 세션이 종료된 경우 안내 메시지만 표시한다. |
-|  2a  | 네트워크 장애 발생 시 로컬 UI에서 “ 네트워크 오류발생 ” 상태 표시 후 재시도 옵션을 제공한다.          |
-|  3a  | 퇴장 후 품질 평가(선택 사항) 팝업을 노출하여 피드백을 받는다.             |
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 퇴장 처리 < 1초, 알림 전송 지연 < 2초
-
-- **Frequency**: 세션 종료 시 사용자 수만큼 발생 가능
-
-- **Concurrency**: 다중 퇴장 이벤트 동시 처리 가능해야 함
-
-- **Due Date**: 2025. 11 .01 (예정)
-- 
----
-## 알림
-
----
-## 게시판
-### **Use case # : 게시글 작성**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 게시판에 새로운 게시글을 등록하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김성민
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 로그인 상태이며 쓰기 권한이 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 게시판 목록/상단의 '새 글 작성' 버튼을 클릭 후 제목/본문(필수)/첨부(선택)를 작성하고 저장 버튼을 클릭할 때
-  
-- **Success Post Condition**  
-  게시글이 저장되고 게시판 목록에 글이 노출된다.
-  필요 시 구독자에게 알림이 전송된다.
-  
-- **Failed Post Condition** 
-  검증/저장 실패 시 오류 메시지를 출력한다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 “새 글 작성”을 클릭하고 제목/본문(필수), 첨부(선택)를 입력한다.        |
-| 1    | 시스템이 로그인·쓰기 권한을 검증한다.             |
-| 2    | 시스템이 입력값(길이, 금칙어, 파일 형식/용량)을 검증한다.  |
-| 3    | 게시글을 저장한다.                |
-| 4    | “게시글이 등록되었습니다.” 메시지를 표시하고 상세 화면으로 이동한다.   |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|  2a  | 쓰기 권한이 없는 경우 "작성 권한이 없습니다." 메시지를 출력한다. |
-|  2b  | 필수값 누락/제한 초과/첨부 업로드 실패의 경우 에러 메시지를 출력한다.          |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 저장 < 500ms(텍스트 기준)
-
-- **Frequency**: 중간~높음
-
-- **Concurrency**: 
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : 게시글 수정**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 게시판의 게시글을 수정한다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김성민
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 로그인 상태이며 작성자 본인이거나 게시판 관리 권한을 보유하여야 한다.
-  
-
-- **Trigger**  
-  사용자가 게시글 상세의 '수정' 버튼을 클릭할 때
-  
-- **Success Post Condition**  
-  사용자가 내용을 수정하고 변경 사항을 저장한다.
-  
-- **Failed Post Condition** 
-  권한/검증/저장 오류 시 오류 메시지를 출력한다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 “수정”을 클릭하여 수정 폼을 연다.       |
-| 1    | 시스템이 권한을 검증하고 기존 데이터/첨부를 로드한다.             |
-| 2    | 사용자가 변경 후 “저장”을 클릭한다.  |
-| 3    | 시스템이 검증 후 저장하고 “수정이 완료되었습니다.” 메시지를 표시한다.              |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|  1a  | 수정 권한이 없는 경우 "수정 권한이 없습니다." 메시지를 출력한다. |
-|      |                                                             |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 로드 < 300ms, 저장 < 500ms
-
-- **Frequency**: 게시글당 0~N회
-
-- **Concurrency**: 
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : 게시글 삭제**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 게시판의 게시글을 삭제한다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User/Admin level  
-
-  
-
-- **Author**  
-  김성민
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User / Admin
-
-  
-
-- **Preconditions**  
-  사용자가 로그인 상태이며 작성자 본인이거나 게시판 관리 권한을 보유하여야 한다.
-  
-
-- **Trigger**  
-  사용자가 게시글 상세의 '삭제' 버튼을 클릭할 때
-  
-- **Success Post Condition**  
-  게시글이 목록에서 삭제된다.
-  
-- **Failed Post Condition** 
-  권한/검증/저장 오류 시 삭제 불가 메시지를 출력한다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 “삭제” 클릭 후 확인한다.       |
-| 1    | 시스템이 권한을 검증한다.             |
-| 2    | 게시글이 목록에서 영구 삭제된다.  |
-| 3    | “삭제되었습니다.” 메시지 표시 후 목록으로 이동한다.             |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|  1a  | 수정 권한이 없는 경우 "수정 권한이 없습니다." 메시지를 출력한다. |
-|      |                                                             |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: Delete < 300ms
-
-- **Frequency**: 게시글당 0~N회
-
-- **Concurrency**: 
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : 게시글 숨김**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 게시판의 게시글을 삭제한다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User/Admin level  
-
-  
-
-- **Author**  
-  김성민
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User / Admin
-
-  
-
-- **Preconditions**  
-  
-  
-
-- **Trigger**  
- 
-  
-- **Success Post Condition**  
-  
-  
-- **Failed Post Condition** 
-  
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    |       |
-| 1    |             |
-| 2    |   |
-| 3    |              |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|    |  |
-|      |                                                             |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 
-
-- **Frequency**: 
-
-- **Concurrency**: 
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-- 
----
-## 오픈소스 이슈 관리
-### **Use case # : Good First Issue 이슈 목록 조회**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김관호
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
-  
-- **Failed Post Condition** 
-  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
-| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
-| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
-| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
-| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
-| 5    | 프로세스가 종료된다.  |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|------|------------------|
-|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
-|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
-|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
-
-- **Frequency**: 높음
-
-- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : 이슈 북마크 저장**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 관심 있는 이슈를 개인 북마크 목록에 저장하여 나중에 쉽게 접근할 수 있게 하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김관호
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  북마크하려는 이슈가 화면에 표시되어 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 특정 이슈 옆의 "북마크" 아이콘을 클릭했을 때
-  
-- **Success Post Condition**  
-  이슈이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김관호
-
-  
-
-- **Last Update**  
-  2025. 10. 17
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
-  
-- **Failed Post Condition** 
-  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
-| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
-| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
-| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
-| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
-| 5    | 프로세스가 종료된다.  |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|------|------------------|
-|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
-|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
-|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
-
-- **Frequency**: 높음
-
-- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : 이슈 북마크 삭제**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 이전에 저장했던 이슈 북마크를 개인 목록에서 제거하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김관호
-
-  
-
-- **Last Update**  
-  2025. 10. 18
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  삭제하려는 이슈가 이미 북마크 목록에 저장되어 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 북마크됨 상태의 아이콘을 다시 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  이슈 정보가 해당 사용자의 북마크 목록에서 제거되고, 아이콘의 상태가 "북마크 안 함" 상태로 변경된다.
-  
-- **Failed Post Condition** 
-  DB 삭제 오류로 인해 북마크 제거에 실패하며, 오류 메시지가 사용자에게 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 북마크 목록 또는 이슈 상세 화면에서 활성화된 북마크 아이콘을 클릭한다.        |
-| 1    | 시스템은 해당 이슈의 고유 ID와 현재 사용자 ID를 식별한다.             |
-| 2    | 시스템은 해당 이슈-사용자 조합의 정보를 사용자 북마크 DB 테이블에서 삭제한다.  |
-| 3    | 시스템은 북마크 아이콘의 상태를 비활성화 상태로 업데이트하고, "북마크에서 삭제되었습니다." 알림 메시지를 표시한다. |
-| 4    | 사용자가 북마크 목록 화면에서 삭제를 수행했다면, 해당 항목을 목록에서 즉시 제거한다.   |
-| 5    | 프로세스가 종료된다.  |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|------|------------------|
-|  2a  | DB 삭제 중 오류 발생 시, "북마크 삭제에 실패했습니다. 관리자에게 문의하세요." 오류 메시지를 표시한다. |
-|  3a  | 북마크 삭제에 성공했으나 아이콘 업데이트가 실패한 경우, 로그를 기록하고 목록만 업데이트한다.      |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 북마크 삭제 요청 후 DB 삭제 및 화면 업데이트 < 500ms
-
-- **Frequency**: 보통
-
-- **Concurrency**: 개인 DB에 대한 삭제 작업이므로, 데이터 무결성에 중점을 둔 트랜잭션 처리가 필요
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : 키워드 검색**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 입력한 키워드를 기반으로 오픈소스 이슈 및 리포지토리를 검색하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김관호
-
-  
-
-- **Last Update**  
-  2025. 10. 18
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 검색 기능을 이용할 수 있는 화면에 진입해 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 검색 입력 창에 키워드를 입력하고 검색 버튼을 클릭하거나 Enter 키를 눌렀을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  검색 결과가 이슈, 리포지토리 등 카테고리별로 분리되어 목록 형태로 화면에 표시된다.
-  
-- **Failed Post Condition** 
-  검색 서버와의 통신 오류, 유효하지 않은 검색어로 인해 검색 결과를 반환하지 못하며, 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 검색 입력 창에 검색 키워드를 입력하고 검색을 요청한다.       |
-| 1    | 시스템은 입력된 키워드의 유효성을 검사한다 (최소 길이, 특수 문자 등).           |
-| 2    | 시스템은 키워드를 포함하여 GitHub Search API 또는 내부 검색 인덱스에 검색 요청을 보낸다.  |
-| 3    | 시스템은 검색 결과를 수신하고, 이를 이슈, 리포지토리 등 카테고리별로 구분하여 정렬한다.          |
-| 4    | 검색 결과를 페이지네이션 형태로 사용자에게 표시하며, 각 결과 항목에는 제목, 출처, 간단한 요약 정보가 포함된다.   |
-| 5    | 프로세스가 종료된다.  |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|------|------------------|
-|  1a  | 키워드 유효성 검사 실패 시, “유효하지 않은 검색어입니다. 다시 확인해 주세요.” 메시지를 표시한다. |
-|  3a  | 검색 결과가 없는 경우, “일치하는 검색 결과가 없습니다.” 메시지를 표시하고, 관련 추천 검색어를 제시한다.    |
-|  4a  | GitHub API의 속도 제한(Rate Limit)에 걸린 경우, 사용자에게 잠시 후 다시 시도하도록 안내한다. |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 검색 요청부터 결과 표시 < 2s
-
-- **Frequency**: 매우 높음
-
-- **Concurrency**: 최대 2,000명의 동시 검색 요청을 처리할 수 있도록 설계되어야 하며, API Rate Limit 관리가 핵심
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : OSS 이슈 이동**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  깃라잡이에서 확인한 이슈를 실제 GitHub의 해당 이슈 페이지로 이동하여 상세 내용을 확인하고 기여할 수 있게 하는 기능이다.
-
-- **Scope**  
-  깃라잡이, Github
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김관호
-
-  
-
-- **Last Update**  
-  2025. 10. 18
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 이슈 목록 또는 상세 화면을 보고 있어야 한다.
-  해당 이슈가 유효한 GitHub URL을 가지고 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 이슈 상세 화면 또는 목록에서 “GitHub에서 보기” 버튼을 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  사용자의 웹 브라우저가 GitHub의 해당 이슈 페이지로 성공적으로 리다이렉트된다.
-  
-- **Failed Post Condition** 
-  유효하지 않은 URL이거나 네트워크 오류 발생 시, 이동에 실패하며 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 이슈 상세 화면에서 “GitHub에서 보기” 버튼을 클릭한다.        |
-| 1    | 시스템은 클릭된 이슈에 연결된 고유 GitHub URL을 식별한다.             |
-| 2    | 시스템은 해당 URL로 사용자를 새 탭에 리다이렉트한다.  |
-| 3    | GitHub 서버는 해당 이슈 페이지를 사용자에게 표시한다.           |
-| 4    | 프로세스가 종료된다.   |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|------|------------------|
-|  1a  | 이슈에 연결된 GitHub URL이 유효하지 않거나 누락된 경우, “GitHub 이슈 링크를 찾을 수 없습니다.” 메시지를 표시한다. |
-|  2a  | 브라우저 설정(팝업 차단 등)으로 인해 새 탭을 열 수 없는 경우, 사용자에게 팝업 차단 해제를 유도하는 메시지를 표시한다.     |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 버튼 클릭부터 리다이렉트 처리 < 300ms 
-
-- **Frequency**: 보통 
-
-- **Concurrency**: 단순 리다이렉션이므로 서버 부하에 큰 영향은 없으나, 로그 기록 시 동시 트래픽을 고려
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case # : vscode.dev 열기**
-
-  
-
-#### GENERAL CHARACTERISTICS
-
-- **Summary**    
-  사용자가 관심 있는 리포지토리를 웹 기반의 Visual Studio Code (vscode.dev) 환경에서 즉시 열어 코드를 확인하고 편집할 수 있게 하는 기능이다.
-
-- **Scope**  
-  깃라잡이, vscode.dev
-
-  
-
-- **Level**  
-  User level  
-
-  
-
-- **Author**  
-  김관호
-
-  
-
-- **Last Update**  
-  2025. 10. 18
-
-  
-
-- **Status**  
-  Design
-
-  
-
-- **Primary Actor**  
-  User
-
-  
-
-- **Preconditions**  
-  사용자가 리포지토리 또는 이슈 상세 정보를 보고 있어야 한다.
-  해당 리포지토리가 유효한 GitHub URL을 가지고 있어야 한다.
-  
-
-- **Trigger**  
-  사용자가 리포지토리 또는 이슈 상세 화면에서 “vscode.dev로 열기” 버튼을 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  해당 리포지토리의 코드가 새 브라우저 탭에서 vscode.dev 환경으로 성공적으로 로드된다.
-  
-- **Failed Post Condition** 
-  리포지토리 URL 형식이 유효하지 않거나, vscode.dev 로딩에 오류가 발생하면 이동에 실패하며 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 이슈 상세 화면 등에서 “vscode.dev로 열기” 버튼을 클릭한다.       |
-| 1    | 시스템은 해당 이슈가 속한 리포지토리의 GitHub URL을 식별한다.            |
-| 2    | 시스템은 식별된 URL을 기반으로 vscode.dev 형식의 URL을 생성한다. (예: https://vscode.dev/github/<owner>/<repo_name>) |
-| 3    | 시스템은 생성된 URL로 사용자를 새 브라우저 탭에 리다이렉트한다.          |
-| 4    | 새 탭에서는 vscode.dev 환경이 로드되며, 해당 리포지토리의 파일 구조와 코드가 표시된다.   |
-| 5    | 프로세스가 종료된다.  |
-
-  
-  
-
-#### EXTENSION SCENARIOS
-
-| Step | Branching Action |
-|------|------------------|
-|  1a  | 리포지토리 URL을 찾을 수 없는 경우, “웹 에디터 연결을 위한 리포지토리 정보를 찾을 수 없습니다.” 오류 메시지를 표시한다. |
-|  4a  | vscode.dev 로딩 중 오류가 발생할 경우, 사용자에게 오류 메시지를 표시하고 재시도를 유도한다.     |
-
-  
-  
-  
-
-#### RELATED INFORMATION
-
-- **Performance**: 버튼 클릭부터 리다이렉트 처리까지 < 300ms
-  
-- **Frequency**: 보통
-
-- **Concurrency**: 단순 리다이렉션
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-
 ## 기여도 및 도전과제
-  ----
-### **Use case # : 도전과제 진행 상태 조회**
 
+  ----
+  
+### **Use case #41 : 도전과제 진행 상태 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   사용자가 현재 진행 중인 오픈소스 도전과제의 목록과 달성률을 확인하는 기능  
@@ -3041,8 +2281,6 @@
 - **Failed Post Condition**  
   시스템 오류로 인해 도전과제 진행 상태를 불러오지 못한다.  
 
----
-
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
@@ -3052,14 +2290,10 @@
 | 3 | 각 과제의 이름, 진행률, 달성 조건을 사용자 화면에 표시한다. |
 | 4 | 이 Use case는 모든 과제의 정보가 정상적으로 표시되면 종료된다. |
 
----
-
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 | 2 | 2a. DB 연결이 실패한 경우 <br>…2a1. “진행 현황을 불러올 수 없습니다.” 라는 오류 메시지를 출력한다. |
-
----
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
@@ -3067,10 +2301,7 @@
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
----
-
-### **Use case # : 도전과제 완료**
-
+### **Use case #42 : 도전과제 완료**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   사용자가 도전과제의 모든 조건을 충족했을 때 과제를 완료 처리하는 기능  
@@ -3103,10 +2334,8 @@
   과제 상태가 ‘완료됨’으로 변경되고 보상이 지급된다.  
 
 - **Failed Post Condition**  
-  보상 지급 과정에서 오류가 발생한다.  
-
----
-
+  보상 지급 과정에서 오류가 발생한다.
+  
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
@@ -3117,14 +2346,10 @@
 | 4 | 사용자 화면에 “과제가 완료되었습니다.” 메시지를 표시한다. |
 | 5 | Use case 종료. |
 
----
-
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 | 2 | 2a. 일부 조건이 충족되지 않은 경우 <br>…2a1. “아직 완료 조건을 만족하지 않았습니다.” 메시지를 표시한다. |
-
----
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 3 seconds  
@@ -3132,10 +2357,7 @@
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
----
-
-### **Use case # : 오픈소스 기여 배지 획득**
-
+### **Use case #43 : 오픈소스 기여 배지 획득**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   사용자가 일정 조건을 만족할 때 자동으로 오픈소스 기여 배지를 획득하는 기능  
@@ -3170,8 +2392,6 @@
 - **Failed Post Condition**  
   시스템 오류로 인해 배지 등록에 실패한다.  
 
----
-
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
@@ -3181,14 +2401,11 @@
 | 3 | 사용자 화면에 배지 획득 알림을 표시한다. |
 | 4 | Use case 종료. |
 
----
-
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 | 2 | 2a. 동일한 배지를 이미 보유 중인 경우 <br>…2a1. “이미 획득한 배지입니다.” 메시지를 표시한다. |
 
----
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 3 seconds  
@@ -3196,10 +2413,7 @@
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
----
-
-### **Use case # : 오픈소스 기여 배지 조회**
-
+### **Use case #44 : 오픈소스 기여 배지 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   사용자가 보유 중인 오픈소스 기여 배지를 목록으로 확인하는 기능  
@@ -3234,8 +2448,6 @@
 - **Failed Post Condition**  
   배지 목록을 불러오지 못한다.  
 
----
-
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
@@ -3245,14 +2457,10 @@
 | 3 | 사용자 화면에 배지 이름, 획득일, 설명이 목록 형태로 표시된다. |
 | 4 | Use case 종료. |
 
----
-
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 | 2 | 2a. 서버 연결 실패 <br>…2a1. “배지 목록을 불러올 수 없습니다.” 메시지를 표시한다. |
-
----
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
@@ -3260,10 +2468,7 @@
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
----
-
-### **Use case # : 오픈소스 기여도 랭킹 확인**
-
+### **Use case #45 : 오픈소스 기여도 랭킹 확인**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   사용자가 전체 사용자 중 자신의 오픈소스 기여 순위를 확인하는 기능  
@@ -3298,8 +2503,6 @@
 - **Failed Post Condition**  
   랭킹 정보를 불러오지 못한다.  
 
----
-
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
@@ -3310,14 +2513,10 @@
 | 4 | 사용자의 현재 순위를 강조하여 표시한다. |
 | 5 | Use case 종료. |
 
----
-
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 | 2 | 2a. 서버 연결 실패 시 <br>…2a1. “랭킹 정보를 불러올 수 없습니다.” 메시지를 표시한다. |
-
----
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 3 seconds  
@@ -3325,10 +2524,7 @@
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
----
-
-### **Use case # : OSS 뉴스 목록 조회**
-
+### **Use case #46 : OSS 뉴스 목록 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   사용자가 최신 오픈소스 관련 뉴스 피드를 조회하는 기능  
@@ -3363,8 +2559,6 @@
 - **Failed Post Condition**  
   뉴스 목록을 불러오지 못한다.  
 
----
-
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
@@ -3375,15 +2569,11 @@
 | 4 | 사용자 화면에 뉴스 제목, 출처, 발행일, 링크를 표시한다. |
 | 5 | Use case 종료. |
 
----
-
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 | 2 | 2a. API 호출 실패 시 <br>…2a1. “뉴스를 불러올 수 없습니다.” 메시지를 표시한다. |
 | 3 | 3a. 뉴스 데이터가 비어 있을 경우 <br>…3a1. “표시할 뉴스가 없습니다.” 메시지를 표시한다. |
-
----
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
@@ -3391,10 +2581,7 @@
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
----
-
-### **Use case # : OSS 뉴스 페이지로 이동**
-
+### **Use case #47 : OSS 뉴스 페이지로 이동**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
   사용자가 선택한 뉴스 항목의 원문 페이지로 이동하는 기능  
@@ -3429,8 +2616,6 @@
 - **Failed Post Condition**  
   링크 오류로 인해 뉴스 페이지 이동에 실패한다.  
 
----
-
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
@@ -3441,15 +2626,11 @@
 | 4 | 뉴스 원문 페이지가 정상적으로 표시된다. |
 | 5 | Use case 종료. |
 
----
-
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
 | 3 | 3a. 링크가 유효하지 않거나 만료된 경우 <br>…3a1. “잘못된 링크입니다.” 메시지를 표시한다. |
 | 3 | 3b. 외부 페이지 연결이 차단된 경우 <br>…3b1. “페이지를 불러올 수 없습니다.” 메시지를 표시한다. |
-
----
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
