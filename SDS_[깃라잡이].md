@@ -1871,50 +1871,60 @@
 
 - **Due Date**: 2025. 11 .01 (예정)
 
-### **Use case # : 게시글 숨김**
-나중에 보면 말해주세요 게시글 숨김은 없었던거같은데~
+### **Use case # : 게시글 신고**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
-  사용자가 게시판의 게시글을 삭제한다.
+  사용자가 게시판의 게시글을 신고한다.
   
 - **Scope**  
   깃라잡이
 
 - **Level**  
-  User/Admin level  
+  User level  
 
 - **Author**  
-  김성민
+  정동현
 
 - **Last Update**  
-  2025. 10. 17
+  2025. 10. 27
 
 - **Status**  
   Design
 
 - **Primary Actor**  
-  User / Admin
+  User
   
-- **Preconditions**  
+- **Preconditions**
+  사용자가 로그인 상태여야 한다.
   
 - **Trigger**  
- 
+ 사용자가 게시글 상세 페이지에서 "신고"버튼을 눌렀을 때.
+
 - **Success Post Condition**  
-  
+  관리자에게 게시글 신고 알림이 전송된다.
+
 - **Failed Post Condition** 
+  신고 정보가 전송되지 않는다.
   
 #### MAIN SUCCESS SCENARIO
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    |       |
-| 1    |             |
-| 2    |   |
-| 3    |              |
+| Step | Action                           |
+| ---- | -------------------------------- |
+| S    | 사용자가 게시글을 신고한다.                  |
+| 1    | 사용자가 게시글 상세페이지에서 "신고"버튼을 클릭한다.   |
+| 2    | 시스템은 신고 팝업창을 보여준다.               |
+| 3    | 신고 사유를 선택후 제출버튼을 누른다.            |
+| 4    | 시스템은 중복 신고 여부를 검사한다.             |
+| 5    | 중복 신고가 아닐경우 데이터베이스에 신고 정보를 저장한다. |
+| 6    | 시스템은 관리자에게 신고 내용을 알림으로 전송한다.     |
+| 7    | 신고자에게 신고 완료 팝업창을 보여준다.           |
+| 8    | 신고가 정상적으로 완료되면 종료한다.             |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
-|    |  |
-|      |                                                             |
+| ---- | ---------------- |
+| | |
+| | |
+| | |
 
 #### RELATED INFORMATION
 
