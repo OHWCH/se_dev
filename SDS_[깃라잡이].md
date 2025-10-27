@@ -1920,21 +1920,21 @@
 | 8    | 신고가 정상적으로 완료되면 종료한다.             |
 
 #### EXTENSION SCENARIOS
-| Step | Branching Action |
-| ---- | ---------------- |
-| | |
-| | |
-| | |
+| Step | Branching Action                          |
+| ---- | ----------------------------------------- |
+| 3a   | 신고 사유를 선택하지 않고 제출시 오류 팝업창을 표시하고 제출을 중단한다. |
+| 4a   | 동일 ID로 중복된 신고 제출시 오류 팝업창을 표시하고 신고를 중단한다.  |
+| 5a   | 데이터베이스 저장중 오류 발생시 오류 팝업창을 표시하고 신고를 중단한다.  |
 
 #### RELATED INFORMATION
 
 - **Performance**: 
-
+  
 - **Frequency**: 
 
 - **Concurrency**: 
 
-- **Due Date**: 2025. 11 .01 (예정)
+- **Due Date**: 
 ---
 ## 오픈소스 이슈 관리
 ### **Use case #35 : Good First Issue 이슈 목록 조회**
