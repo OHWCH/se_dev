@@ -1870,6 +1870,124 @@
 - **Concurrency**: 
 
 - **Due Date**: 2025. 11 .01 (예정)
+ 
+### **Use case #28 : 게시글 목록 조회**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 게시판의 게시글 목록을 조회한다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User/Admin level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 27
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User / Admin
+
+- **Preconditions**  
+  사용자가 깃라잡이 시스템에 접근이 가능하여야 한다.
+  
+- **Trigger**  
+  사용자가 게시판 메뉴를 클릭할 때 
+  
+- **Success Post Condition**  
+  해당 게시판의 게시글 목록(1페이지)이 페이징과 함께 출력된다.
+  
+- **Failed Post Condition** 
+  네트워크/DB 오류 시 목록 조회 실패 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 '게시판' 메뉴를 클릭한다.       |
+| 1    | 시스템이 해당 게시판의 게시글 목록을 데이터베이스에서 조회한다.            |
+| 2    | 시스템이 조회된 데이터를 페이징 처리(기본 1페이지)하여 사용자에게 반환한다. |
+| 3    | 사용자가 게시글 목록(제목, 작성자, 작성일, 조회수 등)을 확인한다.          |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|  1a  | 게시글이 하나도 없는 경우 "등록된 게시글이 없습니다." 메시지를 출력한다. |
+|  2a  | 사용자가 특정 페이지 번호를 클릭하면, 시스템은 해당 페이지의 목록을 조회하여 반환한다.  |
+
+#### RELATED INFORMATION
+
+- **Performance**: Load < 500ms
+
+- **Frequency**: 매우 높음
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+  ### **Use case #29 : 게시글 상세 조회**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 게시판 목록에서 특정 게시글의 상세 내용을 조회한다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User/Admin level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 27
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User / Admin
+
+- **Preconditions**  
+  사용자가 깃라잡이 시스템에 접근이 가능하여야 한다.
+  사용자가 게시글 조회 권한 또는 관리자 권한을 가져야 한다.
+  
+- **Trigger**  
+  사용자가 게시글 목록에서 특정 게시글의 '제목'을 클릭할 때
+  
+- **Success Post Condition**  
+  게시글의 상세 내용(제목, 본문, 작성자, 댓글 등)이 출력되고 조회수가 1 증가한다.
+  
+- **Failed Post Condition** 
+  게시글이 없거나 접근 권한이 없는 경우(예: 비밀글) 오류 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 목록에서 특정 게시글의 제목을 클릭한다.       |
+| 1    | 시스템이 해당 게시글 ID의 상세 내용을 데이터베이스에서 조회한다.            |
+| 2    | 시스템이 해당 게시글의 댓글 목록을 함께 조회한다. |
+| 3    | 시스템이 해당 게시글의 조회수를 1 증가시킨다.          |
+| 4    | 시스템이 게시글 상세 내용과 댓글 목록을 사용자에게 표시한다.          |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|  1a  | 존재하지 않는 게시글 ID일 경우 "존재하지 않는 게시글입니다." 메시지를 출력하고 목록으로 이동한다. |
+|  1b  | 접근 권한이 없는 게시글일 경우 "접근 권한이 없습니다." 메시지를 출력한다.  |
+
+#### RELATED INFORMATION
+
+- **Performance**: Load < 400ms
+
+- **Frequency**: 높음
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
 
 ### **Use case # : 게시글 신고**
 #### GENERAL CHARACTERISTICS
@@ -1936,6 +2054,132 @@
 
 - **Due Date**: 
 ---
+
+### **Use case #30 : 댓글 작성**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 특정 게시글에 댓글을 작성한다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User/Admin level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 27
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User(댓글 작성자)/Admin(관리자)
+
+- **Preconditions**  
+  사용자가 깃라잡이에 로그인되어 있어야 한다.
+  사용자가 게시글 상세 조회를 하고 있어야 한다.
+  
+- **Trigger**  
+  사용자가 댓글 입력 후 '등록' (또는 '작성') 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  댓글이 작성되어 해당 게시글의 댓글 목록 하단에 추가된다.
+  
+- **Failed Post Condition** 
+ 로그인/권한/검증/저장 오류 시 댓글 작성 실패 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 게시글의 댓글 입력 폼에 내용을 입력하고 '등록' 버튼을 클릭한다.        |
+| 1    | 시스템이 사용자 로그인 상태(권한)를 검증한다.           |
+| 2    | 시스템이 댓글 내용의 유효성을 검증한다. (예: 비어있는지)  |
+| 3    | 시스템이 댓글을 데이터베이스에 저장한다. (게시글 ID, 작성자 정보 포함)           |
+| 4    | "댓글이 등록되었습니다." 메시지를 표시하고, 댓글 목록을 갱신하여 새 댓글을 표시한다.   |
+
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+|  1a  | 로그인 상태가 아닌 경우 "로그인이 필요합니다." 메시지를 출력하고 로그인 페이지로 유도한다. |
+|  2a  | 내용이 비어있는 등 유효성 검증에 실패한 경우 "댓글 내용을 입력해주세요." 메시지를 출력한다.      |
+|  3a  | DB 저장에 실패한 경우 "댓글 등록에 실패했습니다. 다시 시도해주세요." 메시지를 출력한다. |
+
+
+#### RELATED INFORMATION
+- **Performance**: Create < 300ms
+
+- **Frequency**: 보통
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
+### **Use case #31 : 댓글 수정**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 자신이 작성한 댓글을 수정한다.
+
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  김성민
+
+- **Last Update**  
+  2025. 10. 27
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  User(댓글 작성자)/Admin(관리자)
+
+- **Preconditions**  
+  사용자가 로그인 상태이며 수정하려는 댓글의 작성자 본인이거나 관리자 권한을 보유해야 한다.
+  
+- **Trigger**  
+  사용자가 댓글의 '수정' 버튼 클릭 후, 수정 모드에서 '저장' 버튼을 클릭할 때
+  
+- **Success Post Condition**  
+  댓글 내용이 수정된 내용으로 변경되어 표시된다.
+  
+- **Failed Post Condition** 
+ 권한/검증/저장 오류 시 수정 불가 메시지를 출력한다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                             |
+| ---- | ---------------------------------- |
+| S    | 사용자가 자신의 댓글에서 '수정' 버튼을 클릭한다.        |
+| 1    | 시스템이 해당 댓글을 수정 모드(입력 폼)로 전환한다.           |
+| 2    | 사용자가 내용을 수정한 후 '저장' 버튼을 클릭한다.  |
+| 3    | 시스템이 사용자 권한을 검증한다. (작성자 본인 또는 관리자)           |
+| 4    | 시스템이 수정된 내용을 데이터베이스에 저장한다.   |
+| 5    | "수정되었습니다." 메시지 표시 후, 해당 댓글 내용을 갱신하여 표시한다.   |
+
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+|  3a  | 수정 권한이 없는 경우 "수정 권한이 없습니다." 메시지를 출력한다. |
+|  4a  | DB 저장에 실패한 경우 "수정에 실패했습니다." 메시지를 출력한다.      |
+
+
+#### RELATED INFORMATION
+- **Performance**: Update < 300ms
+
+- **Frequency**: 댓글당 0~N회
+
+- **Concurrency**: 
+
+- **Due Date**: 2025. 11 .01 (예정)
+
 ### **Use case #32 : 댓글 삭제**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
