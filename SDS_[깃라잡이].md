@@ -1694,6 +1694,68 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
+### **Use case # : 알림내역 모두 삭제**
+#### GENERAL CHARACTERISTICS
+- **Summary**    
+  사용자가 자신의 알림함을 비우는 기능이다.
+
+- **Scope**  
+  깃라잡이
+  
+- **Level**  
+  User level  
+
+- **Author**  
+  정동현
+
+- **Last Update**  
+  2025. 10. 28
+
+- **Status**  
+  Design
+  
+- **Primary Actor**  
+  User
+
+- **Preconditions**  
+ 사용자는 로그인을 한 상태이다.
+  
+- **Trigger**  
+ 사용자가 알림함에서 "모두 삭제"버튼을 누른다.
+  
+- **Success Post Condition**  
+  알림함이 성공적으로 비워진다.
+  
+- **Failed Post Condition** 
+  알림 목록이 기존 상태로 유지된다.
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                  |
+| ---- | --------------------------------------- |
+| S    | 사용자가 알림함을 연다.                           |
+| 1    | 사용자가 "모두 삭제" 버튼을 클릭한다.                  |
+| 2    | 시스템은 사용자에게 모두 삭제 확인 팝업을 표시한다.           |
+| 3    | 사용자가 "확인"을 선택한다.                        |
+| 4    | 시스템은 사용자의 알림 목록을 삭제한다.                  |
+| 5    | 사용자에게 삭제 완료 팝업을 표시하고 알림 목록을 빈 상태로 갱신한다. |
+| 6    | 갱신이 완료되면 종료된다.                          |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+| ---- | ---------------- |
+|||
+|||
+
+#### RELATED INFORMATION
+
+- **Performance**: 첫 페이지 로드 p95 ≤ 300ms, 추가 로드 p95 ≤ 200ms.
+
+- **Frequency**: 잦음(일상적 사용 시 수회/일).
+
+- **Concurrency**: 동시 조회 3,000 RPS 지원.
+
+- **Due Date**: 2025. 11. 01 (예정)
+
 ---
 
 ## 게시판
