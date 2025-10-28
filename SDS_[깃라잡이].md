@@ -2951,7 +2951,7 @@
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
-- **Frequency**:  ()
+- **Frequency**: 사용자당 하루 1회  
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
@@ -3007,7 +3007,7 @@
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 3 seconds  
-- **Frequency**:
+- **Frequency**: 과제별 1회  
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
@@ -3063,7 +3063,7 @@
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 3 seconds  
-- **Frequency**:
+- **Frequency**: 사용자당 월 1–3회  
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
@@ -3118,7 +3118,7 @@
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
-- **Frequency**:
+- **Frequency**: 사용자당 주 1회  
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
@@ -3174,7 +3174,7 @@
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 3 seconds  
-- **Frequency**:
+- **Frequency**: 사용자당 주 1회  
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
@@ -3231,7 +3231,7 @@
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
-- **Frequency**:
+- **Frequency**: 사용자당 하루 1회  
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
@@ -3288,7 +3288,7 @@
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
-- **Frequency**: 
+- **Frequency**: 사용자당 하루 1–2회  
 - **Concurrency**: 제한 없음  
 - **Due Date**: 2025. 11. 03.
 
