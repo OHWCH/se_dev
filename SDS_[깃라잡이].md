@@ -4,8 +4,16 @@
 
 (Logo) - option
 
-**Team information:** Student No, Name, E-mail  
-
+**Team information:**
+|    **Project title**    |                                                                                                                  깃라잡이                                                                                                                   |
+| :---------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|         **학번**          |                                                                                                                 **이름**                                                                                                                  |
+|        22111138         |                                                                                                                   오원창                                                                                                                   |
+|        22212006         |                                                                                                                   박솔                                                                                                                    |
+|        22112018         |                                                                                                                   김관호                                                                                                                   |
+|        22313542         |                                                                                                                   정동현                                                                                                                   |
+|        22112084         |                                                                                                                   김동규                                                                                                                   |
+|        22112110         |                                                                                                                   김성민     
 ---
 
 ## Revision history
@@ -3297,10 +3305,336 @@
 ## 3. Class diagram
 - Draw class diagrams.  
 - Describe each class in detail (attributes, methods, others) (table type).  
-- 12pt, 160%.  
+- 12pt, 160%.
+
+  
+### 오픈소스 이슈 관리
+<img width="1411" height="682" alt="image" src="https://github.com/user-attachments/assets/38b462e5-08d4-415f-8786-91f50cfce958" />
+
+- 엔티티 클래스의 연결은 표시하지 않음
+- 컨트롤 클래스와 바운더리 클래스의 의존성 표시
+
+#### Entity Class
+| Class Name | Issue |   |   |
+|---|---|---|---|
+| Class Description | 오픈소스 리포지토리의 개별 이슈를 표현하고 상태·라벨·메타정보를 관리 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | issueId<br>플랫폼 전역 이슈 식별자(예: GitHub issue node/id) | String | Private |
+|  | repositoryId<br>소속 리포지토리 식별자(owner/name 또는 내부 PK) | String | Private |
+|  | title<br>이슈 제목 | String | Private |
+|  | state<br>이슈 상태(OPEN/CLOSED 등) | String | Private |
+|  | labels<br>이슈에 부착된 라벨 집합(중복 없음) | Set<IssueLabel> | Private |
+|  | language<br>주요 언어(추천/필터링 보조용) | String | Private |
+|  | createdAt<br>이슈 생성 시각 | Instant | Private |
+|  | updatedAt<br>최근 업데이트 시각 | Instant | Private |
+|  | comments<br>댓글(코멘트) 수 | Integer | Private |
+|  | reactions<br>리액션 합계 | Integer | Private |
+|  | authorId<br>작성자 식별자 | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | isOpen()<br>현재 상태가 OPEN인지 여부 반환 | boolean | Public |
+|  | hasLabel(String name)<br>라벨 존재 여부 | boolean | Public |
+|  | labelCount()<br>UI·정렬 보조 | int | Public |
+|  | age()<br>생성 이후 경과 시간. 정렬·스코어링 보조 | java.time.Duration | Public |
+
+| Class Name | IssueBookmark |   |   |
+|---|---|---|---|
+| Class Description | 사용자별 이슈 북마크 상태 엔티티 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | userId<br>사용자 식별 | String | Private |
+|  | issueId<br>이슈 식별 | String | Private |
+|  | createdAt<br>북마크 생성 시각 | Instant | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | getUserId()<br>userid 읽기 | String | Public |
+|  | getIssueId()<br>issueid 읽기 | String | Public |
+|  | getCreatedAt()<br>북마크 시각 | Instant | Public |
+|  | equals(Object o)<br>(userId,issueId) 비교 | boolean | Public |
+|  | hashCode()<br>(userId,issueId) 기반 | int | Public |
+
+| Class Name | Repository |   |   |
+|---|---|---|---|
+| Class Description | 레포지토리 단위 식별, 정보 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | owner<br>리포 소유자 | String | Private |
+|  | name<br>리포 명 | String | Private |
+|  | url<br>리포 전체 URL | String | Private |
+|  | defaultBranch<br>기본 브랜치명 | String | Private |
+|  | topics<br>주제 태그 집합 | Set<String> | Private |
+|  | syncedAt<br>최신 동기화 시각 | Instant | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | getFullName()<br>owner와 name을 결합한 전체 이름 반환 | String | Public |
+
+| Class Name | IssueLabel |   |   |
+|---|---|---|---|
+| Class Description | 이슈에 부착되는 라벨 단위 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | name<br>라벨명 | String | Private |
+|  | color<br>표시 색상 코드 | String | Private |
+|  | description<br>라벨 설명 | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | isNamed(String n)<br>이름 비교 | boolean | Public |
+
+#### Control Class
+| Class Name | IssueService |   |   |
+|---|---|---|---|
+| Class Description | Issue 검색과 북마크 변경을 조합하는 도메인 제어 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | issueStore<br>DB 접근 | IssueStore | Private |
+|  | searchIndex<br>검색 인덱스 | SearchIndex | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | search(String keyword,List<String> labels,int limit)<br>검색 인덱스 기반 이슈 조회 | List<Issue> | Public |
+|  | addBookmark(String userId,String issueId)<br>북마크 저장 | void | Public |
+|  | removeBookmark(String userId,String issueId)<br>북마크 제거 | void | Public |
+
+| Class Name | SyncService |   |   |
+|---|---|---|---|
+| Class Description | GitHub에서 가져온 최신 데이터를 DB와 인덱스를 동기화 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | gitHubGateway<br>github api 호출 | GitHubGateway | Private |
+|  | repositoryStore<br>repository: 저장, 조회 포트 | RepositoryStore | Private |
+|  | issueStore<br>issue: 저장, 조회 포트 | IssueStore | Private |
+|  | searchIndex<br>검색 인덱스 갱신 포트 | SearchIndex | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | syncRepository(String repositoryId)<br>지정 리포를 가져와 저장과 인덱싱까지 실행 | void | Public |
+
+#### Boundary Class
+| Class Name | IssueApi |   |   |
+|---|---|---|---|
+| Class Description | HTTP요청을 받아 IssueService 호출 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | issueService<br>컨트롤 계층 진입점 | IssueService | Private |
+|  | userId<br>요청에서 추출한 사용자 식별 | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | getIssues(IssueQuerySpec spec)<br>목록 조회 요청 처리 | List<Issue> | Public |
+|  | addBookmark(String issueId)<br>북마크 추가 요청 처리 | void | Public |
+|  | removeBookmark(String issueId)<br>북마크 삭제 요청 처리 | void | Public |
+
+| Class Name | IssueStore |   |   |
+|---|---|---|---|
+| Class Description | Issue, IssueBookmark 접근 |   |   |
+| 구분 | Name | Type | Visibility |
+| 구분 | Name | Type | Visibility |
+| Operations | find(IssueQuerySpec spec)<br>조건으로 이슈 페이지 조회 | List<Issue> | Public |
+|  | saveIssue(Issue i)<br>이슈 insert or update | void | Public |
+|  | saveBookmark(String userId,String issueId)<br>북마크 저장 | void | Public |
+|  | deleteBookmark(String userId,String issueId)<br>북마크 삭제 | void | Public |
+|  | existsBookmark(String userId,String issueId)<br>존재 여부 확인 | boolean | Public |
+
+| Class Name | RepositoryStore |   |   |
+|---|---|---|---|
+| Class Description | 레포지토리 저장, 조회 |   |   |
+| 구분 | Name | Type | Visibility |
+| 구분 | Name | Type | Visibility |
+| Operations | upsert(Repository repo)<br>단건 생성/갱신 | void | Public |
+|  | findById(String repositoryId)<br>ID로 조회 | Optional<Repository> | Public |
+|  | deleteByOwner(String owner)<br>소유자 기준 삭제 | long | Public |
+
+| Class Name | GitHubGateway |   |   |
+|---|---|---|---|
+| Class Description | GitHub REST / GraphQL API 호출 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | httpClient<br>HTTP 클라이언트 | String | Private |
+|  | token<br>액세스 토큰 | String | Private |
+|  | baseUrl<br>GitHub API base | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | fetchIssues(IssueQuerySpec spec)<br>GitHub 이슈 목록 호출 | List<Issue> | Public |
+|  | fetchRepository(String owner,String name)<br>리포 조회 | Repository | Public |
+|  | fetchLabels(String owner,String name)<br>라벨 목록 조회 | Set<IssueLabel> | Public |
+
+| Class Name | SearchIndex |   |   |
+|---|---|---|---|
+| Class Description | 키워드 기반 이슈 검색 인덱스 어댑터 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | indexPath<br>인덱스 파일 저장 위치 | String | Private |
+|  | language<br>형태소 분석 언어 | String | Private |
+|  | defaultLimit<br>기본 검색 상한 | int | Private |
+|  | timeoutMillis<br>타임아웃 ms | long | Private |
+|  | highlightEnabled<br>하이라이트 사용 여부 | boolean | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | putIssue(Issue issue)<br>단일 이슈 인덱싱 | void | Public |
+|  | putAll(List<Issue> issues)<br>여러 이슈 일괄 인덱싱 | void | Public |
+|  | searchIds(String keyword,List<String> labels,int limit)<br>조건으로 issueId 검색 | List<String> | Public |
+|  | deleteIssue(String issueId)<br>이슈 인덱스 삭제 | void | Public |
+|  | deleteByRepository(String repositoryId)<br>리포지토리 단위 인덱스 삭제 | void | Public |
+|  | rebuild(List<Issue> issues)<br>전체 재인덱싱 | void | Public |
+|  | healthy()<br>상태 확인 | boolean | Public |
+
+### 기여도 및 도전과제
+<img width="1418" height="687" alt="image" src="https://github.com/user-attachments/assets/6eae7f80-3768-4a20-aa52-cada79015b04" />
+
+- 엔티티 클래스의 연결은 표시하지 않음
+- 컨트롤 클래스와 바운더리 클래스의 의존성 표시
+
+#### Entity Class
+| Class Name | Challenge |   |   |
+|---|---|---|---|
+| Class Description | 도전과제 정의 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | challengeId<br>과제 식별 | String | Private |
+|  | title<br>이름 | String | Private |
+|  | conditions<br>완료 조건 텍스트 목록 | List<String> | Private |
+|  | reward<br>보상 설명 | String | Private |
+|  | active<br>활성 여부 | boolean | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | isActive()<br>활성 여부 반환 | boolean | Public |
+
+| Class Name | ChallengeProgress |   |   |
+|---|---|---|---|
+| Class Description | 사용자별 특정 과제 진행 상태 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | userId<br>사용자 식별 | String | Private |
+|  | challengeId<br>과제 식별 | String | Private |
+|  | progressRate<br>진행률 0~100 | int | Private |
+|  | completedAt<br>완료 시각 null 가능 | Instant | Private |
+|  | updatedAt<br>최근 갱신 시각 | Instant | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | updateRate(int r)<br>진행률 갱신 0~100 범위 강제 | void | Public |
+|  | isCompleted()<br>완료 여부 반환 | boolean | Public |
+|  | markCompleted()<br>완료 플래그 처리 completedAt 설정 | void | Public |
+
+| Class Name | ContributionBadge |   |   |
+|---|---|---|---|
+| Class Description | 기여 배지 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | userId<br>사용자 식별 | String | Private |
+|  | badgeCode<br>배지 코드 식별 | String | Private |
+|  | awardedAt<br>부여 시각 | Instant | Private |
+|  | reason<br>부여 사유 | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | getUserId()<br>사용자 식별 반환 | String | Public |
+|  | getBadgeCode()<br>배지 코드 반환 | String | Public |
+|  | getAwardedAt()<br>부여 시각 반환 | Instant | Public |
+|  | getReason()<br>사유 텍스트 반환 | String | Public |
+|  | equals(Object o)<br>(userId,badgeCode) 동일성 판단 | boolean | Public |
+|  | hashCode()<br>(userId,badgeCode) 기반 | int | Public |
+
+| Class Name | UserContributionStats |   |   |
+|---|---|---|---|
+| Class Description | 사용자별 기여 지표 집계 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | userId<br>사용자 식별 | String | Private |
+|  | commits<br>커밋 수 | int | Private |
+|  | prs<br>PR 수 | int | Private |
+|  | issues<br>이슈 생성/해결 수 | int | Private |
+|  | reviews<br>리뷰 수 | int | Private |
+|  | score<br>종합 점수 | int | Private |
+|  | ranking<br>전체 사용자 내 순위 | int | Private |
+|  | period<br>집계 기간 식별 | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | calcScore()<br>점수 재계산 | void | Public |
+|  | setRanking(int r)<br>순위 갱신 | void | Public |
+
+| Class Name | News |   |   |
+|---|---|---|---|
+| Class Description | OSS 뉴스 항목 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | newsId<br>뉴스 식별자 | String | Private |
+|  | title<br>제목 | String | Private |
+|  | url<br>원문 링크 | String | Private |
+|  | source<br>제공 매체명 | String | Private |
+|  | publishedAtEpochMillis<br>게시 시각 | long | Private |
+|  | updatedAtEpochMillis<br>갱신 시각 | long | Private |
+|  | tags<br>태그 목록 | List<String> | Private |
+|  | thumbnailUrl<br>썸네일 이미지 링크 | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | hasTag(String tag)<br>특정 태그 포함 여부 | boolean | Public |
+
+#### Control Class
+| Class Name | ChallengeService |   |   |
+|---|---|---|---|
+| Class Description | 도전과제 진행률 갱신과 완료 판정을 제어 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | challengeStore<br>DB 접근 | ChallengeStore | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | listActive()<br>활성 과제 목록 조회 | List<Challenge> | Public |
+|  | getMyProgress(String challengeId)<br>내 진행률 조회 | ChallengeProgress | Public |
+|  | updateMyProgress(String challengeId,int rate)<br>내 진행률 갱신 | void | Public |
+|  | completeMyChallenge(String challengeId)<br>내 과제 완료 처리 | void | Public |
+
+| Class Name | ContributionService |   |   |
+|---|---|---|---|
+| Class Description | 기여 통계 조회·저장과 배지·랭킹 조회 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | challengeStore<br>DB 접근 | ChallengeStore | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | getMyStats()<br>내 통계 조회 | UserContributionStats | Public |
+|  | saveMyStats(UserContributionStats stats)<br>내 통계 저장 | void | Public |
+|  | myBadges()<br>내 배지 목록 조회 | List<ContributionBadge> | Public |
+|  | getBadge(String badgeCode)<br>배지 한 건 조회 | ContributionBadge | Public |
+|  | applyDelta(String userId,int commits,int prs,int issues,int reviews)<br>증가량 반영 점수 재계산 저장 | void | Public |
+|  | addCommits(String userId,int n)<br>커밋 n 증가 점수 재계산 저장 | void | Public |
+|  | addPRs(String userId,int n)<br>PR n 증가 점수 재계산 저장 | void | Public |
+|  | addIssues(String userId,int n)<br>이슈 n 증가 점수 재계산 저장 | void | Public |
+|  | addReviews(String userId,int n)<br>리뷰 n 증가 점수 재계산 저장 | void | Public |
+
+| Class Name | NewsService |   |   |
+|---|---|---|---|
+| Class Description | 뉴스 검색 정렬 페이징 조합 이동 URL 반환 |   |   |
+| 구분 | Name | Type | Visibility |
+| 구분 | Name | Type | Visibility |
+| Operations | find(int page,int size,String keyword,List<String> tags,boolean recentFirst)<br>조건에 맞는 뉴스 목록 반환 | List<News> | Public |
+|  | newsUrl(String newsId)<br>원문 URL 생성 | String | Public |
+
+#### Boundary Class
+| Class Name | ChallengeApi |   |   |
+|---|---|---|---|
+| Class Description | HTTP 요청을 받아 ChallengeService를 거쳐 도전과제 관련 서비스 호출 ChallengeStore로 전달 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | userId<br>인증 사용자 식별자 | String | Private |
+|  | challengeStore<br>DB 게이트웨이 | ChallengeStore | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | listActive()<br>활성 과제 목록 조회 | List<Challenge> | Public |
+|  | getProgress(String challengeId)<br>특정 과제 진행 조회 | ChallengeProgress | Public |
+|  | updateProgress(String challengeId,int rate)<br>진행률 갱신 | void | Public |
+|  | complete(String challengeId)<br>완료 처리 | void | Public |
+
+| Class Name | BadgeApi |   |   |
+|---|---|---|---|
+| Class Description | HTTP 요청을 받아 ChallengeService를 거쳐 ChallengeStore를 통해 배지 조회 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | userId<br>인증 사용자 식별자 | String | Private |
+|  | challengeStore<br>DB 게이트웨이 | ChallengeStore | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | listBadges()<br>내 배지 목록 조회 | List<ContributionBadge> | Public |
+|  | getBadge(String badgeCode)<br>배지 한 건 조회 | ContributionBadge | Public |
+
+| Class Name | RankingApi |   |   |
+|---|---|---|---|
+| Class Description | HTTP 요청 입력을 받아 ChallengeService를 거쳐 ChallengeStore를 통해 랭킹 조회 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | userId<br>인증 사용자 식별자 | String | Private |
+|  | challengeStore<br>DB 게이트웨이 | ChallengeStore | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | top(int limit)<br>상위 N 사용자 기여도 반환 | List<UserContributionStats> | Public |
+|  | myRank()<br>authUserId 기준 내 랭킹 반환 | UserContributionStats | Public |
+
+| Class Name | ChallengeStore |   |   |
+|---|---|---|---|
+| Class Description | 챌린지 관련 클래스에 대한 DB접근 게이트 웨이 |   |   |
+| 구분 | Name | Type | Visibility |
+| 구분 | Name | Type | Visibility |
+| Operations | findActiveChallenges()<br>활성 Challenge 목록 조회 | List<Challenge> | Public |
+|  | findProgress(String userId,String challengeId)<br>한 사용자 한 과제 진행 조회 | ChallengeProgress | Public |
+|  | saveProgress(ChallengeProgress progress)<br>진행률 insert or update | void | Public |
+|  | saveComplete(String userId,String challengeId)<br>완료 처리 | void | Public |
+|  | findBadges(String userId)<br>사용자의 배지 목록 조회 | List<ContributionBadge> | Public |
+|  | findBadge(String userId,String badgeCode)<br>배지 한 건 조회 | ContributionBadge | Public |
+|  | saveBadge(ContributionBadge badge)<br>배지 insert | void | Public |
+|  | findTop(int limit)<br>상위 기여도 순위 N명 조회 | List<UserContributionStats> | Public |
+|  | findStats(String userId)<br>특정 사용자 기여 통계 조회 | UserContributionStats | Public |
+|  | saveStats(UserContributionStats stats)<br>통계 insert or update | void | Public |
+
+| Class Name | NewsApi |   |   |
+|---|---|---|---|
+| Class Description | HTTP요청을 받아 목록 조회 이동 기능을 NewsService로 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | newsService<br>컨트롤 계층 | NewsService | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | list(int page,int size,String keyword,List<String> tags,boolean recentFirst)<br>뉴스 목록 조회 | List<News> | Public |
+|  | goTo(String newsId)<br>뉴스 상세 원문으로 이동할 URL 반환 | String | Public |
+
+
 
 ---
-
 ## 4. Sequence diagram
 - Draw sequence diagrams for the whole functions of your system.  
 - Explain each sequence diagram.  
