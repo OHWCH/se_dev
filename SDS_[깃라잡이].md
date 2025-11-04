@@ -3307,6 +3307,36 @@
 - Describe each class in detail (attributes, methods, others) (table type).  
 - 12pt, 160%.
 
+### 유저 관리
+
+#### Entity Class
+
+| Class Name        | StudyEntity |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 스터디 기본 정보를 표현하는 엔티티 |               |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | studyId<br>스터디 식별자(PK) | Long | private |
+|  | leaderId<br>스터디 리더 | UserEntity | private |
+|  | title<br>스터디 제목 | String | private |
+|  | description<br>스터디 설명 | String | private |
+|  | category<br>스터디 카테고리 | StudyCategory | private |
+|  | maxMember<br>최대 인원 수 | int | private |
+|  | currentMember<br>현재 인원 수 | int | private |
+|  | status<br>스터디 상태 | StudyStatus | private |
+|  | createdAt<br>생성 일시 | LocalDateTime | private |
+|  | updatedAt<br>수정 일시 | LocalDateTime | private |
+| 구분 | Name | Type | Visibility |
+| Operations | createStudy(title:String, description:String, category:StudyCategory, maxMember:int, leader:UserEntity) | StudyEntity | public |
+|  | updateStudy(title:String, description:String, category:StudyCategory, maxMember:int, status:StudyStatus) | void | public |
+|  | changeStatus(status:StudyStatus) | void | public |
+|  | incrementMember() | void | public |
+|  | decrementMember() | void | public |
+|  | isFull() | boolean | public |
+|  | isRecruiting() | boolean | public |
+|  | closeRecruitment() | void | public |
+
+
+
 ### 스터디 관리
 <img width="1173" height="1101" alt="image" src="https://github.com/user-attachments/assets/0e670c58-0c0f-4127-856c-497074bbde43" />
 
