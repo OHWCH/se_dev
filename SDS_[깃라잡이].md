@@ -3308,6 +3308,8 @@
 - 12pt, 160%.
 
 ### 스터디 관리
+<img width="1173" height="1101" alt="image" src="https://github.com/user-attachments/assets/0e670c58-0c0f-4127-856c-497074bbde43" />
+
 #### Entity Class
 
 | Class Name        | StudyEntity               |               |            |
