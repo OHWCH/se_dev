@@ -3841,9 +3841,10 @@
 |                   | leaveStudy(StudyLeaveRequestDto dto)<br>스터디 탈퇴                 | void                         | Public     |
 |                   | expelMember(StudyKickRequestDto dto)<br>스터디 강퇴                 | void                         | Public     |
 
-  
 
 ### 스터디 일정 관리
+
+<img width="1760" height="1061" alt="image" src="https://github.com/user-attachments/assets/c6896c2f-2005-47eb-91c5-93338c9596ae" />
 
 
 #### Entity Class
