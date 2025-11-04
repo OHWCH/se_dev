@@ -3307,6 +3307,123 @@
 - Describe each class in detail (attributes, methods, others) (table type).  
 - 12pt, 160%.
 
+### 스터디 관리
+#### Entity Class
+
+| Class Name        | StudyEntity               |               |            |
+| ----------------- | ------------------------- | ------------- | ---------- |
+| Class Description | 스터디 기본 정보를 표현하는 엔티티       |               |            |
+| 구분                | Name                      | Type          | Visibility |
+| Attribute         | study_id<br>스터디 식별자(PK)   | Long          | Private    |
+|                   | leader_id<br>스터디 리더       | UserEntity    | Private    |
+|                   | title<br>스터디 제목           | String        | Private    |
+|                   | description<br>스터디 설명     | String        | Private    |
+|                   | category<br>스터디 카테고리      | StudyCategory | Private    |
+|                   | max_member<br>최대 인원 수     | int           | Private    |
+|                   | current_member<br>현재 인원 수 | int           | Private    |
+|                   | status<br>스터디 상태          | StudyStatus   | Private    |
+|                   | created_at<br>생성 일시       | LocalDateTime | Private    |
+|                   | updated_at<br>수정 일시       | LocalDateTime | Private    |
+| 구분                | Name                      | Type          | Visibility |
+| Operations        |                           |               |            |
+
+#### Repository Class
+
+| Class Name        | StudyRepository                                     |                       |            |
+| ----------------- | --------------------------------------------------- | --------------------- | ---------- |
+| Class Description | StudyEntity에 대한 데이터 접근을 담당하는 인터페이스                  |                       |            |
+| 구분                | Name                                                | Type                  | Visibility |
+| Attribute         |                                                     |                       |            |
+| 구분                | Name                                                | Type                  | Visibility |
+| Operations        | findByCategory(category: String)<br>카테고리별 스터디 목록 조회 | List<StudyEntity>     | Public     |
+|                   | findByIdWithLeader(studyId: Long)<br>리더 포함 상세 조회    | Optional<StudyEntity> | Public     |
+|                   | existsByTitle(title: String)<br>스터디명 중복 여부 검사       | boolean               | Public     |
+|                   | save(entity: StudyEntity)<br>스터디 생성 및 수정            | StudyEntity           | Public     |
+|                   | deleteById(studyId: Long)<br>스터디 삭제                 | void                  | Public     |
+
+#### Service Class
+
+| Class Name        | StudyService                                                   |                            |            |
+| ----------------- | -------------------------------------------------------------- | -------------------------- | ---------- |
+| Class Description | 스터디 생성, 수정, 삭제등을 수정하는 클래스                                      |                            |            |
+| 구분                | Name                                                           | Type                       | Visibility |
+| Attribute         | studyRepository<br>스터디 DB 접근 객체                                | StudyRepository            | Private    |
+| 구분                | Name                                                           | Type                       | Visibility |
+| Operations        | createStudy(dto: StudyCreateDto, leaderId: String)<br>새 스터디 생성 | StudyDetailResponseDto     | Public     |
+|                   | updateStudy(studyId: Long, dto: StudyUpdateDto)<br>스터디 정보 수정   | StudyDetailResponseDto     | Public     |
+|                   | deleteStudy(studyId: Long)<br>스터디 삭제                           | void                       | Public     |
+|                   | getStudyList(category: String)<br>카테고리별 스터디 목록 조회              | List<StudyListResponseDto> | Public     |
+|                   | getStudyDetail(studyId: Long)<br>스터디 상세 조회                     | StudyDetailResponseDto     | Public     |
+
+#### Controller Class
+
+| Class Name        | StudyController                                                 |                        |            |
+| ----------------- | --------------------------------------------------------------- | ---------------------- | ---------- |
+| Class Description | 클라이언트로부터 스터디 관련 요청을 받아 Service를 호출하고 처리하는 컨트롤러                  |                        |            |
+| 구분                | Name                                                            | Type                   | Visibility |
+| Attribute         | studyService<br>스터디 서비스 객체                                      | StudyService           | Private    |
+| 구분                | Name                                                            | Type                   | Visibility |
+| Operations        | getStudyList(category: String)<br>스터디 목록 요청 처리                  | List<StudyResponseDto> | Public     |
+|                   | getStudyDetail(studyId: Long)<br>스터디 상세 요청 처리                   | StudyDetailDto         | Public     |
+|                   | createStudy(dto: StudyCreateDto)<br>스터디 생성 요청 처리                | StudyResponseDto       | Public     |
+|                   | updateStudy(studyId: Long, dto: StudyUpdateDto)<br>스터디 수정 요청 처리 | StudyResponseDto       | Public     |
+|                   | deleteStudy(studyId: Long)<br>스터디 삭제 요청 처리                      | void                   | Public     |
+
+#### DTO Class
+
+| Class Name        | StudyCreateDto        |        |            |
+| ----------------- | --------------------- | ------ | ---------- |
+| Class Description | 스터디 생성 요청 시 전달되는 dto  |        |            |
+| 구분                | Name                  | Type   | Visibility |
+| Attribute         | title<br>스터디 제목       | String | Private    |
+|                   | description<br>스터디 설명 | String | Private    |
+|                   | category<br>스터디 카테고리  | String | Private    |
+|                   | maxMember<br>최대 인원    | int    | Private    |
+| 구분                | Name                  | Type   | Visibility |
+| Operations        |                       |        |            |
+
+| Class Name        | StudyUpdateDto        |        |            |
+| ----------------- | --------------------- | ------ | ---------- |
+| Class Description | 스터디 수정 요청 시 전달되는 dto  |        |            |
+| 구분                | Name                  | Type   | Visibility |
+| Attribute         | title<br>스터디 제목       | String | Private    |
+|                   | description<br>스터디 설명 | String | Private    |
+|                   | category<br>스터디 카테고리  | String | Private    |
+|                   | status<br>스터디 상태      | String | Private    |
+| 구분                | Name                  | Type   | Visibility |
+| Operations        |                       |        |            |
+
+| Class Name        | StudyListResponseDto    |        |            |
+| ----------------- | ----------------------- | ------ | ---------- |
+| Class Description | 스터디 목록 조회 시 반환되는 dto    |        |            |
+| 구분                | Name                    | Type   | Visibility |
+| Attribute         | study_id<br>스터디 식별자     | Long   | Private    |
+|                   | title<br>스터디 제목         | String | Private    |
+|                   | category<br>스터디 카테고리    | String | Private    |
+|                   | leader_name<br>리더 닉네임   | String | Private    |
+|                   | current_member<br>현재 인원 | int    | Private    |
+|                   | max_member<br>최대 인원     | int    | Private    |
+|                   | status<br>스터디 상태        | String | Private    |
+| 구분                | Name                    | Type   | Visibility |
+| Operations        |                         |        |            |
+
+| Class Name        | StudyDetailResponseDto   |                                |            |
+| ----------------- | ------------------------ | ------------------------------ | ---------- |
+| Class Description | 스터디 상세 조회 시 반환되는 dto     |                                |            |
+| 구분                | Name                     | Type                           | Visibility |
+| Attribute         | study_id<br>스터디 식별자      | Long                           | Private    |
+|                   | title<br>스터디 제목          | String                         | Private    |
+|                   | description<br>스터디 설명    | String                         | Private    |
+|                   | category<br>스터디 카테고리     | String                         | Private    |
+|                   | status<br>스터디 상태         | String                         | Private    |
+|                   | currentMember<br>현재 인원 수 | int                            | Private    |
+|                   | maxMember<br>최대 인원 수     | int                            | Private    |
+|                   | schedules<br>스터디 일정 목록   | List<StudyScheduleResponseDto> | Private    |
+|                   | members<br>스터디 멤버 목록     | List<StudyMemberResponseDto>   | Private    |
+|                   | myRole<br>현재 사용자 역할      | String                         | Private    |
+| 구분                | Name                     | Type                           | Visibility |
+| Operations        |                          |                                |            |
+
   
 ### 오픈소스 이슈 관리
 <img width="1411" height="682" alt="image" src="https://github.com/user-attachments/assets/38b462e5-08d4-415f-8786-91f50cfce958" />
