@@ -3842,6 +3842,112 @@
 |                   | expelMember(StudyKickRequestDto dto)<br>스터디 강퇴                 | void                         | Public     |
 
   
+
+### 스터디 일정 관리
+
+
+#### Entity Class
+
+| Class Name            | StudyScheduleEntity                                                                                       |               |                |
+| --------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | -------------- |
+| **Class Description** | 스터디의 일정 정보를 저장하고 관리하는 엔티티                                                                                 |               |                |
+| **구분**                | **Name**                                                                                                  | **Type**      | **Visibility** |
+| **Attribute**         | scheduleId<br>스터디 일정 식별자(PK)                                                                              | Long          | Private        |
+|                       | study<br>소속 스터디 참조                                                                                        | StudyEntity   | Private        |
+|                       | title<br>일정 제목                                                                                            | String        | Private        |
+|                       | description<br>일정 설명                                                                                      | String        | Private        |
+|                       | startTime<br>시작 일시                                                                                        | LocalDateTime | Private        |
+|                       | endTime<br>종료 일시                                                                                          | LocalDateTime | Private        |
+|                       | createdAt<br>생성 일시                                                                                        | LocalDateTime | Private        |
+|                       | updatedAt<br>수정 일시                                                                                        | LocalDateTime | Private        |
+| **구분**                | **Name**                                                                                                  | **Type**      | **Visibility** |
+| **Operations**        | updateSchedule(String title, String description, LocalDateTime startTime, LocalDateTime endTime)<br>일정 수정 | void          | Public         |
+|                       | getDuration()<br>일정 기간 계산                                                                                 | Duration      | Public         |
+
+#### DTO Class
+
+| Class Name            | StudyScheduleCreateDto                      |                     |                |
+| --------------------- | ------------------------------------------- | ------------------- | -------------- |
+| **Class Description** | 일정 등록 시 클라이언트로부터 입력받는 데이터를 전달하는 DTO         |                     |                |
+| **구분**                | **Name**                                    | **Type**            | **Visibility** |
+| **Attribute**         | title<br>일정 제목                              | String              | Private        |
+|                       | description<br>일정 설명                        | String              | Private        |
+|                       | startTime<br>시작 일시                          | LocalDateTime       | Private        |
+|                       | endTime<br>종료 일시                            | LocalDateTime       | Private        |
+| **구분**                | **Name**                                    | **Type**            | **Visibility** |
+| **Operations**        | toEntity(StudyEntity study)<br>DTO를 엔티티로 변환 | StudyScheduleEntity | Public         |
+
+| Class Name            | StudyScheduleUpdateDto                                           |               |                |
+| --------------------- | ---------------------------------------------------------------- | ------------- | -------------- |
+| **Class Description** | 일정 수정 시 변경할 정보를 전달하는 DTO                                         |               |                |
+| **구분**                | **Name**                                                         | **Type**      | **Visibility** |
+| **Attribute**         | scheduleId<br>수정 대상 일정 식별자                                       | Long          | Private        |
+|                       | title<br>일정 제목                                                   | String        | Private        |
+|                       | description<br>일정 설명                                             | String        | Private        |
+|                       | startTime<br>시작 일시                                               | LocalDateTime | Private        |
+|                       | endTime<br>종료 일시                                                 | LocalDateTime | Private        |
+| **구분**                | **Name**                                                         | **Type**      | **Visibility** |
+| **Operations**        | applyToEntity(StudyScheduleEntity entity)<br>기존 일정 데이터에 수정 내용 반영 | void          | Public         |
+
+
+| Class Name            | StudyScheduleResponseDto                                   |                          |                |
+| --------------------- | ---------------------------------------------------------- | ------------------------ | -------------- |
+| **Class Description** | 일정 조회 시 클라이언트로 반환되는 응답 데이터 DTO                             |                          |                |
+| **구분**                | **Name**                                                   | **Type**                 | **Visibility** |
+| **Attribute**         | scheduleId<br>일정 식별자                                       | Long                     | Private        |
+|                       | title<br>일정 제목                                             | String                   | Private        |
+|                       | description<br>일정 설명                                       | String                   | Private        |
+|                       | startTime<br>시작 일시                                         | LocalDateTime            | Private        |
+|                       | endTime<br>종료 일시                                           | LocalDateTime            | Private        |
+|                       | createdAt<br>생성 일시                                         | LocalDateTime            | Private        |
+|                       | updatedAt<br>수정 일시                                         | LocalDateTime            | Private        |
+| **구분**                | **Name**                                                   | **Type**                 | **Visibility** |
+| **Operations**        | fromEntity(StudyScheduleEntity entity)<br>엔티티 데이터를 DTO로 변환 | StudyScheduleResponseDto | Public         |
+
+
+#### Repository Class
+
+| Class Name            | StudyScheduleRepository                                                    |                               |                |
+| --------------------- | -------------------------------------------------------------------------- | ----------------------------- | -------------- |
+| **Class Description** | 스터디 일정 데이터를 저장, 조회, 수정, 삭제하는 데이터 접근 인터페이스                                  |                               |                |
+| **구분**                | **Name**                                                                   | **Type**                      | **Visibility** |
+| **Operations**        | findByStudyId(Long studyId)<br>스터디별 일정 목록 조회                               | List<StudyScheduleEntity>     | Public         |
+|                       | findById(Long scheduleId)<br>단일 일정 조회                                      | Optional<StudyScheduleEntity> | Public         |
+|                       | save(StudyScheduleEntity entity)<br>일정 등록 및 수정                             | StudyScheduleEntity           | Public         |
+|                       | deleteByStudyIdAndScheduleId(Long studyId, Long scheduleId)<br>스터디 내 일정 삭제 | void                          | Public         |
+
+
+#### Service Class
+
+| Class Name            | StudyScheduleService                                                  |                                |                |
+| --------------------- | --------------------------------------------------------------------- | ------------------------------ | -------------- |
+| **Class Description** | 스터디 일정을 관리하느 ㄴ로직                                                      |                                |                |
+| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
+| **Attribute**         | studyScheduleRepository<br>일정 데이터 접근 계층                               | StudyScheduleRepository        | Private        |
+|                       | notificationService                                                   | NotificationService            | Private        |
+| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
+| **Operations**        | createSchedule(StudyScheduleCreateDto dto, Long studyId)<br>스터디 일정 등록 | StudyScheduleResponseDto       | Public         |
+|                       | updateSchedule(StudyScheduleUpdateDto dto)<br>스터디 일정 수정               | StudyScheduleResponseDto       | Public         |
+|                       | deleteSchedule(Long studyId, Long scheduleId)<br>스터디 일정 삭제            | void                           | Public         |
+|                       | getSchedules(Long studyId)<br>스터디 일정 목록 조회                            | List<StudyScheduleResponseDto> | Public         |
+|                       | getScheduleById(Long scheduleId)<br>스터디 일정 상세 조회                      | StudyScheduleResponseDto       | Public         |
+
+
+#### Controller Class
+
+| Class Name            | StudyScheduleController                                               |                                |                |
+| --------------------- | --------------------------------------------------------------------- | ------------------------------ | -------------- |
+| **Class Description** | 클라이언트 요청을 받아 Service를 호출하고 일정 데이터를 반환하는 컨트롤러                          |                                |                |
+| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
+| **Attribute**         | studyScheduleService<br>스터디 일정 서비스 계층                                 | StudyScheduleService           | Private        |
+| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
+| **Operations**        | getSchedules(Long studyId)<br>스터디 일정 목록 조회                            | List<StudyScheduleResponseDto> | Public         |
+|                       | getSchedule(Long scheduleId)<br>스터디 일정 상세 조회                          | StudyScheduleResponseDto       | Public         |
+|                       | createSchedule(Long studyId, StudyScheduleCreateDto dto)<br>스터디 일정 등록 | StudyScheduleResponseDto       | Public         |
+|                       | updateSchedule(StudyScheduleUpdateDto dto)<br>스터디 일정 수정               | StudyScheduleResponseDto       | Public         |
+|                       | deleteSchedule(Long studyId, Long scheduleId)<br>스터디 일정 삭제            | void                           | Public         |
+
+
 ### 오픈소스 이슈 관리
 <img width="1411" height="682" alt="image" src="https://github.com/user-attachments/assets/38b462e5-08d4-415f-8786-91f50cfce958" />
 
