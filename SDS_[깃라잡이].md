@@ -64,7 +64,10 @@
 ## 2. Use case analysis
 - Build a use case diagram.  
 - Make detailed description for each use case (Use case description).  
-- 12pt, 160%.  
+- 12pt, 160%.
+- Use case diagram
+- <img width="922" height="787" alt="image" src="https://github.com/user-attachments/assets/87212baf-d21b-47d4-bc9e-6539c80e08e6" />
+
 
 ## 회원관리
 1. 회원가입
