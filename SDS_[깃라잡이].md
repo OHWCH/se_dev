@@ -4281,6 +4281,327 @@
 - Explain each sequence diagram.  
 - 12pt, 160%.  
 
+
+## 오픈소스 이슈 관리
+### Good First Issue 목록 조회
+```mermaid
+sequenceDiagram
+    participant User
+    participant IssueApi
+    participant IssueService
+    participant IssueStore
+
+    activate User
+    User->>+IssueApi: S: "Good First Issue 목록" 메뉴 클릭 (getIssues)
+    
+    IssueApi->>+IssueService: getIssues(spec)
+    
+    IssueService->>+IssueStore: 2: find(spec)
+    IssueStore-->>-IssueService: 3: List<Issue> issues (조회된 목록)
+    
+    IssueService-->>-IssueApi: List<Issue> issues
+    
+    IssueApi-->>-User: 4: (200 OK) 이슈 목록 데이터
+    deactivate User
+```
+사용자가 'Good First Issue 목록' 메뉴를 클릭하면 이 과정이 시작됩니다. 이 요청은 IssueApi로 전달되어 getIssues가 호출되며, API는 IssueService에 쿼리 스펙(spec)을 넘깁니다. IssueService는 이 스펙을 바탕으로 IssueStore의 find 메서드를 호출하여 "Good First Issue" 라벨과 "OPEN" 상태 등의 조건에 맞는 이슈 목록을 데이터베이스에서 조회합니다. IssueStore가 이슈 목록을 반환하면, IssueService와 IssueApi를 거쳐 최종적으로 사용자에게 목록 데이터가 전달되어 화면에 표시됩니다.
+
+### 이슈 북마크 저장
+```mermaid
+sequenceDiagram
+    participant User
+    participant IssueApi
+    participant IssueService
+    participant IssueStore
+
+    activate User
+    User->>+IssueApi: S: "북마크" 아이콘 클릭 (addBookmark)
+    
+    IssueApi->>+IssueService: 1: addBookmark(userId, issueId)
+    
+    IssueService->>+IssueStore: 2: existsBookmark(userId, issueId)
+    IssueStore-->>-IssueService: false (북마크 없음)
+    
+    IssueService->>+IssueStore: 3: saveBookmark(userId, issueId)
+    IssueStore-->>-IssueService: (저장 완료)
+    
+    IssueService-->>-IssueApi: (200 OK)
+    
+    IssueApi-->>User: 4: "북마크에 저장되었습니다."
+    deactivate IssueApi
+    deactivate User
+```
+사용자가 특정 이슈의 '북마크' 아이콘을 클릭하면 IssueApi의 addBookmark가 호출됩니다. IssueApi는 IssueService에 userId와 issueId를 전달하여 addBookmark를 요청합니다. IssueService는 먼저 IssueStore의 existsBookmark를 호출해 중복 여부를 확인합니다. 중복이 아닐 경우(false), IssueService는 IssueStore의 saveBookmark를 호출하여 데이터베이스에 정보를 저장합니다. 저장이 완료되면, IssueApi를 통해 사용자에게 "북마크에 저장되었습니다."라는 확인 메시지가 전달됩니다.
+
+### 이슈 북마크 삭제
+```mermaid
+sequenceDiagram
+    participant User
+    participant IssueApi
+    participant IssueService
+    participant IssueStore
+
+    activate User
+    User->>+IssueApi: S: 활성화된 "북마크" 아이콘 클릭 (removeBookmark)
+    
+    IssueApi->>+IssueService: 1: removeBookmark(userId, issueId)
+    
+    IssueService->>+IssueStore: 2: deleteBookmark(userId, issueId)
+    IssueStore-->>-IssueService: (삭제 완료)
+    
+    IssueService-->>-IssueApi: (200 OK)
+    
+    IssueApi-->>User: 3: "북마크에서 삭제되었습니다."
+    deactivate IssueApi
+    deactivate User
+```
+사용자가 이미 활성화된 북마크 아이콘을 다시 클릭하면 IssueApi의 removeBookmark가 호출됩니다. IssueApi는 IssueService에 userId와 issueId를 전달하여 removeBookmark를 요청합니다. IssueService는 즉시 IssueStore의 deleteBookmark를 호출하여 데이터베이스에서 해당 북마크 데이터를 삭제합니다. 삭제가 성공적으로 완료되면, IssueApi를 통해 사용자에게 "북마크에서 삭제되었습니다."라는 확인 메시지가 전달됩니다.
+
+### 키워드 검색
+```mermaid
+sequenceDiagram
+    participant User
+    participant IssueApi
+    participant IssueService
+    participant SearchIndex
+    participant IssueStore
+
+    activate User
+    User->>+IssueApi: S: 키워드 입력 후 검색 (getIssues with spec)
+    
+    IssueApi->>+IssueService: 2: search(keyword, labels, limit)
+    
+    IssueService->>+SearchIndex: searchIds(keyword, labels, limit)
+    SearchIndex-->>-IssueService: List<String> issueIds
+    
+    IssueService->>+IssueStore: 3: find(spec_with_ids)
+    IssueStore-->>-IssueService: List<Issue> issues
+    
+    IssueService-->>-IssueApi: List<Issue> issues (정렬/가공된 결과)
+    
+    IssueApi-->>User: 4: (200 OK) 검색 결과 목록
+    deactivate IssueApi
+    deactivate User
+```
+사용자가 키워드를 입력하고 검색을 요청하면 IssueApi가 IssueService의 search 메서드를 호출합니다. IssueService는 SearchIndex의 searchIds를 호출하여 검색 인덱스로부터 키워드와 일치하는 이슈 ID 목록(issueIds)을 먼저 받아옵니다. 그 후, 이 ID 목록을 포함한 쿼리 스펙을 IssueStore의 find 메서드로 전달하여 데이터베이스에서 실제 Issue 객체 목록을 조회합니다. IssueService는 이 결과를 정렬하고 가공하여 IssueApi를 통해 사용자에게 최종 검색 결과 목록을 반환합니다.
+
+### OSS 이슈 이동
+```mermaid
+sequenceDiagram
+    participant User
+    participant System (Client)
+    participant GitHub
+
+    activate User
+    User->>System (Client): S: "GitHub에서 보기" 버튼 클릭
+    
+    System (Client)->>System (Client): 1: 클릭된 이슈의 GitHub URL 식별
+    
+    System (Client)->>+GitHub: 2: URL로 리다이렉트 (새 탭)
+    
+    GitHub-->>-System (Client): 3: GitHub 이슈 페이지 반환
+    
+    System (Client)-->>User: 4: 이슈 페이지 표시
+    deactivate User
+```
+사용자가 이슈 상세 화면에서 "GitHub에서 보기" 버튼을 클릭하면, 시스템(클라이언트)은 해당 이슈가 가지고 있는 고유한 GitHub URL을 식별합니다. 시스템은 즉시 사용자의 웹 브라우저에 새 탭을 열어 식별된 URL로 리다이렉트시킵니다. GitHub 서버는 이 요청에 응답하여 해당 이슈의 원본 페이지를 사용자 브라우저에 표시합니다.
+
+### vscode.dev 열기
+```mermaid
+sequenceDiagram
+    participant User
+    participant System (Client)
+    participant vscode.dev
+    participant GitHub
+
+    activate User
+    User->>System (Client): S, 1: "vscode.dev 열기" 버튼 클릭
+    
+    System (Client)->>System (Client): 2: 대상 리포(owner/repo)로 URL 구성
+    
+    System (Client)->>+vscode.dev: 3: 새 탭으로 URL 이동 (https://vscode.dev/github/...)
+```
+사용자가 "vscode.dev 열기" 버튼을 클릭하면, 시스템(클라이언트)은 현재 리포지토리의 owner와 name 정보를 바탕으로 https://vscode.dev/github/{owner}/{name} 형식의 URL을 동적으로 구성합니다. 시스템은 이 URL로 새 탭을 열어 vscode.dev로 이동시킵니다. 만약 대상 리포지토리가 Private인 경우, vscode.dev는 사용자에게 GitHub 인증을 요구하며, 사용자가 이를 승인하면 vscode.dev가 리포지토리의 파일 트리를 로드하여 웹 에디터를 렌더링합니다.
+
+## 기여도 및 도전과제
+### 도전과제 진행 상태 조회
+```mermaid
+sequenceDiagram
+    participant User
+    participant ChallengeApi
+    participant ChallengeService
+    participant ChallengeStore
+
+    activate User
+    User->>+ChallengeApi: 1: '도전과제 진행 현황' 클릭 (listActive)
+    
+    ChallengeApi->>+ChallengeService: listActive()
+    ChallengeService->>+ChallengeStore: 2: findActiveChallenges()
+    ChallengeStore-->>-ChallengeService: List<Challenge> activeChallenges
+    
+    loop for each challenge in activeChallenges
+        ChallengeService->>+ChallengeStore: 2: findProgress(userId, C.challengeId)
+        ChallengeStore-->>-ChallengeService: ChallengeProgress progress
+    end
+    
+    ChallengeService-->>-ChallengeApi: List<CombinedChallengeProgress>
+    
+    ChallengeApi-->>User: 3: (200 OK) 도전과제 목록 및 진행률
+    deactivate ChallengeApi
+    deactivate User
+```
+사용자가 '도전과제 진행 현황' 메뉴를 클릭하면 ChallengeApi의 listActive가 호출됩니다. ChallengeApi는 ChallengeService를 호출하고, ChallengeService는 ChallengeStore의 findActiveChallenges를 통해 현재 활성화된 모든 과제 목록을 가져옵니다. 그 다음, ChallengeService는 이 목록을 반복(loop)하면서 각 과제 ID에 대해 ChallengeStore의 findProgress를 호출하여 해당 사용자의 진행률(ChallengeProgress) 데이터를 개별적으로 조회합니다. 모든 과제 정보와 진행률이 조합되면, ChallengeApi를 통해 사용자에게 최종 목록이 반환됩니다.
+
+### 도전과제 완료
+```mermaid
+sequenceDiagram
+    participant User
+    participant ChallengeApi
+    participant ChallengeService
+    participant ChallengeStore
+
+    activate User
+    User->>+ChallengeApi: S, 1: '완료하기' 버튼 클릭 (complete)
+    
+    ChallengeApi->>+ChallengeService: completeMyChallenge(challengeId)
+    
+    ChallengeService->>+ChallengeStore: 2: findProgress(userId, challengeId)
+    ChallengeStore-->>-ChallengeService: ChallengeProgress (진행 상태)
+    
+    ChallengeService->>+ChallengeStore: 3: saveComplete(userId, challengeId)
+    ChallengeStore-->>-ChallengeService: (완료 상태 저장)
+    
+    ChallengeService-->>-ChallengeApi: (완료 성공)
+    
+    ChallengeApi-->>User: 4: "과제가 완료되었습니다."
+    deactivate ChallengeApi
+    deactivate User
+```
+사용자가 '완료하기' 버튼을 클릭하면 ChallengeApi의 complete 메서드가 호출됩니다. ChallengeApi는 ChallengeService의 completeMyChallenge를 호출합니다. ChallengeService는 먼저 ChallengeStore의 findProgress를 통해 해당 과제의 진행률이 100%인지 내부적으로 검증합니다. 검증이 완료되면, ChallengeService는 ChallengeStore의 saveComplete를 호출하여 데이터베이스의 과제 상태를 '완료'(예: completedAt 시각 기록)로 갱신하고 보상 지급 로직을 처리합니다. 모든 과정이 성공하면 ChallengeApi를 통해 사용자에게 "과제가 완료되었습니다."라는 메시지가 반환됩니다.
+
+### 오픈소스 기여 배지 획득
+```mermaid
+sequenceDiagram
+    participant User
+    participant System(Scheduler)
+    participant ContributionService
+    participant ChallengeStore
+
+    activate System(Scheduler)
+    System(Scheduler)->>+ContributionService: 1: (Event) 기여도/배지 조건 확인 (userId)
+    
+    ContributionService->>+ChallengeStore: findStats(userId)
+    ChallengeStore-->>-ContributionService: UserContributionStats
+    
+    ContributionService->>ContributionService: 2: (내부 로직) 배지 획득 조건 검증
+    
+    alt 조건 충족 시
+        ContributionService->>+ChallengeStore: 2: saveBadge(newBadge)
+        ChallengeStore-->>-ContributionService: (배지 저장 완료)
+        
+        ContributionService-->>User: 3: (Push) "배지 획득" 알림
+    end
+    
+    deactivate ContributionService
+    deactivate System(Scheduler)
+```
+이 과정은 사용자가 아닌 시스템 스케줄러에 의해 주기적으로 시작됩니다. 스케줄러가 ContributionService를 호출하여 특정 사용자의 배지 획득 조건 확인을 요청합니다. ContributionService는 ChallengeStore의 findStats를 호출하여 사용자의 기여 통계(UserContributionStats)를 조회합니다. 이 통계를 바탕으로 내부 로직을 통해 새로운 배지 획득 조건을 충족했는지 검증합니다. 만약 조건을 충족했다면, ContributionService는 ChallengeStore의 saveBadge를 호출하여 새 배지를 데이터베이스에 저장하고, 사용자에게 푸시 알림 등을 통해 배지 획득 사실을 알립니다.
+
+### 오픈소스 기여 배지 조회
+```mermaid
+sequenceDiagram
+    participant User
+    participant BadgeApi
+    participant ContributionService
+    participant ChallengeStore
+
+    activate User
+    User->>+BadgeApi: 1: '내 배지 보기' 클릭 (listBadges)
+    
+    BadgeApi->>+ContributionService: myBadges()
+    
+    ContributionService->>+ChallengeStore: 2: findBadges(userId)
+    ChallengeStore-->>-ContributionService: List<ContributionBadge> badgeList
+    
+    ContributionService-->>-BadgeApi: List<ContributionBadge> badgeList
+    
+    BadgeApi-->>User: 3: (200 OK) 보유 배지 목록
+    deactivate BadgeApi
+    deactivate User
+```
+사용자가 '내 배지 보기' 메뉴를 클릭하면 BadgeApi의 listBadges가 호출됩니다. BadgeApi는 ContributionService의 myBadges 메서드를 호출합니다. ContributionService는 ChallengeStore의 findBadges를 호출하여 데이터베이스에서 현재 로그인한 사용자의 모든 ContributionBadge 목록을 조회합니다. 이 목록은 ContributionService와 BadgeApi를 거쳐 사용자에게 반환되어 화면에 표시됩니다.
+
+### 오픈소스 기여도 랭킹 확인
+```mermaid
+sequenceDiagram
+    participant User
+    participant RankingApi
+    participant ContributionService
+    participant ChallengeStore
+
+    activate User
+    User->>+RankingApi: 1: '기여도 랭킹 보기' 클릭 (top + myRank)
+    
+    RankingApi->>+ContributionService: top(limit)
+    ContributionService->>+ChallengeStore: 2: findTop(limit)
+    ChallengeStore-->>-ContributionService: List<UserContributionStats> topList
+    ContributionService-->>-RankingApi: topList
+    
+    RankingApi->>+ContributionService: myRank()
+    ContributionService->>+ChallengeStore: 2: findStats(userId)
+    ChallengeStore-->>-ContributionService: UserContributionStats myStats
+    ContributionService-->>-RankingApi: myStats
+    
+    RankingApi-->>User: 3, 4: (200 OK) 랭킹 목록 및 내 순위
+    deactivate RankingApi
+    deactivate User
+```
+사용자가 '기여도 랭킹 보기'를 클릭하면 RankingApi가 호출됩니다. RankingApi는 먼저 ContributionService의 top 메서드를 호출하고, 이는 ChallengeStore의 findTop을 통해 상위 N명의 랭킹 목록(UserContributionStats 리스트)을 조회합니다. 동시에 RankingApi는 ContributionService의 myRank 메서드를 호출하고, 이는 ChallengeStore의 findStats를 통해 '내' 기여 통계 및 순위 정보를 조회합니다. RankingApi는 이 두 정보를 조합하여 사용자에게 전체 랭킹 목록과 자신의 순위를 함께 반환합니다.
+
+### OSS 뉴스 목록 조회
+```mermaid
+sequenceDiagram
+    participant User
+    participant NewsApi
+    participant NewsService
+
+    activate User
+    User->>+NewsApi: S, 1: 'OSS 뉴스 보기' 클릭 (list)
+    
+    NewsApi->>+NewsService: list(page, size, keyword, tags, recentFirst)
+    
+    NewsService->>NewsService: 2, 3: (내부 로직) 외부 API 호출 및<br/>뉴스 데이터 목록 가공
+    
+    NewsService-->>-NewsApi: List<News> newsList
+    
+    NewsApi-->>User: 4: (200 OK) 뉴스 목록
+    deactivate NewsApi
+    deactivate User
+```
+사용자가 'OSS 뉴스 보기' 메뉴를 클릭하면 NewsApi의 list가 호출됩니다. NewsApi는 NewsService의 list 메서드를 호출합니다. NewsService는 (필요시 외부 API를 호출하거나 DB를 조회하는) 내부 로직을 통해 최신 뉴스 데이터를 가져와 News 객체 목록으로 가공합니다. 이 가공된 목록은 NewsApi를 거쳐 사용자에게 반환되어 화면에 표시됩니다.
+
+### OSS 뉴스 페이지로 이동
+```mermaid
+sequenceDiagram
+    participant User
+    participant NewsApi
+    participant NewsService
+    participant ExternalNewsPage
+
+    activate User
+    User->>+NewsApi: 1: 뉴스 항목 클릭 (goTo)
+    
+    NewsApi->>+NewsService: 2: newsUrl(newsId)
+    NewsService-->>-NewsApi: String url (원문 URL 반환)
+    
+    NewsApi-->>User: 3: (Redirect) URL 전달
+    
+    User->>+ExternalNewsPage: 3: (Browser) 새 탭으로 URL 요청
+    ExternalNewsPage-->>-User: 4: 원문 페이지 표시
+    deactivate User
+```
+사용자가 뉴스 목록에서 특정 항목을 클릭하면 NewsApi의 goTo 메서드가 호출됩니다. NewsApi는 NewsService의 newsUrl을 호출하여 해당 newsId의 원본 URL(문자열)을 요청합니다. NewsService가 이 URL을 반환하면, NewsApi는 사용자에게 이 URL로 리다이렉트하라는 응답을 보냅니다. 사용자의 브라우저는 이 응답을 받아 새 탭을 열고 해당 외부 뉴스 원문 페이지(ExternalNewsPage)로 이동하여 기사를 표시합니다.
+
 ---
 
 ## 5. State machine diagram
