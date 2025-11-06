@@ -3951,6 +3951,265 @@
 |                       | updateSchedule(StudyScheduleUpdateDto dto)<br>스터디 일정 수정               | StudyScheduleResponseDto       | Public         |
 |                       | deleteSchedule(Long studyId, Long scheduleId)<br>스터디 일정 삭제            | void                           | Public         |
 
+### 게시판
+```mermaid
+classDiagram
+    direction LR
+
+    %% 1. <<Entity>> Classes (데이터 계층)
+    class User {
+        <<Entity>>
+        -String user_id
+        -String user_name
+        -String role
+        +boolean isAdmin()
+    }
+    class Post {
+        <<Entity>>
+        -Long post_id
+        -String user_id
+        -String title
+        -int viewCount
+        +void increaseViewCount()
+        +void update(data)
+    }
+    class QnAPost {
+        <<Entity>>
+        -bool isAnswered
+        -List<String> techTag
+        +void markAsAnswered()
+    }
+    class Comment {
+        <<Entity>>
+        -Long comment_id
+        -Long post_id
+        -String user_id
+        -String content
+        +void updateContent(content)
+    }
+    class Answer {
+        <<Entity>>
+        -Long answer_id
+        -Long qnaPost_id
+        -String user_id
+        -bool isAdopted
+        +void adopt()
+    }
+
+    %% 2. <<Control>> Classes (업무 로직 계층)
+    class PostManagementService {
+        <<Control>>
+        -PostRepository postRepository
+        +Post createPost(User user, Post data)
+        +Post updatePost(User user, Long postId, Post updateData)
+        +void deletePost(User user, Long postId)
+    }
+    class PostQueryService {
+        <<Control>>
+        -PostRepository postRepository
+        -CommentRepository commentRepository
+        +List~Post~ getPostList(BoardType type, int page)
+        +Post getPostDetail(Long postId)
+    }
+    class CommentManagementService {
+        <<Control>>
+        -CommentRepository commentRepository
+        +Comment createComment(User user, Long postId, String content)
+        +void deleteComment(User user, Long commentId)
+        +Answer registerAnswer(User user, Long qnaPostId, String content)
+    }
+
+    %% 3. <<Boundary>> Classes (UI/API 계층)
+    class PostListView {
+        <<Boundary>>
+        -PostQueryService postQueryService
+        +void requestPostList(type, page)
+        +void displayPostList(List~Post~)
+    }
+    class PostDetailView {
+        <<Boundary>>
+        -PostQueryService postQueryService
+        -PostManagementService postManagementService
+        +void requestPostDetail(postId)
+        +void requestDeletePost(postId)
+        +void displayDetail(Post, List~Comment~)
+    }
+    class PostWriteUI {
+        <<Boundary>>
+        -PostManagementService postManagementService
+        +Post collectPostData()
+        +void submitPost(data)
+    }
+    class CommentForm {
+        <<Boundary>>
+        -CommentManagementService commentManagementService
+        +String collectCommentData()
+        +void submitComment(postId, content)
+    }
+
+    %% Relationships (관계 설정)
+
+    %% A. Generalization (상속/일반화)
+    QnAPost --|> Post : inherits
+
+    %% B. Association (연관: 데이터 구조)
+    User "1" --> "0..*" Post : writes
+    User "1" --> "0..*" Comment : writes
+    User "1" --> "0..*" Answer : writes
+
+    Post "1" --> "0..*" Comment : contains
+    QnAPost "1" --> "0..*" Answer : contains
+
+    %% C. Boundary to Control (연관/의존: UI가 로직 사용)
+    PostListView --> PostQueryService
+    PostDetailView --> PostQueryService
+    PostDetailView --> PostManagementService
+    PostWriteUI --> PostManagementService
+    CommentForm --> CommentManagementService
+
+    %% D. Control to Entity (의존: 로직이 데이터 조작)
+    PostManagementService ..> User
+    PostManagementService ..> Post
+    PostManagementService ..> QnAPost
+
+    PostQueryService ..> Post
+    PostQueryService ..> QnAPost
+    PostQueryService ..> Comment
+    PostQueryService ..> Answer
+
+    CommentManagementService ..> User
+    CommentManagementService ..> Comment
+    CommentManagementService ..> Answer
+
+- 바운더리 클래스와의 연결은 표시하지 않음
+- 컨트롤 클래스와 엔티티 클래스의 의존성 표시
+  
+### Entity Class
+| Class Name        | User |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 시스템 사용자 계정 정보를 관리하는 엔티티 |               |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | user_id<br>사용자 고유 ID (PK)| String | private |
+|  | user_name<br>사용자 닉네임 | String | private |
+|  | role<br>사용자 역할 (USER, ADMIN) | String | private |
+| 구분 | Name | Type | Visibility |
+| Operations | isAdmin()<br>관리자 역할 여부 확인 | boolean | public |
+
+| Class Name        | Post |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 일반 커뮤니티 게시글 데이터를 저장하는 엔티티 |               |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | post_id<br>게시글 식별자(PK)| Long | private |
+|  | user_id<br>작성자 식별자(FK) | String | private |
+|  | title<br>게시글 제목 | String| private |
+|  | viewCount<br>게시글 조회수 | int| private |
+| 구분 | Name | Type | Visibility |
+| Operations | increaseViewCount()<br>게시글의 조회수를 1 증가 | void | public |
+|  | update(data)<br>게시글 데이터 수정| void | Public |
+
+| Class Name        | QnAPost |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | QnA 질문 게시글 데이터를 저장하는 엔티티 (Post 상속) |               |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | post_id<br>게시글 식별자(PK)| Long | private |
+|  | isAnswered<br>답변 완료 여부 | bool | private |
+|  | techTag<br>질문과 관련된 기술 태그 | List<String>| private |
+| 구분 | Name | Type | Visibility |
+| Operations | markAsAnswered())<br>답변 상태를 '완료'로 변경 | void | public |
+
+| Class Name        | Comment |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 일반 게시글에 종속되는 댓글 데이터를 저장하는 엔티티|               |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | comment_id<br>댓글 식별자(PK)| Long | private |
+|  | post_id<br>원본 게시글 식별자(FK) | Long | private |
+|  | user_id<br>작성자 식별자(FK) | String | private |
+|  | content<br>댓글 내용 | String| private |
+| 구분 | Name | Type | Visibility |
+| Operations | updateContent(content)<br>댓글 내용 수정 | void | public |
+
+| Class Name        | Answer |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | QnA 질문에 종속되는 답변 데이터를 저장하는 엔티티 |               |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | answer_id<br>답 식별자(PK)| Long | private |
+|  | qnaPost_id<br>원본 QnA 게시글 식별자(FK) | Long | private |
+|  | user_id<br>작성자 식별자(FK) | String | private |
+|  | isAdopted<br>채택 여부 | bool| private |
+| 구분 | Name | Type | Visibility |
+| Operations | adopt())<br>답변 채택 상태로 변경 | void | public |
+
+### Control Class
+| Class Name        | PostManagementService |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 게시글 및 QnA 질문의 작성, 수정, 삭제와 관련된 모든 업무 로직을 담당하는 제어 클래스 |       |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | postRepository<br>게시글(Post/QnAPost) 데이터 접근 객체 | PostRepository | private |
+| 구분 | Name | Type | Visibility |
+| Operations | createPost(User user, Post data)()<br>게시글 작성 및 QnA 게시글 작성을 처리(유효성 검증 포함) | Post | public |
+|  | updatePost(User user, Long postId, Post updateData)<br>게시글 수정을 처리 (권한 및 내용 검증 포함) | Post | Public |
+|  | deletePost(User user, Long postId)<br>게시글 삭제를 처리(작성자/관리자 권한 검증 포함) | void | Public |
+
+| Class Name        | PostQueryService |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 게시글의 목록 조회 및 상세 조회와 관련된 모든 읽기 로직을 담당하는 제어 클래스 |       |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | postRepository<br>게시글(Post/QnAPost) 데이터 접근 객체 | PostRepository | private |
+|  | commentRepository<br>댓글/답변 데이터 접근 객체(상세 조회시 사용) | CommentRepository | private |
+| 구분 | Name | Type | Visibility |
+| Operations | getPostList(BoardType type, int page)<br>게시글 목록 조회를 처리(페이징,정렬 포함) | List<Post> | public |
+|  | getPostDetail(Long postId)<br>게시글 상세 조회를 처리(조회수 증가 및 댓글 조회 포함) | Post | Public |
+
+| Class Name        | CommentManagementService |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 댓글 및 답변의 작성, 수정, 삭제와 관련된 모든 로직을 담당하는 제어 클래스 |       |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | commentRepository<br>댓글/답변 데이터 접근 객체 | CommentRepository | private |
+| 구분 | Name | Type | Visibility |
+| Operations | createComment(User user, Long postId, String content)<br>댓글 작성을 처리 | Comment | public |
+|  | updateComment(User user, Long commentId, String content)<br>댓글 수정을 처리 | Comment | Public |
+|  | deleteComment(User user, Long commentId)<br>댓글 삭제를 처리 | Void | Public |
+|  | registerAnswer(User user, Long qnaPostId, String content)<br>QnA 게시글 답변 등록을 처리 | Answer | Public |
+
+### Boundary Class
+| Class Name        | PostListView |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 게시글 목록 화면을 담당하는 경계 클래스 (UI/API Layer) |       |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | postQueryService<br>목록 조회 로직을 호출할 제어 객체 | PostQueryService | private |
+| 구분 | Name | Type | Visibility |
+| Operations | requestPostList(type, page)<br>게시글 목록 조회 요청을 서비스로 전달 | void | public |
+|  | updateComment(User user, Long commentId, String content)<br>댓글 수정을 처리 | void | Public |
+|  | displayPostList(List<Post>)<br>조회된 게시글 목록을 사용자에게 표시 | Void | Public |
+
+| Class Name        | PostDetailView |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 게시글 상세 화면을 담당하는 경계 클래스 (UI/API Layer) |       |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | postQueryService<br>상세조회 로직을 호출할 제어 객체 | PostQueryService | private |
+|  | postManagementService<br>삭제/수정 요청을 호출할 제어 객체 | PostManagementService| private |
+| 구분 | Name | Type | Visibility |
+| Operations | requestPostDetail(postId)<br>게시글 상세조회 요청을 서비스로 전달 | void | public |
+|  | requestDeletePost(postId)<br>게시글 삭제 요청을 서비스로 전달 | void | Public |
+|  | displayDetail(Post, List<Comment>)<br>상세 내용 및 댓글 목록을 사용자에게 표시 | Void | Public |
+
+| Class Name        | PostWriteUI |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 게시글 작성/수정 폼을 담당하는 경계 클래스 (UI/API Layer) |       |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | postManagementService<br>작성/수정 로직을 호출할 제어 객체 | PostManagementService | private |
+| 구분 | Name | Type | Visibility |
+| Operations | collectPostData()<br>사용자 입력 데이터 (제목/내용) 수집 | Post | public |
+|  | submitPost(data)<br>게시글 작성/수정 요청을 서비스로 전달 | void | Public |
+
+| Class Name        | CommentForm |               |            |
+| ----------------- | ------------ | ------------- | ---------- |
+| Class Description | 댓글/답변 작성/수정 폼을 담당하는 경계 클래스 (UI/API Layer) |       |            |
+| 구분 | Name | Type | Visibility |
+| Attribute | commentManagementService<br>댓글/답변 로직을 호출할 제어 객체 | CommentManagementService | private |
+| 구분 | Name | Type | Visibility |
+| Operations | collectCommentData()<br>사용자 입력 댓글 내용 수집 | String | public |
+|  | submitComment(postId, content)<br>댓글 작성/답변 등록 요청을 서비스로 전달 | void | Public |
 
 ### 오픈소스 이슈 관리
 <img width="1411" height="682" alt="image" src="https://github.com/user-attachments/assets/38b462e5-08d4-415f-8786-91f50cfce958" />
