@@ -4416,6 +4416,483 @@
 - Explain each sequence diagram.  
 - 12pt, 160%.  
 
+## 게시판
+### 게시글 작성
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as PostWriteUI
+    participant Control as PostManagementService
+    participant Repository_P as PostRepository
+    participant Entity_P as Post / QnAPost
+    
+    Title: Use case #27: 게시글 작성
+    
+    User->>Boundary: submitPost(newPostData)
+    activate Boundary
+    
+    Note over Boundary: 1. PostWriteUI가 사용자 입력 데이터 수집
+    
+    Boundary->>Control: createPost(User user, Post newPostData)
+    activate Control
+    
+    Note over Control: 2. 데이터 유효성 및 권한 검증
+    
+    alt 유효성 검증 성공
+        
+        Note over Control: 3. Post Entity 생성 및 초기화
+        Control->>Entity_P: create(user_id, title, content)
+        
+        Note over Control: 4. 게시글 데이터베이스 저장 (Persistence)
+        Control->>Repository_P: save(Post/QnAPost)
+        activate Repository_P
+        Repository_P-->>Control: Persisted Post Entity 반환
+        deactivate Repository_P
+        
+        Control-->>Boundary: Created Post Entity 반환
+        deactivate Control
+        
+        Boundary->>User: displaySuccessMessage()
+    else 유효성 검증 실패 (제목/내용 누락 등)
+        Control-->>Boundary: Error Message 반환
+        deactivate Control
+        
+        Boundary->>User: displayErrorMessage("필수 항목을 입력해주세요.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 게시글 작성 폼에서 '작성' 버튼을 클릭(submitPost)하면 이 과정이 시작됩니다. 이 요청은 PostWriteUI (Boundary)로 전달되어 사용자의 입력 데이터(newPostData)가 수집됩니다. PostWriteUI는 수집된 데이터를 사용자 정보(User user)와 함께 PostManagementService (Control)의 createPost 메서드를 호출하며 전달합니다.
+PostManagementService는 게시글 제목이나 내용의 누락 여부 등 입력된 데이터의 유효성을 검증하는 핵심 로직을 수행합니다. 유효성 검증에 성공하면, PostManagementService는 Post 또는 QnAPost Entity를 생성하고 작성자 ID와 내용을 초기화합니다. 이어서 Control은 생성된 Entity를 PostRepository에 넘겨 데이터베이스에 저장합니다. 저장소에서 데이터 저장이 완료되면, 저장된 Entity가 PostManagementService를 거쳐 PostWriteUI로 최종 반환됩니다. PostWriteUI는 사용자에게 성공 메시지를 표시하며 프로세스를 완료합니다.
+만약 유효성 검증에 실패했다면, PostManagementService는 데이터 저장 과정 없이 즉시 PostWriteUI로 Error Message를 반환하고, PostWriteUI는 사용자에게 오류 메시지를 표시하며 흐름을 종료합니다.
+
+### 게시글 수정
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as PostWriteUI
+    participant Control as PostManagementService
+    participant Repository_P as PostRepository
+    participant Entity_P as Post
+    
+    Title: Use case #28: 게시글 수정
+    
+    User->>Boundary: requestUpdate(postId, updateData)
+    activate Boundary
+    
+    Note over Boundary: 1. PostWriteUI가 수정 데이터 수집
+    
+    Boundary->>Control: updatePost(User user, Long postId, Post updateData)
+    activate Control
+    
+    Note over Control: 2. 기존 게시글 조회 및 권한 확인을 위한 데이터 요청
+    
+    Control->>Repository_P: findById(postId)
+    activate Repository_P
+    Repository_P-->>Control: Post Entity 반환 (originalPost)
+    deactivate Repository_P
+    
+    alt user.user_id == originalPost.user_id (작성자 또는 관리자인 경우)
+        
+        Note over Control: 3. 게시글 내용 유효성 검증 및 Entity 상태 변경
+        Control->>Entity_P: update(updateData)
+        
+        Note over Control: 4. 변경 내용 데이터베이스 저장
+        Control->>Repository_P: save(originalPost)
+        activate Repository_P
+        Repository_P-->>Control: Updated Post 반환
+        deactivate Repository_P
+        
+        Control-->>Boundary: Updated Post 반환
+        deactivate Control
+        
+        Boundary->>User: displayUpdateSuccess()
+    else 수정 권한 없음
+        Control-->>Boundary: Error: Forbidden (권한 오류)
+        deactivate Control
+        
+        Boundary->>User: displayErrorMessage("수정 권한이 없습니다.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 수정 폼에서 '수정 완료' 버튼을 클릭(requestUpdate)하면 이 과정이 시작되며, PostWriteUI (Boundary)는 수정에 필요한 데이터(postId, updateData)를 수집합니다. PostWriteUI는 이 정보를 PostManagementService (Control)의 updatePost 메서드로 전달합니다. PostManagementService는 가장 먼저 PostRepository에 postId를 전달하여 기존 게시글 Entity를 조회하여 가져옵니다.
+Control은 조회된 Entity를 바탕으로, 현재 요청을 보낸 User의 ID와 게시글의 user_id를 비교하여 수정 권한을 검증합니다. 권한 검증에 성공하면, PostManagementService는 게시글 Entity 객체의 update 메서드를 호출하여 메모리 상의 Entity 상태를 변경합니다. 이후 Control은 변경된 Entity를 PostRepository에 넘겨 **데이터베이스에 변경 내용을 저장(save)**하고, 저장된 최종 Entity를 PostWriteUI로 반환합니다. PostWriteUI는 사용자에게 수정 성공 메시지를 표시하며 완료됩니다.
+만약 권한 검증에 실패하면, PostManagementService는 저장 과정을 생략하고 즉시 PostWriteUI로 권한 오류 메시지를 반환하며, PostWriteUI는 사용자에게 오류 메시지를 표시하고 흐름을 종료합니다.
+
+### 게시글 삭제
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as PostDetailView
+    participant Control as PostManagementService
+    participant Repository_P as PostRepository
+    
+    Title: Use case #29: 게시글 삭제
+    
+    User->>Boundary: requestDelete(postId)
+    activate Boundary
+    
+    Boundary->>Control: deletePost(User user, Long postId)
+    activate Control
+    
+    Note over Control: 1. 기존 게시글 조회 및 권한 확인을 위한 데이터 요청
+    
+    Control->>Repository_P: findById(postId)
+    activate Repository_P
+    Repository_P-->>Control: Post Entity 반환 (originalPost)
+    deactivate Repository_P
+    
+    alt user.user_id == originalPost.user_id (작성자 또는 관리자인 경우)
+        
+        Note over Control: 2. 게시글 데이터베이스에서 영구 삭제
+        Control->>Repository_P: delete(originalPost)
+        activate Repository_P
+        Repository_P-->>Control: Success Confirmation
+        deactivate Repository_P
+        
+        Control-->>Boundary: Success Confirmation 반환
+        deactivate Control
+        
+        Boundary->>User: displayDeleteSuccess()
+    else 삭제 권한 없음
+        Control-->>Boundary: Error: Forbidden (권한 오류)
+        deactivate Control
+        
+        Boundary->>User: displayErrorMessage("삭제 권한이 없습니다.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 게시글 상세 화면에서 '삭제' 버튼을 클릭(requestDelete)하면 이 과정이 시작되며, PostDetailView (Boundary)는 삭제할 게시글의 postId를 수집합니다. PostDetailView는 이 정보를 PostManagementService (Control)의 deletePost 메서드로 전달합니다.
+PostManagementService는 가장 먼저 PostRepository에 postId를 전달하여 기존 게시글 Entity를 조회하여 가져옵니다. Control은 조회된 Entity를 바탕으로, 현재 요청을 보낸 User의 ID와 게시글의 user_id를 비교하여 삭제 권한을 검증합니다. 권한 검증에 성공하면, PostManagementService는 조회한 Entity를 PostRepository에 넘겨 데이터베이스에서 해당 게시글 데이터를 영구적으로 삭제하도록 요청합니다. 삭제가 완료되면, Control을 거쳐 PostDetailView로 성공 응답이 반환되고, PostDetailView는 사용자에게 삭제 성공 메시지를 표시하며 완료됩니다.
+만약 권한 검증에 실패하면, PostManagementService는 삭제 과정을 생략하고 즉시 PostDetailView로 권한 오류 메시지를 반환하며, PostDetailView는 사용자에게 오류 메시지를 표시하고 흐름을 종료합니다.
+
+### 게시글 목록 조회
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as PostListView
+    participant Control as PostQueryService
+    participant Repository_P as PostRepository
+    
+    Title: Use case #30: 게시글 목록 조회
+    
+    User->>Boundary: requestPostList(type, page)
+    activate Boundary
+    
+    Note over Boundary: 1. PostListView가 조회 조건 (페이지, 타입) 수집
+    
+    Boundary->>Control: getPostList(type, page)
+    activate Control
+    
+    Note over Control: 2. 페이징 및 필터링 조건 설정
+    
+    Control->>Repository_P: findList(spec)
+    activate Repository_P
+    Repository_P-->>Control: List<Post> 목록 데이터 반환
+    deactivate Repository_P
+    
+    Note over Control: 3. 반환된 데이터를 정렬 및 가공 (선택적)
+    
+    Control-->>Boundary: List<Post> 목록 데이터 반환
+    deactivate Control
+    
+    Boundary->>User: displayPostList(List<Post>)
+    deactivate Boundary
+```
+사용자가 게시판 메뉴를 클릭하거나 페이지 번호를 선택(requestPostList)하면 이 과정이 시작됩니다. 이 요청은 PostListView (Boundary)로 전달되어 현재 요청된 게시판 타입(type)과 페이지 번호(page) 등의 조회 조건이 수집됩니다. PostListView는 이 조회 조건을 PostQueryService (Control)의 getPostList 메서드를 호출하며 전달합니다.
+PostQueryService는 전달받은 조건을 바탕으로 **데이터베이스 조회에 필요한 상세 스펙(spec)**을 설정하는 핵심 로직을 수행합니다. Control은 설정된 스펙을 PostRepository에 전달하여 게시글 목록 데이터를 요청합니다. PostRepository는 데이터베이스에서 조건에 맞는 게시글 목록(List<Post>)을 조회하여 Control로 반환합니다. Control은 반환된 목록 데이터를 최종적으로 **화면에 표시하기 위해 필요한 형태로 가공(정렬 또는 추가 정보 로딩 등)**한 후, PostListView로 반환합니다. PostListView는 최종 목록 데이터를 사용자에게 **화면에 표시(displayPostList)**하며 흐름을 완료합니다.
+
+### 게시글 상세 조회
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as PostDetailView
+    participant Control as PostQueryService
+    participant Repository_P as PostRepository
+    participant Entity_P as Post
+    participant Repository_C as CommentRepository
+    
+    Title: Use case #31: 게시글 상세 조회
+    
+    User->>Boundary: clickPostTitle(postId)
+    activate Boundary
+    
+    Boundary->>Control: getPostDetail(postId)
+    activate Control
+    
+    Note over Control: 1. 게시글 데이터베이스 조회
+    
+    Control->>Repository_P: findById(postId)
+    activate Repository_P
+    Repository_P-->>Control: Post Entity 반환 (originalPost)
+    deactivate Repository_P
+    
+    Note over Control: 2. 조회수 증가 및 DB에 반영
+    
+    Control->>Entity_P: increaseViewCount()
+    Control->>Repository_P: save(originalPost)
+    
+    Note over Control: 3. 댓글 목록 데이터베이스 조회
+    
+    Control->>Repository_C: findByPostId(postId)
+    activate Repository_C
+    Repository_C-->>Control: List<Comment> 반환
+    deactivate Repository_C
+    
+    Control-->>Boundary: DetailData(Post, Comments) 반환
+    deactivate Control
+    
+    Boundary->>User: displayDetail(DetailData)
+    deactivate Boundary
+```
+사용자가 목록 화면에서 게시글 제목을 클릭(clickPostTitle)하면 이 과정이 시작되며, PostDetailView (Boundary)는 조회할 게시글의 postId를 수집합니다. PostDetailView는 이 정보를 PostQueryService (Control)의 getPostDetail 메서드를 호출하며 전달합니다. PostQueryService는 가장 먼저 PostRepository에 postId를 전달하여 게시글 Entity를 조회하여 가져옵니다.
+게시글 Entity를 성공적으로 조회하면, Control은 이 Entity 객체의 increaseViewCount 메서드를 호출하여 메모리 상의 조회수를 1 증가시킨 후, PostRepository를 통해 데이터베이스에 변경된 조회수를 반영합니다. 이후 Control은 CommentRepository를 호출하여 해당 postId에 종속된 댓글 목록 데이터를 함께 조회합니다. PostQueryService는 조회된 게시글 Entity와 댓글 목록을 묶어 최종 상세 데이터(DetailData)로 구성한 후, PostDetailView로 반환합니다. PostDetailView는 이 데이터를 사용자에게 **화면에 표시(displayDetail)**하며 흐름을 완료합니다.
+
+### 댓글 작성
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as CommentForm
+    participant Control as CommentManagementService
+    participant Repository_C as CommentRepository
+    participant Entity_C as Comment
+    
+    Title: Use case #32: 댓글 작성
+    
+    User->>Boundary: submitComment(postId, content)
+    activate Boundary
+    
+    Note over Boundary: 사용자 입력 데이터 수집
+    
+    Boundary->>Control: createComment(User user, Long postId, String content)
+    activate Control
+    
+    Note over Control: 입력 내용 유효성 및 권한 검증
+    
+    alt 유효성 검증 성공
+        
+        Note over Control: Comment Entity 생성 및 초기화
+        Control->>Entity_C: create(user_id, postId, content)
+        
+        Note over Control: 댓글 데이터베이스 저장
+        Control->>Repository_C: save(Comment)
+        activate Repository_C
+        Repository_C-->>Control: Persisted Comment Entity 반환
+        deactivate Repository_C
+        
+        Control-->>Boundary: Created Comment Entity 반환
+        deactivate Control
+        
+        Boundary->>User: displaySuccessMessage()
+    else 유효성 검증 실패
+        Control-->>Boundary: Error Message 반환
+        deactivate Control
+        Boundary->>User: displayErrorMessage("댓글 내용을 입력해주세요.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 댓글 입력 폼에서 '등록' 버튼을 클릭(submitComment)하면 이 과정이 시작되며, CommentForm (Boundary)는 댓글 내용(content)과 대상 게시글 ID(postId)를 수집합니다. CommentForm은 이 정보를 사용자 정보와 함께 CommentManagementService (Control)의 createComment 메서드로 전달합니다. CommentManagementService는 댓글 내용의 길이, 비속어 포함 여부 등 입력된 데이터의 유효성을 검증하는 핵심 로직을 수행합니다.
+유효성 검증에 성공하면, CommentManagementService는 새로운 Comment Entity를 생성하고 작성자 ID, 대상 게시글 ID, 내용을 초기화합니다. 이후 Control은 생성된 Entity를 CommentRepository에 넘겨 **데이터베이스에 저장(save)**하도록 요청합니다. 저장소에서 데이터 저장이 완료되면, Control을 거쳐 CommentForm으로 성공 응답이 반환되고, CommentForm은 사용자에게 댓글 등록 성공 메시지를 표시하며 흐름을 완료합니다.
+만약 유효성 검증에 실패하면, CommentManagementService는 데이터 저장 과정 없이 즉시 CommentForm으로 오류 메시지를 반환하고, CommentForm은 사용자에게 오류 메시지를 표시하며 흐름을 종료합니다.
+
+### 댓글 수정
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as CommentForm
+    participant Control as CommentManagementService
+    participant Repository_C as CommentRepository
+    participant Entity_C as Comment
+    
+    Title: Use case #33: 댓글 수정
+    
+    User->>Boundary: requestUpdate(commentId, newContent)
+    activate Boundary
+    
+    Boundary->>Control: updateComment(User user, Long commentId, String newContent)
+    activate Control
+    
+    Note over Control: 1. 기존 댓글 조회 및 권한 확인을 위한 데이터 요청
+    
+    Control->>Repository_C: findById(commentId)
+    activate Repository_C
+    Repository_C-->>Control: Comment Entity 반환 (originalComment)
+    deactivate Repository_C
+    
+    alt user.user_id == originalComment.user_id (작성자 또는 관리자인 경우)
+        
+        Note over Control: 2. 댓글 내용 유효성 검증 및 Entity 상태 변경
+        Control->>Entity_C: updateContent(newContent)
+        
+        Note over Control: 3. 변경 내용 데이터베이스 저장
+        Control->>Repository_C: save(originalComment)
+        activate Repository_C
+        Repository_C-->>Control: Updated Comment 반환
+        deactivate Repository_C
+        
+        Control-->>Boundary: Updated Comment 반환
+        deactivate Control
+        
+        Boundary->>User: displayUpdateSuccess()
+    else 수정 권한 없음
+        Control-->>Boundary: Error: Forbidden (권한 오류)
+        deactivate Control
+        
+        Boundary->>User: displayErrorMessage("수정 권한이 없습니다.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 댓글 영역에서 수정 버튼을 클릭하고 새 내용을 입력한 후 '수정 완료'를 요청(requestUpdate)하면 이 과정이 시작되며, CommentForm (Boundary)은 수정할 댓글의 ID(commentId)와 새 내용(newContent)을 수집합니다. CommentForm은 이 정보를 사용자 정보와 함께 CommentManagementService (Control)의 updateComment 메서드로 전달합니다.
+CommentManagementService는 가장 먼저 CommentRepository에 commentId를 전달하여 기존 댓글 Entity를 조회하여 가져옵니다. Control은 조회된 Entity를 바탕으로, 현재 요청을 보낸 User의 ID와 댓글의 user_id를 비교하여 수정 권한을 검증합니다. 권한 검증에 성공하면, CommentManagementService는 새 내용에 대한 유효성 검증을 거친 후, 댓글 Entity 객체의 updateContent 메서드를 호출하여 메모리 상의 Entity 상태를 변경합니다. 이후 Control은 변경된 Entity를 CommentRepository에 넘겨 **데이터베이스에 변경 내용을 저장(save)**하고, 저장된 최종 Entity를 CommentForm으로 반환합니다. CommentForm은 사용자에게 수정 성공 메시지를 표시하며 완료됩니다.
+만약 권한 검증에 실패하면, CommentManagementService는 저장 과정을 생략하고 즉시 CommentForm으로 권한 오류 메시지를 반환하며, CommentForm은 사용자에게 오류 메시지를 표시하고 흐름을 종료합니다.
+
+### 댓글 삭제
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as CommentForm
+    participant Control as CommentManagementService
+    participant Repository_C as CommentRepository
+    
+    Title: Use case #34: 댓글 삭제
+    
+    User->>Boundary: requestDelete(commentId)
+    activate Boundary
+    
+    Boundary->>Control: deleteComment(User user, Long commentId)
+    activate Control
+    
+    Note over Control: 1. 기존 댓글 조회 및 권한 확인을 위한 데이터 요청
+    
+    Control->>Repository_C: findById(commentId)
+    activate Repository_C
+    Repository_C-->>Control: Comment Entity 반환 (originalComment)
+    deactivate Repository_C
+    
+    alt user.user_id == originalComment.user_id (작성자 또는 관리자인 경우)
+        
+        Note over Control: 2. 댓글 데이터베이스에서 영구 삭제
+        Control->>Repository_C: delete(originalComment)
+        activate Repository_C
+        Repository_C-->>Control: Success Confirmation
+        deactivate Repository_C
+        
+        Control-->>Boundary: Success Confirmation 반환
+        deactivate Control
+        
+        Boundary->>User: displayDeleteSuccess()
+    else 삭제 권한 없음
+        Control-->>Boundary: Error: Forbidden (권한 오류)
+        deactivate Control
+        
+        Boundary->>User: displayErrorMessage("삭제 권한이 없습니다.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 댓글의 '삭제' 버튼을 클릭(requestDelete)하면 이 과정이 시작되며, CommentForm (Boundary)은 삭제할 댓글의 commentId를 수집합니다. CommentForm은 이 정보를 사용자 정보와 함께 CommentManagementService (Control)의 deleteComment 메서드로 전달합니다. CommentManagementService는 CommentRepository를 통해 해당 commentId의 기존 댓글 Entity를 조회하여 가져옵니다.
+Control은 조회된 Entity를 바탕으로, 현재 요청을 보낸 User의 ID와 댓글의 user_id를 비교하여 삭제 권한을 검증합니다. 권한 검증에 성공하면, CommentManagementService는 Entity를 CommentRepository에 넘겨 데이터베이스에서 해당 댓글 데이터를 영구적으로 삭제하도록 요청합니다. 삭제가 완료되면, Control을 거쳐 CommentForm으로 성공 응답이 반환되고, CommentForm은 사용자에게 삭제 성공 메시지를 표시하며 완료됩니다. 만약 권한 검증에 실패하면, CommentManagementService는 삭제 과정을 생략하고 즉시 CommentForm으로 권한 오류 메시지를 반환하며, CommentForm은 사용자에게 오류 메시지를 표시하고 흐름을 종료합니다.
+
+### QnA 게시글 작성
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as PostWriteUI
+    participant Control as PostManagementService
+    participant Repository_P as PostRepository
+    participant Entity_Q as QnAPost
+    
+    Title: Use case #35: QnA 게시글 작성
+    
+    User->>Boundary: submitQnAPost(newQnAPostData)
+    activate Boundary
+    
+    Note over Boundary: PostWriteUI가 QnA 특화 데이터 수집 (Tech Tag 포함)
+    
+    Boundary->>Control: createPost(User user, Post newQnAPostData)
+    activate Control
+    
+    Note over Control: 1. 데이터 유효성 및 QnA 특화 검증 (Tag 포함)
+    
+    alt 유효성 검증 성공
+        
+        Note over Control: 2. QnAPost Entity 생성 및 초기화 (isAnswered = false)
+        Control->>Entity_Q: create(user_id, title, content, techTag)
+        
+        Note over Control: 3. QnA 게시글 데이터베이스 저장
+        Control->>Repository_P: save(QnAPost)
+        activate Repository_P
+        Repository_P-->>Control: Persisted QnAPost Entity 반환
+        deactivate Repository_P
+        
+        Control-->>Boundary: Created QnAPost Entity 반환
+        deactivate Control
+        
+        Boundary->>User: displaySuccessMessage()
+    else 유효성 검증 실패
+        Control-->>Boundary: Error Message 반환
+        deactivate Control
+        
+        Boundary->>User: displayErrorMessage("QnA 필수 항목을 입력해주세요.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 QnA 작성 폼에서 '작성' 버튼을 클릭(submitQnAPost)하면 이 과정이 시작되며, PostWriteUI (Boundary)는 일반 게시글 외에 기술 태그(Tech Tag)를 포함한 QnA 데이터를 수집합니다. PostWriteUI는 이 데이터를 PostManagementService (Control)의 createPost 메서드를 호출하며 전달합니다. PostManagementService는 QnA 게시글에 특화된 유효성 검증 (예: 기술 태그 필수 여부)을 수행합니다.
+유효성 검증에 성공하면, PostManagementService는 새로운 QnAPost Entity를 생성하고 isAnswered 필드를 false로 초기화합니다. 이후 Control은 생성된 Entity를 PostRepository에 넘겨 데이터베이스에 저장하도록 요청하며, PostRepository는 QnAPost를 저장한 후 Control로 반환합니다. Control을 거쳐 PostWriteUI로 성공 응답이 반환되고, PostWriteUI는 사용자에게 작성 성공 메시지를 표시하며 흐름을 완료합니다. 만약 유효성 검증에 실패하면, Control에서 Error Message가 Boundary를 거쳐 사용자에게 전달됩니다.
+
+### QnA 게시글 답변 등록
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Boundary as CommentForm
+    participant Control as CommentManagementService
+    participant Repository_C as CommentRepository
+    participant Entity_A as Answer
+    participant Entity_Q as QnAPost
+    
+    Title: Use case #36: QnA 게시글 답변 등록
+    
+    User->>Boundary: submitComment(qnaPostId, content)
+    activate Boundary
+    
+    Boundary->>Control: registerAnswer(User user, Long qnaPostId, String content)
+    activate Control
+    
+    Note over Control: 1. QnA 게시글 존재 및 답변 권한 검증
+    
+    alt 유효성 및 권한 검증 성공
+        
+        Note over Control: 2. Answer Entity 생성 및 초기화 (isAdopted = false)
+        Control->>Entity_A: create(user_id, qnaPostId, content)
+        
+        Note over Control: 3. Answer 데이터베이스 저장
+        Control->>Repository_C: save(Answer)
+        activate Repository_C
+        Repository_C-->>Control: Persisted Answer Entity 반환
+        deactivate Repository_C
+        
+        Note over Control: 4. (선택적) QnA 게시글 상태 업데이트 로직 (markAsAnswered)
+        
+        Control-->>Boundary: Created Answer Entity 반환
+        deactivate Control
+        
+        Boundary->>User: displaySuccessMessage()
+    else 유효성 검증 실패 (내용 누락, 답변 마감 등)
+        Control-->>Boundary: Error Message 반환
+        deactivate Control
+        Boundary->>User: displayErrorMessage("답변 등록에 실패했습니다.")
+    end
+    
+    deactivate Boundary
+```
+사용자가 QnA 게시글 하단에서 답변 내용을 입력하고 '등록' 버튼을 클릭(submitComment)하면 이 과정이 시작되며, CommentForm (Boundary)은 대상 QnA 게시글 ID(qnaPostId)와 답변 내용(content)을 수집합니다. CommentForm은 이 정보를 CommentManagementService (Control)의 registerAnswer 메서드를 호출하며 전달합니다. CommentManagementService는 QnA 게시글의 존재 여부 및 답변 내용의 유효성을 검증합니다.
+검증에 성공하면, CommentManagementService는 새로운 Answer Entity를 생성하고 isAdopted 필드를 false로 초기화합니다. 이후 Control은 생성된 Answer Entity를 CommentRepository에 넘겨 **데이터베이스에 저장(save)**하도록 요청합니다. 저장이 완료되면, Control은 필요에 따라 **QnAPost Entity의 상태(예: 답변이 달렸음을 표시)**를 업데이트하는 로직을 수행할 수 있습니다. Control을 거쳐 CommentForm으로 성공 응답이 반환되고, CommentForm은 사용자에게 답변 등록 성공 메시지를 표시하며 흐름을 완료합니다. 만약 검증에 실패하면, Control에서 오류 메시지가 Boundary를 거쳐 사용자에게 전달됩니다.
+
 
 ## 오픈소스 이슈 관리
 ### Good First Issue 목록 조회
