@@ -3953,6 +3953,7 @@
 
 
 ### 알림
+<img width="2195" height="739" alt="image" src="https://github.com/user-attachments/assets/ce0628eb-2c0f-42fa-a92f-41e61457e281" />
 
 ### Entity Class
 
