@@ -4080,9 +4080,6 @@ classDiagram
     CommentManagementService ..> User
     CommentManagementService ..> Comment
     CommentManagementService ..> Answer
-
-- 바운더리 클래스와의 연결은 표시하지 않음
-- 컨트롤 클래스와 엔티티 클래스의 의존성 표시
   
 ### Entity Class
 | Class Name        | User |               |            |
