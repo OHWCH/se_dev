@@ -5581,6 +5581,97 @@ sequenceDiagram
 - Design user interface for your software system.  
 - It will be easy if you just think that you make a preliminary user manual of your system based on your user interface.  
 - 12pt, 160%.  
+### 로그인 화면
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/222024bc-a674-4f3e-bfb1-245c99ecbe39" />
+
+위 그림은 로그인 화면이다.
+사용자는 아이디(ID)와 비밀번호(PW)를 입력하여 로그인할 수 있다.
+또한 하단의 ‘계정 등록’ 버튼을 눌러 회원가입 화면으로 이동할 수 있다.
+
+### 회원가입 화면
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/12bb7303-4532-4aad-9cf3-f134f9cf0772" />
+
+위 그림은 회원가입 화면이다.
+사용자는 아이디, 비밀번호, 비밀번호 확인, 닉네임, 선호 기술을 입력하여 계정을 등록할 수 있다.
+아이디 입력 후 ‘중복 확인’ 버튼을 통해 사용 가능 여부를 확인할 수 있으며, ‘관리자 계정입니까?’ 항목을 선택하면 관리자 계정으로 가입할 수 있다.
+
+### 메인화면
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/c042fba8-f066-4800-a516-c6dd36553c65" />
+
+
+위 그림은 메인 화면이다.
+상단바를 통해 홈, 커뮤니티, 스터디, 도전 과제 등의 페이지로 이동할 수 있다.
+화면 중앙에서는 이슈 검색이 가능하며, ‘good-first-issue’ 목록은 기본으로 표시된다.
+사용자는 원하는 이슈 키워드를 북마크로 추가하여 개인화된 이슈 목록을 구성할 수 있다.
+
+### 마이페이지
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/76fbd7d3-2179-4fcb-b60b-23a80757309d" />
+
+위 그림은 마이페이지 화면이다.
+화면 왼쪽의 네모난 박스는 프로필 사진 영역이며, 오른쪽에는 닉네임, 소속 스터디, 깃허브 인증 버튼이 표시된다.
+닉네임 옆의 ‘수정’ 버튼을 통해 사용자 정보 수정이 가능하다.
+하단에는 사용자가 획득한 뱃지들이 원형 아이콘 형태로 나열되어 있다.
+
+
+### 게시글/QnA목록 화면
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/e7ee3e4e-e392-49ef-bc7d-f39dc81e802d" />
+
+위 그림은 게시글 및 Q&A 목록 화면이다.
+상단의 탭을 통해 Q&A게시판과 자유게시판을 전환할 수 있으며, 사용자는 ‘글 작성’ 버튼을 눌러 새 게시글을 등록할 수 있다.
+화면 하단의 페이지 번호를 통해 게시글 목록을 페이지 단위로 탐색할 수 있다.
+
+### 게시글 작성/수정 화면
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/cf0e2085-d9ea-4177-97d3-a6be8deee97c" />
+
+위 그림은 게시글 작성 및 수정 화면이다.
+사용자는 제목과 내용을 입력하여 새로운 게시글을 작성하거나, 기존 게시글의 내용을 수정할 수 있다.
+입력이 완료되면 상단의 ‘저장’ 버튼을 눌러 게시글을 등록 또는 갱신할 수 있다.
+
+### 스터디 목록 화면
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/ac63c7a3-3674-4530-b82a-62504fe70a05" />
+
+위 그림은 스터디 목록 화면이다.
+사용자는 등록된 스터디 목록을 확인할 수 있으며, 상단의 ‘내 스터디’ 버튼을 통해 자신이 속한 스터디만 조회할 수 있다.
+하단의 ‘스터디 생성’ 버튼을 눌러 새로운 스터디를 만들 수 있으며, 페이지 번호를 통해 다른 목록으로 이동할 수 있다.
+
+### 스터디 상세 화면
+<img width="1440" height="1024" alt="image" src="https://github.com/user-attachments/assets/c37f2808-fc29-4ef2-b436-6ec2c63c9eda" />
+
+위 그림은 스터디 상세 화면이다.
+상단에는 스터디 이름과 설정 버튼이 표시되며, 사용자는 스터디 정보를 수정할 수 있다.
+화면 왼쪽에는 일정 관리 영역이 있어 스터디 일정을 등록하고 확인할 수 있고, 아래쪽에는 화상 채팅방 목록이 표시된다.
+오른쪽 영역에서는 스터디원 간의 일반 채팅을 통해 실시간으로 소통할 수 있다.
+
+### 스터디 화상채팅 화면
+<img width="1440" height="1024" alt="image" src="https://github.com/user-attachments/assets/0d917fed-4ced-4feb-ad94-56e441caccd3" />
+
+위 그림은 스터디 화상채팅 화면이다.
+중앙에는 화상채팅방장의 화면이 송출되어 모든 참여자가 실시간으로 볼 수 있다.
+오른쪽에는 참여자 목록이 표시되어, 현재 화상채팅에 접속한 사용자들을 확인할 수 있다.
+상단의 메뉴를 통해 다른 페이지로 이동할 수도 있다.
+
+### 스터디 유저 관리
+<img width="646" height="1262" alt="image" src="https://github.com/user-attachments/assets/10742058-fbdf-47b5-8646-fa1e13952ce8" />
+
+위 그림은 스터디 유저 관리 화면이다.
+스터디장은 각 멤버 옆의 ‘강퇴’ 버튼을 통해 특정 사용자를 스터디에서 내보낼 수 있다.
+스터디 멤버는 언제든지 ‘스터디 나가기’ 버튼을 눌러 자유롭게 탈퇴할 수 있다.
+단, 스터디장은 자신 외에 다른 멤버가 없을 때만 탈퇴가 가능하다.
+
+### 도전과제 관리
+<img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/835ace00-746e-4818-8f39-68366c655dbd" />
+
+위 그림은 도전 과제 화면이다.
+사용자는 다양한 난이도의 과제 목록을 확인할 수 있으며, 각 과제는 커밋, PR, 이슈 등록 등의 목표로 구성되어 있다.
+각 항목에는 목표 달성 횟수와 현재 진행 상황이 표시되어, 자신의 오픈소스 기여 현황을 한눈에 파악할 수 있다.
+
+### 알림 페이지
+<img width="361" height="684" alt="image" src="https://github.com/user-attachments/assets/5d29a496-3b51-4d72-85d9-b474fc409ed0" />
+위 그림은 알림 화면이다.
+사용자는 스터디 관련 알림을 확인할 수 있으며, 예를 들어 신규 화상채팅방 개설이나 스터디 가입 요청 등의 알림이 표시된다.
+가입 요청 알림의 경우 ‘승인’ 또는 ‘거절’ 버튼을 눌러 바로 처리할 수 있으며, 상단의 ‘모두 읽음’, ‘알림창 비우기’ 기능으로 알림을 관리할 수 있다.
+
+
 
 ---
 
