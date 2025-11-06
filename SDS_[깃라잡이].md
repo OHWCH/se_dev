@@ -4431,7 +4431,7 @@ sequenceDiagram
     User->>Boundary: submitPost(newPostData)
     activate Boundary
     
-    Note over Boundary: 1. PostWriteUI가 사용자 입력 데이터 수집
+    Note over Boundary: PostWriteUI가 사용자 입력 데이터 수집
     
     Boundary->>Control: createPost(User user, Post newPostData)
     activate Control
@@ -4440,26 +4440,23 @@ sequenceDiagram
     
     alt 유효성 검증 성공
         
-        Note over Control: 3. Post Entity 생성 및 초기화
+        Note over Control: Post Entity 생성 및 초기화
         Control->>Entity_P: create(user_id, title, content)
         
-        Note over Control: 4. 게시글 데이터베이스 저장 (Persistence)
+        Note over Control: 게시글 데이터베이스 저장 (Persistence)
         Control->>Repository_P: save(Post/QnAPost)
         activate Repository_P
         Repository_P-->>Control: Persisted Post Entity 반환
         deactivate Repository_P
         
         Control-->>Boundary: Created Post Entity 반환
-        deactivate Control
-        
         Boundary->>User: displaySuccessMessage()
     else 유효성 검증 실패 (제목/내용 누락 등)
         Control-->>Boundary: Error Message 반환
-        deactivate Control
-        
         Boundary->>User: displayErrorMessage("필수 항목을 입력해주세요.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 게시글 작성 폼에서 '작성' 버튼을 클릭(submitPost)하면 이 과정이 시작됩니다. 이 요청은 PostWriteUI (Boundary)로 전달되어 사용자의 입력 데이터(newPostData)가 수집됩니다. PostWriteUI는 수집된 데이터를 사용자 정보(User user)와 함께 PostManagementService (Control)의 createPost 메서드를 호출하며 전달합니다.
@@ -4480,12 +4477,10 @@ sequenceDiagram
     User->>Boundary: requestUpdate(postId, updateData)
     activate Boundary
     
-    Note over Boundary: 1. PostWriteUI가 수정 데이터 수집
-    
     Boundary->>Control: updatePost(User user, Long postId, Post updateData)
     activate Control
     
-    Note over Control: 2. 기존 게시글 조회 및 권한 확인을 위한 데이터 요청
+    Note over Control: 1. 기존 게시글 조회 및 권한 확인을 위한 데이터 요청
     
     Control->>Repository_P: findById(postId)
     activate Repository_P
@@ -4504,16 +4499,13 @@ sequenceDiagram
         deactivate Repository_P
         
         Control-->>Boundary: Updated Post 반환
-        deactivate Control
-        
         Boundary->>User: displayUpdateSuccess()
     else 수정 권한 없음
         Control-->>Boundary: Error: Forbidden (권한 오류)
-        deactivate Control
-        
         Boundary->>User: displayErrorMessage("수정 권한이 없습니다.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 수정 폼에서 '수정 완료' 버튼을 클릭(requestUpdate)하면 이 과정이 시작되며, PostWriteUI (Boundary)는 수정에 필요한 데이터(postId, updateData)를 수집합니다. PostWriteUI는 이 정보를 PostManagementService (Control)의 updatePost 메서드로 전달합니다. PostManagementService는 가장 먼저 PostRepository에 postId를 전달하여 기존 게시글 Entity를 조회하여 가져옵니다.
@@ -4552,16 +4544,13 @@ sequenceDiagram
         deactivate Repository_P
         
         Control-->>Boundary: Success Confirmation 반환
-        deactivate Control
-        
         Boundary->>User: displayDeleteSuccess()
     else 삭제 권한 없음
         Control-->>Boundary: Error: Forbidden (권한 오류)
-        deactivate Control
-        
         Boundary->>User: displayErrorMessage("삭제 권한이 없습니다.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 게시글 상세 화면에서 '삭제' 버튼을 클릭(requestDelete)하면 이 과정이 시작되며, PostDetailView (Boundary)는 삭제할 게시글의 postId를 수집합니다. PostDetailView는 이 정보를 PostManagementService (Control)의 deletePost 메서드로 전달합니다.
@@ -4683,15 +4672,13 @@ sequenceDiagram
         deactivate Repository_C
         
         Control-->>Boundary: Created Comment Entity 반환
-        deactivate Control
-        
         Boundary->>User: displaySuccessMessage()
     else 유효성 검증 실패
         Control-->>Boundary: Error Message 반환
-        deactivate Control
         Boundary->>User: displayErrorMessage("댓글 내용을 입력해주세요.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 댓글 입력 폼에서 '등록' 버튼을 클릭(submitComment)하면 이 과정이 시작되며, CommentForm (Boundary)는 댓글 내용(content)과 대상 게시글 ID(postId)를 수집합니다. CommentForm은 이 정보를 사용자 정보와 함께 CommentManagementService (Control)의 createComment 메서드로 전달합니다. CommentManagementService는 댓글 내용의 길이, 비속어 포함 여부 등 입력된 데이터의 유효성을 검증하는 핵심 로직을 수행합니다.
@@ -4734,16 +4721,13 @@ sequenceDiagram
         deactivate Repository_C
         
         Control-->>Boundary: Updated Comment 반환
-        deactivate Control
-        
         Boundary->>User: displayUpdateSuccess()
     else 수정 권한 없음
         Control-->>Boundary: Error: Forbidden (권한 오류)
-        deactivate Control
-        
         Boundary->>User: displayErrorMessage("수정 권한이 없습니다.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 댓글 영역에서 수정 버튼을 클릭하고 새 내용을 입력한 후 '수정 완료'를 요청(requestUpdate)하면 이 과정이 시작되며, CommentForm (Boundary)은 수정할 댓글의 ID(commentId)와 새 내용(newContent)을 수집합니다. CommentForm은 이 정보를 사용자 정보와 함께 CommentManagementService (Control)의 updateComment 메서드로 전달합니다.
@@ -4782,16 +4766,13 @@ sequenceDiagram
         deactivate Repository_C
         
         Control-->>Boundary: Success Confirmation 반환
-        deactivate Control
-        
         Boundary->>User: displayDeleteSuccess()
     else 삭제 권한 없음
         Control-->>Boundary: Error: Forbidden (권한 오류)
-        deactivate Control
-        
         Boundary->>User: displayErrorMessage("삭제 권한이 없습니다.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 댓글의 '삭제' 버튼을 클릭(requestDelete)하면 이 과정이 시작되며, CommentForm (Boundary)은 삭제할 댓글의 commentId를 수집합니다. CommentForm은 이 정보를 사용자 정보와 함께 CommentManagementService (Control)의 deleteComment 메서드로 전달합니다. CommentManagementService는 CommentRepository를 통해 해당 commentId의 기존 댓글 Entity를 조회하여 가져옵니다.
@@ -4806,7 +4787,7 @@ sequenceDiagram
     participant Repository_P as PostRepository
     participant Entity_Q as QnAPost
     
-    Title: Use case #35: QnA 게시글 작성
+    Title: Use case #35_Q: QnA 게시글 작성
     
     User->>Boundary: submitQnAPost(newQnAPostData)
     activate Boundary
@@ -4830,16 +4811,13 @@ sequenceDiagram
         deactivate Repository_P
         
         Control-->>Boundary: Created QnAPost Entity 반환
-        deactivate Control
-        
         Boundary->>User: displaySuccessMessage()
     else 유효성 검증 실패
         Control-->>Boundary: Error Message 반환
-        deactivate Control
-        
         Boundary->>User: displayErrorMessage("QnA 필수 항목을 입력해주세요.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 QnA 작성 폼에서 '작성' 버튼을 클릭(submitQnAPost)하면 이 과정이 시작되며, PostWriteUI (Boundary)는 일반 게시글 외에 기술 태그(Tech Tag)를 포함한 QnA 데이터를 수집합니다. PostWriteUI는 이 데이터를 PostManagementService (Control)의 createPost 메서드를 호출하며 전달합니다. PostManagementService는 QnA 게시글에 특화된 유효성 검증 (예: 기술 태그 필수 여부)을 수행합니다.
@@ -4879,15 +4857,13 @@ sequenceDiagram
         Note over Control: 4. (선택적) QnA 게시글 상태 업데이트 로직 (markAsAnswered)
         
         Control-->>Boundary: Created Answer Entity 반환
-        deactivate Control
-        
         Boundary->>User: displaySuccessMessage()
     else 유효성 검증 실패 (내용 누락, 답변 마감 등)
         Control-->>Boundary: Error Message 반환
-        deactivate Control
         Boundary->>User: displayErrorMessage("답변 등록에 실패했습니다.")
     end
     
+    deactivate Control
     deactivate Boundary
 ```
 사용자가 QnA 게시글 하단에서 답변 내용을 입력하고 '등록' 버튼을 클릭(submitComment)하면 이 과정이 시작되며, CommentForm (Boundary)은 대상 QnA 게시글 ID(qnaPostId)와 답변 내용(content)을 수집합니다. CommentForm은 이 정보를 CommentManagementService (Control)의 registerAnswer 메서드를 호출하며 전달합니다. CommentManagementService는 QnA 게시글의 존재 여부 및 답변 내용의 유효성을 검증합니다.
