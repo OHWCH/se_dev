@@ -3951,6 +3951,75 @@
 |                       | updateSchedule(StudyScheduleUpdateDto dto)<br>스터디 일정 수정               | StudyScheduleResponseDto       | Public         |
 |                       | deleteSchedule(Long studyId, Long scheduleId)<br>스터디 일정 삭제            | void                           | Public         |
 
+
+### 알림
+
+### Entity Class
+
+| Class Name        | NotificationEntity               |                  |            |
+| ----------------- | -------------------------------- | ---------------- | ---------- |
+| Class Description | 사용자에게 전달되는 시스템 알림 정보를 저장하는 엔티티   |                  |            |
+| 구분                | Name                             | Type             | Visibility |
+| Attribute         | notificationId<br>알림 고유 식별자 (PK) | Long             | Private    |
+|                   | user<br>수신자 정보                   | UserEntity       | Private    |
+|                   | message<br>알림 내용                 | String           | Private    |
+|                   | type<br>알림 유형                    | NotificationType | Private    |
+|                   | isRead<br>읽음 여부                  | Boolean          | Private    |
+|                   | createdAt<br>생성 시각               | LocalDateTime    | Private    |
+| Operations        | markAsRead()                     | void             | Public     |
+|                   | getMessageSummary()              | String           | Public     |
+
+### DTO Class
+
+| Class Name        | NotificationResponseDto       |                         |            |
+| ----------------- | ----------------------------- | ----------------------- | ---------- |
+| Class Description | 알림 데이터를 사용자에게 전달하기 위한 DTO     |                         |            |
+| 구분                | Name                          | Type                    | Visibility |
+| Attribute         | notificationId                | Long                    | Private    |
+|                   | message                       | String                  | Private    |
+|                   | type                          | String                  | Private    |
+|                   | isRead                        | Boolean                 | Private    |
+|                   | createdAt                     | LocalDateTime           | Private    |
+| Operations        | of(NotificationEntity entity) | NotificationResponseDto | Public     |
+#### Repository Class
+
+| Class Name        | NotificationRepository                    |                          |            |
+| ----------------- | ----------------------------------------- | ------------------------ | ---------- |
+| Class Description | 알림 엔티티에 대한 데이터베이스 접근을 담당                  |                          |            |
+| 구분                | Name                                      | Return Type              | Visibility |
+| Operations        | findByUser(UserEntity user)               | List<NotificationEntity> | Public     |
+|                   | findByUserAndIsReadFalse(UserEntity user) | List<NotificationEntity> | Public     |
+|                   | save(NotificationEntity entity)           | NotificationEntity       | Public     |
+|                   | deleteById(Long id)                       | void                     | Public     |
+#### Service Class
+
+| Class Name        | NotificationService                           |                               |            |
+| ----------------- | --------------------------------------------- | ----------------------------- | ---------- |
+| Class Description | 알림 생성, 조회, 상태 변경 등 비즈니스 로직을 담당                |                               |            |
+| 구분                | Name                                          | Return Type                   | Visibility |
+| Operations        | notifyJoinRequest(Long studyId, Long userId)  | void                          | Public     |
+|                   | notifyJoinApproved(Long memberId)             | void                          | Public     |
+|                   | notifyJoinDenied(Long memberId)               | void                          | Public     |
+|                   | notifyMemberLeft(Long studyId, Long userId)   | void                          | Public     |
+|                   | notifyMemberKicked(Long memberId)             | void                          | Public     |
+|                   | notifyMembersNewSchedule(Long studyId)        | void                          | Public     |
+|                   | notifyMembersScheduleUpdated(Long scheduleId) | void                          | Public     |
+|                   | notifyMembersScheduleDeleted(Long scheduleId) | void                          | Public     |
+|                   | getNotifications(Long userId)                 | List<NotificationResponseDto> | Public     |
+|                   | markAsRead(Long notificationId)               | void                          | Public     |
+#### Controller Class
+
+| Class Name        | NotificationController                  |                                               |            |
+| ----------------- | --------------------------------------- | --------------------------------------------- | ---------- |
+| Class Description | 클라이언트 요청을 받아 알림을 조회하거나 읽음 처리하는 컨트롤러     |                                               |            |
+| 구분                | Name                                    | Return Type                                   | Visibility |
+| Operations        | getUserNotifications(Long userId)       | ResponseEntity<List<NotificationResponseDto>> | Public     |
+|                   | markAsRead(Long notificationId)         | ResponseEntity<Void>                          | Public     |
+|                   | deleteNotification(Long notificationId) | ResponseEntity<Void>                          | Public     |
+
+
+
+
 ### 게시판
 <img width="3446" height="2126" alt="Untitled diagram-2025-11-06-095224" src="https://github.com/user-attachments/assets/2283b19d-072a-47b9-bacb-715073af4cf7" />
 
