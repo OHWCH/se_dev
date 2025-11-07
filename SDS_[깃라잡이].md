@@ -4541,7 +4541,40 @@
 ## 4. Sequence diagram
 - Draw sequence diagrams for the whole functions of your system.  
 - Explain each sequence diagram.  
-- 12pt, 160%.  
+- 12pt, 160%.
+
+
+## 유저
+###로그인
+
+<img width="950" height="653" alt="image" src="https://github.com/user-attachments/assets/8b00f691-bc3b-4766-987d-6266f5058e35" />
+
+
+### 회원가입
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Client
+  participant AC as AuthController
+  participant AS as AuthService
+  participant UR as UserRepository
+
+  Client->>AC: POST /auth/register (UserRegisterDto)
+  AC->>AS: register(dto)
+  AS->>UR: existsByEmail(dto.email)
+  UR-->>AS: boolean
+
+  alt 이메일 미사용
+    AS->>UR: save(new UserEntity(dto))
+    UR-->>AS: UserEntity
+    AS-->>AC: UserResponseDto
+    AC-->>Client: 201 Created + body
+  else 이메일 중복
+    AS-->>AC: throw DuplicateEmail
+    AC-->>Client: 409 Conflict
+  end
+
 
 
 
