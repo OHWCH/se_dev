@@ -3340,6 +3340,8 @@
 - 12pt, 160%.
 
 ### 유저 관리
+<img width="759" height="422" alt="image" src="https://github.com/user-attachments/assets/9e2ddc87-2739-4271-b062-550d4d96c21b" />
+
 
 #### Entity Class
 
