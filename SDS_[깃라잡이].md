@@ -3343,199 +3343,148 @@
 
 #### Entity Class
 
-| Class Name        | StudyEntity |               |            |
-| ----------------- | ------------ | ------------- | ---------- |
-| Class Description | 스터디 기본 정보를 표현하는 엔티티 |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyId<br>스터디 식별자(PK) | Long | private |
-|  | leaderId<br>스터디 리더 | UserEntity | private |
-|  | title<br>스터디 제목 | String | private |
-|  | description<br>스터디 설명 | String | private |
-|  | category<br>스터디 카테고리 | StudyCategory | private |
-|  | maxMember<br>최대 인원 수 | int | private |
-|  | currentMember<br>현재 인원 수 | int | private |
-|  | status<br>스터디 상태 | StudyStatus | private |
-|  | createdAt<br>생성 일시 | LocalDateTime | private |
-|  | updatedAt<br>수정 일시 | LocalDateTime | private |
-| 구분 | Name | Type | Visibility |
-| Operations | createStudy(title:String, description:String, category:StudyCategory, maxMember:int, leader:UserEntity) | StudyEntity | public |
-|  | updateStudy(title:String, description:String, category:StudyCategory, maxMember:int, status:StudyStatus) | void | public |
-|  | changeStatus(status:StudyStatus) | void | public |
-|  | incrementMember() | void | public |
-|  | decrementMember() | void | public |
-|  | isFull() | boolean | public |
-|  | isRecruiting() | boolean | public |
-|  | closeRecruitment() | void | public |
-
-#### DTO Class
-
-| Class Name        | StudyCreateDto |               |            |
-| ----------------- | --------------- | ------------- | ---------- |
-| Class Description | 스터디 생성 요청 시 입력받는 정보를 전달하는 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | title<br>스터디 제목 | String | private |
-|  | description<br>스터디 설명 | String | private |
-|  | category<br>스터디 카테고리 | String | private |
-|  | maxMember<br>최대 인원 수 | int | private |
-| Operations | — | — | — |
-| Return | 사용자가 입력한 스터디 생성 데이터 전달용 | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyUpdateDto |               |            |
-| ----------------- | --------------- | ------------- | ---------- |
-| Class Description | 스터디 정보 수정 시 변경할 필드를 전달하는 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | title<br>스터디 제목 | String | private |
-|  | description<br>스터디 설명 | String | private |
-|  | category<br>스터디 카테고리 | String | private |
-|  | maxMember<br>최대 인원 수 | int | private |
-|  | status<br>스터디 상태 | String | private |
-| Operations | — | — | — |
-| Return | 수정 요청 데이터 전달용 | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyListResponseDto |               |            |
-| ----------------- | -------------------- | ------------- | ---------- |
-| Class Description | 스터디 목록 조회 시 반환되는 응답 데이터 |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyId<br>스터디 식별자 | Long | private |
-|  | title<br>스터디 제목 | String | private |
-|  | leaderNickname<br>리더 닉네임 | String | private |
-|  | category<br>스터디 카테고리 | String | private |
-|  | status<br>모집 상태 | String | private |
-| Operations | — | — | — |
-| Return | 스터디 목록 요약 응답용 | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyDetailResponseDto |               |            |
-| ----------------- | ---------------------- | ------------- | ---------- |
-| Class Description | 스터디 상세 조회 시 상세 정보, 일정, 참여자 목록을 포함하여 반환하는 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyId | Long | private |
-|  | title | String | private |
-|  | description | String | private |
-|  | leaderNickname | String | private |
-|  | category | String | private |
-|  | status | String | private |
-|  | currentMember | int | private |
-|  | maxMember | int | private |
-|  | schedules | List<StudyScheduleResponseDto> | private |
-|  | members | List<StudyMemberResponseDto> | private |
-| Operations | — | — | — |
-| Return | 스터디 상세 응답용 | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyApplyRequestDto |               |            |
-| ----------------- | -------------------- | ------------- | ---------- |
-| Class Description | 스터디 가입 신청 시 요청 데이터를 전달하는 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyId<br>스터디 식별자 | Long | private |
-|  | userId<br>신청자 ID | Long | private |
-|  | message<br>신청 메시지 | String | private |
-| Operations | — | — | — |
-| Return | 가입 신청 요청용 DTO | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyMemberResponseDto |               |            |
-| ----------------- | ---------------------- | ------------- | ---------- |
-| Class Description | 스터디 멤버 목록 조회 시 반환되는 멤버 정보 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | userId<br>회원 ID | Long | private |
-|  | nickname<br>닉네임 | String | private |
-|  | role<br>역할(리더/멤버) | String | private |
-|  | status<br>참여 상태 | String | private |
-| Operations | — | — | — |
-| Return | 멤버 목록 응답용 | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyApproveRequestDto |               |            |
-| ----------------- | ---------------------- | ------------- | ---------- |
-| Class Description | 스터디장의 승인/거절 처리 시 사용되는 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyId | Long | private |
-|  | applicantId | Long | private |
-|  | approved | boolean | private |
-| Operations | — | — | — |
-| Return | 승인/거절 처리 요청용 DTO | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyScheduleCreateDto |               |            |
-| ----------------- | ---------------------- | ------------- | ---------- |
-| Class Description | 스터디 일정 등록 시 입력받는 정보를 전달하는 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | title<br>일정 제목 | String | private |
-|  | content<br>일정 내용 | String | private |
-|  | startTime<br>시작 시간 | LocalDateTime | private |
-|  | endTime<br>종료 시간 | LocalDateTime | private |
-| Operations | — | — | — |
-| Return | 일정 생성 요청용 DTO | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyScheduleUpdateDto |               |            |
-| ----------------- | ---------------------- | ------------- | ---------- |
-| Class Description | 스터디 일정 수정 시 변경할 정보를 전달하는 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | title<br>일정 제목 | String | private |
-|  | content<br>일정 내용 | String | private |
-|  | startTime<br>시작 시간 | LocalDateTime | private |
-|  | endTime<br>종료 시간 | LocalDateTime | private |
-| Operations | — | — | — |
-| Return | 일정 수정 요청용 DTO | — | — |
-
----
-
-#### DTO Class
-
-| Class Name        | StudyScheduleResponseDto |               |            |
+| Class Name        | UserEntity               |               |            |
 | ----------------- | ------------------------ | ------------- | ---------- |
-| Class Description | 스터디 일정 조회 시 반환되는 일정 정보 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | scheduleId<br>일정 식별자 | Long | private |
-|  | title<br>일정 제목 | String | private |
-|  | content<br>일정 내용 | String | private |
-|  | startTime<br>시작 시간 | LocalDateTime | private |
-|  | endTime<br>종료 시간 | LocalDateTime | private |
-| Operations | — | — | — |
-| Return | 일정 조회 응답용 DTO | — | — |
+| Class Description | 사용자 정보를 저장하고 관리하는 엔티티 |               |            |
+| 구분                | Name                     | Type          | Visibility |
+| Attribute         | id<br>사용자 식별자(PK)       | Long          | Private    |
+|                   | email<br>로그인용 이메일(고유) | String        | Private    |
+|                   | password<br>비밀번호 해시값     | String        | Private    |
+|                   | nickname<br>닉네임           | String        | Private    |
+|                   | githubId<br>깃허브 계정 ID   | String        | Private    |
+|                   | profileImg<br>프로필 이미지 URL | String        | Private    |
+|                   | bio<br>자기소개              | String        | Private    |
+|                   | role<br>사용자 권한 (USER/ADMIN) | Role        | Private    |
+|                   | createdAt<br>가입 일시       | Instant       | Private    |
+|                   | updatedAt<br>수정 일시       | Instant       | Private    |
+|                   | deletedAt<br>탈퇴(삭제) 일시   | Instant       | Private    |
+| 구분                | Name                     | Type          | Visibility |
+| Operations        | updateProfile(String nickname, String profileImg, String bio)<br>프로필 수정 | void | Public |
+|                   | changePassword(String newPassword)<br>비밀번호 변경 | void | Public |
+|                   | linkGithub(String githubId)<br>깃허브 계정 연동 | void | Public |
+|                   | unlinkGithub()<br>깃허브 계정 해제 | void | Public |
+|                   | softDelete()<br>사용자 비활성화(소프트 삭제) | void | Public |
+|                   | isDeleted()<br>탈퇴 상태 확인 | boolean | Public |
 
----
 
 #### DTO Class
 
-| Class Name        | NotificationResponseDto |               |            |
-| ----------------- | ----------------------- | ------------- | ---------- |
-| Class Description | 알림 내역 조회 시 반환되는 응답 DTO |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | notificationId<br>알림 식별자 | Long | private |
-|  | content<br>알림 내용 | String | private |
-|  | createdAt<br>생성 시각 | LocalDateTime | private |
-|  | isRead<br>읽음 여부 | boolean | private |
-| Operations | — | — | — |
-| Return | 알림 목록 응답용 DTO | — | — |
+| Class Name        | UserRegisterDto             |          |            |
+| ----------------- | --------------------------- | -------- | ---------- |
+| Class Description | 회원가입 시 입력받은 데이터를 전달하는 DTO |          |            |
+| 구분                | Name                        | Type     | Visibility |
+| Attribute         | email<br>이메일 주소            | String   | Private    |
+|                   | password<br>비밀번호            | String   | Private    |
+|                   | nickname<br>닉네임             | String   | Private    |
+|                   | bio<br>자기소개               | String   | Private    |
+
+| Class Name        | UserLoginDto                |          |            |
+| ----------------- | --------------------------- | -------- | ---------- |
+| Class Description | 로그인 시 입력받은 아이디와 비밀번호를 전달하는 DTO |          |            |
+| 구분                | Name                        | Type     | Visibility |
+| Attribute         | email<br>이메일 주소            | String   | Private    |
+|                   | password<br>비밀번호            | String   | Private    |
+
+| Class Name        | GithubAuthDto               |          |            |
+| ----------------- | --------------------------- | -------- | ---------- |
+| Class Description | 깃허브 OAuth 인증 시 전달되는 인증 코드 및 액세스 토큰 DTO |          |            |
+| 구분                | Name                        | Type     | Visibility |
+| Attribute         | code<br>인증 코드              | String   | Private    |
+|                   | state<br>상태 값              | String   | Private    |
+|                   | accessToken<br>액세스 토큰     | String   | Private    |
+
+| Class Name        | UserUpdateDto               |          |            |
+| ----------------- | --------------------------- | -------- | ---------- |
+| Class Description | 마이페이지에서 프로필 수정 시 전달되는 DTO |          |            |
+| 구분                | Name                        | Type     | Visibility |
+| Attribute         | nickname<br>닉네임             | String   | Private    |
+|                   | profileImg<br>프로필 이미지     | String   | Private    |
+|                   | bio<br>자기소개               | String   | Private    |
+
+| Class Name        | UserResponseDto             |          |            |
+| ----------------- | --------------------------- | -------- | ---------- |
+| Class Description | 사용자 정보를 클라이언트로 반환할 때 사용하는 DTO |          |            |
+| 구분                | Name                        | Type     | Visibility |
+| Attribute         | id<br>사용자 식별자           | String   | Private    |
+|                   | email<br>이메일              | String   | Private    |
+|                   | nickname<br>닉네임            | String   | Private    |
+|                   | githubLinked<br>깃허브 연동 여부 | boolean | Private    |
+|                   | profileImg<br>프로필 이미지 URL | String | Private    |
+|                   | bio<br>자기소개              | String   | Private    |
+|                   | role<br>권한 (USER/ADMIN)    | Role     | Private    |
+|                   | createdAt<br>가입 일시        | Instant  | Private    |
+
+
+#### Repository Class
+
+| Class Name        | UserRepository                                              |                             |            |
+| ----------------- | ----------------------------------------------------------- | --------------------------- | ---------- |
+| Class Description | 사용자 데이터를 조회, 저장, 삭제하는 데이터 접근 인터페이스 |                             |            |
+| 구분                | Name                                                        | Type                        | Visibility |
+| Operations        | findById(Long id)<br>사용자 식별자로 조회                       | Optional<UserEntity>        | Public     |
+|                   | findByEmail(String email)<br>이메일로 사용자 조회                | Optional<UserEntity>        | Public     |
+|                   | existsByEmail(String email)<br>이메일 중복 여부 확인            | boolean                     | Public     |
+|                   | existsById(Long id)<br>아이디 존재 여부 확인                    | boolean                     | Public     |
+|                   | save(UserEntity user)<br>사용자 정보 저장                       | UserEntity                  | Public     |
+
+
+#### Service Class
+
+| Class Name        | AuthService                                        |                        |            |
+| ----------------- | -------------------------------------------------- | ---------------------- | ---------- |
+| Class Description | 회원가입, 로그인, 로그아웃, 토큰 재발급 등 인증 관련 핵심 로직 담당 |                        |            |
+| 구분                | Name                                               | Type                   | Visibility |
+| Operations        | register(UserRegisterDto dto)<br>회원가입 처리       | UserResponseDto        | Public     |
+|                   | login(UserLoginDto dto)<br>로그인 처리              | AuthTokens             | Public     |
+|                   | logout(Long userId)<br>로그아웃 처리               | void                   | Public     |
+|                   | refresh(String refreshToken)<br>토큰 재발급         | AuthTokens             | Public     |
+
+| Class Name        | GithubAuthService                                  |                        |            |
+| ----------------- | -------------------------------------------------- | ---------------------- | ---------- |
+| Class Description | 깃허브 OAuth 인증 절차 및 사용자 정보 연동 로직 수행 |                        |            |
+| 구분                | Name                                               | Type                   | Visibility |
+| Operations        | buildAuthorizeUrl()<br>깃허브 인증 URL 생성           | String                 | Public     |
+|                   | exchangeCodeForAccessToken(String code)<br>토큰 발급 | String                 | Public     |
+|                   | fetchGithubProfile(String token)<br>깃허브 유저 정보 조회 | GithubProfileDto     | Public     |
+|                   | loginWithGithub(GithubAuthDto dto)<br>깃허브 로그인 처리 | AuthTokens           | Public     |
+
+| Class Name        | UserService                                        |                        |            |
+| ----------------- | -------------------------------------------------- | ---------------------- | ---------- |
+| Class Description | 사용자 정보 조회, 수정, 탈퇴 등 일반 사용자 관리 로직 담당 |                        |            |
+| 구분                | Name                                               | Type                   | Visibility |
+| Operations        | getProfile(Long userId)<br>프로필 조회               | UserResponseDto        | Public     |
+|                   | updateProfile(UserUpdateDto dto)<br>프로필 수정      | void                   | Public     |
+|                   | changePassword(String newPassword)<br>비밀번호 변경  | void                   | Public     |
+|                   | deleteAccount(Long userId)<br>회원 탈퇴             | void                   | Public     |
+
+
+#### Controller Class
+
+| Class Name        | AuthController                                      |                        |            |
+| ----------------- | --------------------------------------------------- | ---------------------- | ---------- |
+| Class Description | 회원가입, 로그인, 로그아웃, 토큰 재발급 요청을 처리하는 컨트롤러 |                        |            |
+| 구분                | Name                                                | Type                   | Visibility |
+| Operations        | register(UserRegisterDto dto)<br>회원가입 요청          | ResponseEntity<?>      | Public     |
+|                   | login(UserLoginDto dto)<br>로그인 요청                 | ResponseEntity<?>      | Public     |
+|                   | logout(Long userId)<br>로그아웃 요청                 | ResponseEntity<Void>   | Public     |
+|                   | refresh(String refreshToken)<br>토큰 재발급 요청     | ResponseEntity<?>      | Public     |
+
+| Class Name        | GithubAuthController                                |                        |            |
+| ----------------- | --------------------------------------------------- | ---------------------- | ---------- |
+| Class Description | 깃허브 로그인 URL 요청 및 콜백 처리 담당 컨트롤러     |                        |            |
+| 구분                | Name                                                | Type                   | Visibility |
+| Operations        | getAuthorizeUrl()<br>깃허브 로그인 URL 요청           | ResponseEntity<String> | Public     |
+|                   | callback(String code, String state)<br>깃허브 콜백 처리 | ResponseEntity<?>     | Public     |
+|                   | loginWithGitHub(GithubAuthDto dto)<br>깃허브 로그인 요청 | ResponseEntity<?>     | Public     |
+
+| Class Name        | UserController                                      |                        |            |
+| ----------------- | --------------------------------------------------- | ---------------------- | ---------- |
+| Class Description | 사용자 프로필 조회, 수정, 삭제 요청을 처리하는 컨트롤러 |                        |            |
+| 구분                | Name                                                | Type                   | Visibility |
+| Operations        | getProfile(Long userId)<br>사용자 정보 조회           | ResponseEntity<UserResponseDto> | Public |
+|                   | updateProfile(UserUpdateDto dto)<br>프로필 수정 요청   | ResponseEntity<Void>   | Public     |
+|                   | deleteAccount(Long userId)<br>회원 탈퇴 요청          | ResponseEntity<Void>   | Public     |
+
 
 ### 스터디 관리
 <img width="1173" height="1101" alt="image" src="https://github.com/user-attachments/assets/0e670c58-0c0f-4127-856c-497074bbde43" />
