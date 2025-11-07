@@ -4552,28 +4552,17 @@
 
 ### 회원가입
 
-```mermaid
-sequenceDiagram
-  autonumber
-  actor Client
-  participant AC as AuthController
-  participant AS as AuthService
-  participant UR as UserRepository
+<img width="912" height="650" alt="image" src="https://github.com/user-attachments/assets/4a058e9e-b445-44d4-b06c-72df060247d9" />
 
-  Client->>AC: POST /auth/register (UserRegisterDto)
-  AC->>AS: register(dto)
-  AS->>UR: existsByEmail(dto.email)
-  UR-->>AS: boolean
 
-  alt 이메일 미사용
-    AS->>UR: save(new UserEntity(dto))
-    UR-->>AS: UserEntity
-    AS-->>AC: UserResponseDto
-    AC-->>Client: 201 Created + body
-  else 이메일 중복
-    AS-->>AC: throw DuplicateEmail
-    AC-->>Client: 409 Conflict
-  end
+### 프로필 수정
+<img width="1015" height="549" alt="image" src="https://github.com/user-attachments/assets/5e640cde-d381-4d71-9112-92e2a56729d4" />
+
+### 깃허브 OAuth 로그인
+
+
+###
+
 
 
 
