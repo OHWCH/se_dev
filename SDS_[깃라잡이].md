@@ -4548,6 +4548,33 @@
 
 ### 회원가입
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant AuthController
+    participant AuthService
+    participant UserRepository
+    participant PasswordEncoder
+
+    User->>AuthController: 회원가입 요청 (POST /auth/register)
+    AuthController->>AuthService: register(UserRegisterDto)
+
+    AuthService->>UserRepository: existsByEmail(email)
+    UserRepository-->>AuthService: boolean (중복 여부 확인)
+
+    alt 이메일 중복 없음
+        AuthService->>PasswordEncoder: encode(password)
+        PasswordEncoder-->>AuthService: encodedPassword
+        AuthService->>UserRepository: save(new UserEntity)
+        UserRepository-->>AuthService: UserEntity
+        AuthService-->>AuthController: UserResponseDto
+        AuthController-->>User: 회원가입 성공 (201 Created)
+    else 이메일 중복됨
+        AuthService-->>AuthController: DuplicateEmailException
+        AuthController-->>User: 회원가입 실패 (409 Conflict)
+    end
+```
+
 ### 로그인
 
 ```mermaid
@@ -4577,8 +4604,172 @@ sequenceDiagram
     AuthController-->>User: 로그인 성공 (200 OK + 토큰)
 
 ```
+### 로그아웃
+```mermaid
+sequenceDiagram
+    participant User
+    participant AuthController
+    participant AuthService
+    participant JwtTokenProvider
+    participant RefreshTokenStore
 
+    User->>AuthController: 로그아웃 요청 (POST /auth/logout)
+    AuthController->>AuthService: logout(userId, refreshToken)
 
+    AuthService->>JwtTokenProvider: validateToken(refreshToken)
+    JwtTokenProvider-->>AuthService: boolean (유효성 결과)
+
+    alt 토큰 유효함
+        AuthService->>RefreshTokenStore: revokeByUserId(userId)
+        RefreshTokenStore-->>AuthService: void
+        AuthService-->>AuthController: void
+        AuthController-->>User: 로그아웃 성공 (204 No Content)
+    else 토큰 무효 또는 만료
+        AuthService-->>AuthController: InvalidTokenException
+        AuthController-->>User: 로그아웃 실패 (401 Unauthorized)
+    end
+
+```
+### 회원탈퇴
+```mermaid
+sequenceDiagram
+    participant User
+    participant UserController
+    participant UserService
+    participant UserRepository
+    participant PasswordEncoder
+    participant RefreshTokenStore
+
+    User->>UserController: 회원 탈퇴 요청 (DELETE /users/me)
+    UserController->>UserService: deleteAccount(userId, password)
+
+    UserService->>UserRepository: findById(userId)
+    UserRepository-->>UserService: Optional<UserEntity>
+
+    alt 사용자 존재
+        UserService->>PasswordEncoder: matches(password, user.passwordHash)
+        PasswordEncoder-->>UserService: boolean (검증 결과)
+
+        alt 비밀번호 일치
+            UserService->>UserEntity: softDelete()  %% 탈퇴 상태 플래그/삭제일자 설정
+            UserService->>UserRepository: save(user)
+            UserRepository-->>UserService: UserEntity
+            UserService->>RefreshTokenStore: revokeByUserId(userId)
+            RefreshTokenStore-->>UserService: void
+            UserService-->>UserController: void
+            UserController-->>User: 회원 탈퇴 완료 (204 No Content)
+        else 비밀번호 불일치
+            UserService-->>UserController: BadCredentialsException
+            UserController-->>User: 회원 탈퇴 실패 (401 Unauthorized)
+        end
+    else 사용자 없음
+        UserService-->>UserController: UserNotFoundException
+        UserController-->>User: 회원 탈퇴 실패 (404 Not Found)
+    end
+
+```
+
+### 깃허브 인증
+```mermaid
+sequenceDiagram
+    participant User
+    participant GithubAuthController
+    participant GithubAuthService
+    participant GitHubAPI
+    participant UserRepository
+    participant JwtTokenProvider
+
+    %% 1단계: 인증 URL 요청
+    User->>GithubAuthController: 깃허브 로그인 요청 (GET /auth/github/url)
+    GithubAuthController->>GithubAuthService: buildAuthorizeUrl()
+    GithubAuthService-->>GithubAuthController: authorizeUrl
+    GithubAuthController-->>User: 깃허브 로그인 URL 응답 (200 OK)
+
+    %% 2단계: GitHub 인증 및 콜백
+    User->>GitHubAPI: 인증 URL로 리다이렉트 (GitHub 로그인/권한 승인)
+    GitHubAPI-->>User: code, state 포함 콜백 리다이렉트
+    User->>GithubAuthController: GET /auth/github/callback?code=...&state=...
+    GithubAuthController->>GithubAuthService: loginWithGithub(code, state)
+
+    %% 3단계: 액세스 토큰 발급
+    GithubAuthService->>GitHubAPI: exchange code → accessToken
+    GitHubAPI-->>GithubAuthService: accessToken
+
+    %% 4단계: 사용자 프로필 조회
+    GithubAuthService->>GitHubAPI: fetch user profile (accessToken)
+    GitHubAPI-->>GithubAuthService: githubProfile
+
+    %% 5단계: DB 사용자 매칭 및 생성
+    GithubAuthService->>UserRepository: findByGithubId(profile.id)
+    UserRepository-->>GithubAuthService: Optional<UserEntity>
+
+    alt 기존 사용자 존재
+        note over GithubAuthService: 기존 깃허브 계정과 연결된 사용자 로그인
+    else 신규 사용자
+        GithubAuthService->>UserRepository: save(new UserEntity from githubProfile)
+        UserRepository-->>GithubAuthService: UserEntity
+    end
+
+    %% 6단계: JWT 발급 및 반환
+    GithubAuthService->>JwtTokenProvider: generateAccessToken(userId, role)
+    JwtTokenProvider-->>GithubAuthService: accessToken
+    GithubAuthService->>JwtTokenProvider: generateRefreshToken(userId)
+    JwtTokenProvider-->>GithubAuthService: refreshToken
+    GithubAuthService-->>GithubAuthController: AuthTokens(AT, RT)
+    GithubAuthController-->>User: 깃허브 로그인 성공 (200 OK + 토큰)
+
+```
+
+### 프로필 조회
+```mermaid
+sequenceDiagram
+    participant User
+    participant UserController
+    participant UserService
+    participant UserRepository
+
+    User->>UserController: 프로필 조회 요청 (GET /users/me)
+    UserController->>UserService: getProfile(authUserId)
+
+    UserService->>UserRepository: findById(authUserId)
+    UserRepository-->>UserService: Optional<UserEntity>
+
+    alt 사용자 존재
+        UserService-->>UserController: UserResponseDto
+        UserController-->>User: 프로필 정보 응답 (200 OK)
+    else 사용자 없음
+        UserService-->>UserController: UserNotFoundException
+        UserController-->>User: 프로필 조회 실패 (404 Not Found)
+    end
+
+```
+
+### 프로필 수정
+```mermaid
+sequenceDiagram
+    participant User
+    participant UserController
+    participant UserService
+    participant UserRepository
+
+    User->>UserController: 프로필 수정 요청 (PUT /users/me) <br> UserUpdateDto(nickname, profileImg, bio)
+    UserController->>UserService: updateProfile(authUserId, dto)
+
+    UserService->>UserRepository: findById(authUserId)
+    UserRepository-->>UserService: Optional<UserEntity>
+
+    alt 사용자 존재
+        UserService->>UserEntity: updateProfile(dto.nickname, dto.profileImg, dto.bio)
+        UserService->>UserRepository: save(UserEntity)
+        UserRepository-->>UserService: UserEntity
+        UserService-->>UserController: void
+        UserController-->>User: 프로필 수정 성공 (204 No Content)
+    else 사용자 없음
+        UserService-->>UserController: UserNotFoundException
+        UserController-->>User: 프로필 수정 실패 (404 Not Found)
+    end
+
+```
 
 
 ## 스터디디
