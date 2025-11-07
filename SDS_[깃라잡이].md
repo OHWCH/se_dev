@@ -20,7 +20,7 @@
 
 | Revision date | Version # | Description | Author |
 |---------------|-----------|-------------|--------|
-| MM/DD/YYYY    | 0.00      | Type brief description here | Author name |
+| 11/07/2025    | 1.00      | 1차완성 | Author name |
 | | | | |
 | | | | |
 | | | | |
