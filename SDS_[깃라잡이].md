@@ -4545,91 +4545,38 @@
 
 
 ## 유저
-###로그인
-
-```mermaid
-sequenceDiagram
-  autonumber
-  actor User
-  participant UI as Web/App UI
-  participant AC as AuthController
-  participant AS as AuthService
-  participant UR as UserRepository
-  participant PE as PasswordEncoder
-  participant JP as JwtTokenProvider
-  participant ST as TokenStorage(쿠키/로컬스토리지)
-
-  %% S. 로그인 페이지 진입
-  User->>UI: 로그인 페이지 접속 (S)
-
-  %% 1~2. 입력 & 제출
-  User->>UI: ID/비밀번호 입력 (1)
-  User->>UI: "로그인" 클릭 (2)
-  UI->>AC: POST /auth/login {email, password}
-
-  %% 3. ID 조회
-  AC->>AS: login(email, password)
-  AS->>UR: findByEmail(email)
-  UR-->>AS: Optional<UserEntity>
-
-  alt 3a: ID가 존재하지 않음
-    AS-->>AC: throw UserNotFound
-    AC-->>UI: 404 + "존재하지 않는 아이디입니다."
-    UI-->>User: 에러 표시(3a)
-  else ID 존재
-    %% 4. 비밀번호 검증
-    AS->>PE: matches(rawPwd, user.passwordHash)
-    alt 4a: 비밀번호 불일치
-      AS-->>AC: throw BadCredentials
-      AC-->>UI: 401 + "비밀번호가 올바르지 않습니다."
-      UI-->>User: 에러 표시(4a)
-    else 비밀번호 일치
-      %% 5. JWT 생성
-      AS->>JP: generateAccessToken(userId, role)
-      JP-->>AS: AT
-      AS->>JP: generateRefreshToken(userId)
-      JP-->>AS: RT
-      opt 5a: JWT 생성 오류
-        AS-->>AC: throw TokenIssueError
-        AC-->>UI: 500 + "로그인에 실패했습니다."
-        UI-->>User: 에러 표시(5a)
-      end
-
-      %% 6. 응답 반환
-      AS-->>AC: AuthTokens(AT, RT)
-      AC-->>UI: 200 OK + {AT, RT}
-      opt 6a: 네트워크 오류로 응답 손실
-        UI-->>User: 재시도 버튼 표시(6a)
-      end
-
-      %% 7. 토큰 저장
-      UI->>ST: save(AT, RT)
-      opt 7a: 저장 실패(LocalStorage/쿠키 접근 불가)
-        ST-->>UI: 실패
-        UI-->>User: "세션 유지에 실패했습니다." 경고(7a)
-      end
-
-      %% 8. 성공 후 이동
-      UI-->>User: "로그인 성공" 표시 및 메인 페이지로 이동
-      opt 8a: 리다이렉트 중 네트워크 오류
-        UI-->>User: 재시도 버튼 표시 후 이동 재시도(8a)
-      end
-    end
-  end
-
 
 ### 회원가입
 
-<img width="912" height="650" alt="image" src="https://github.com/user-attachments/assets/4a058e9e-b445-44d4-b06c-72df060247d9" />
+### 로그인
+
+sequenceDiagram
+    participant User
+    participant AuthController
+    participant AuthService
+    participant UserRepository
+    participant JwtTokenProvider
+    participant PasswordEncoder
+
+    User->>AuthController: 로그인 요청 (POST /auth/login)
+    AuthController->>AuthService: login(email, password)
+
+    AuthService->>UserRepository: findByEmail(email)
+    UserRepository-->>AuthService: Optional<UserEntity>
+
+    AuthService->>PasswordEncoder: matches(raw, user.passwordHash)
+    PasswordEncoder-->>AuthService: true
+
+    AuthService->>JwtTokenProvider: generateAccessToken(userId, role)
+    JwtTokenProvider-->>AuthService: accessToken
+    AuthService->>JwtTokenProvider: generateRefreshToken(userId)
+    JwtTokenProvider-->>AuthService: refreshToken
+
+    AuthService-->>AuthController: AuthTokens(AT, RT)
+    AuthController-->>User: 로그인 성공 (200 OK + 토큰)
 
 
-### 프로필 수정
-<img width="1015" height="549" alt="image" src="https://github.com/user-attachments/assets/5e640cde-d381-4d71-9112-92e2a56729d4" />
 
-### 깃허브 OAuth 로그인
-
-
-###
 
 
 
