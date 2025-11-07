@@ -28,15 +28,15 @@
 ---
 
 ## Contents
-1. Introduction  -------------------
-2. Use case analysis  --------------
-3. Class diagram  ------------------
-4. Sequence diagram  ---------------
-5. State machine diagram  ----------
-6. User interface prototype  -------
-7. Implementation requirements  ----
-8. Glossary  -----------------------
-9. References  ---------------------
+1. Introduction  -------------------[Introduction](#1-introduction)
+2. Use case analysis  --------------[Use case analysis](#2-use-case-analysis)
+3. Class diagram  ------------------[Class diagram](#3-class-diagram)
+4. Sequence diagram  ---------------[Sequence diagram](#4-sequence-diagram)
+5. State machine diagram  ----------[State machine diagram](#5-state-machine-diagram)
+6. User interface prototype  -------[User interface prototype](#6-user-interface-prototype)
+7. Implementation requirements  ----[Implementation requirements](#7-implementation-requirements)
+8. Glossary  -----------------------[Glossary](#8-glossary)
+9. References  ---------------------[References](#9-references)
 
 ---
 
@@ -67,9 +67,6 @@
 ---
 
 ## 2. Use case analysis
-- Build a use case diagram.  
-- Make detailed description for each use case (Use case description).  
-- 12pt, 160%.
 - Use case diagram
 - <img width="922" height="787" alt="image" src="https://github.com/user-attachments/assets/87212baf-d21b-47d4-bc9e-6539c80e08e6" />
 
@@ -3340,10 +3337,6 @@
 ---
 
 ## 3. Class diagram
-- Draw class diagrams.  
-- Describe each class in detail (attributes, methods, others) (table type).  
-- 12pt, 160%.
-
 ### 유저 관리
 <img width="759" height="422" alt="image" src="https://github.com/user-attachments/assets/9e2ddc87-2739-4271-b062-550d4d96c21b" />
 
@@ -4544,13 +4537,7 @@
 
 ---
 ## 4. Sequence diagram
-- Draw sequence diagrams for the whole functions of your system.  
-- Explain each sequence diagram.  
-- 12pt, 160%.
-
-
 ## 유저
-
 ### 회원가입
 
 ```mermaid
@@ -5848,9 +5835,6 @@ sequenceDiagram
 ---
 
 ## 5. State machine diagram
-- Draw state machine diagrams for the client and the server system.  
-- Explain each state machine diagram.  
-- 12pt, 160%.  
 ```mermaid
 stateDiagram
     direction TB
@@ -5947,9 +5931,6 @@ stateDiagram
 ---
 
 ## 6. User interface prototype
-- Design user interface for your software system.  
-- It will be easy if you just think that you make a preliminary user manual of your system based on your user interface.  
-- 12pt, 160%.  
 ### 로그인 화면
 <img width="2880" height="2048" alt="image" src="https://github.com/user-attachments/assets/222024bc-a674-4f3e-bfb1-245c99ecbe39" />
 
@@ -6085,4 +6066,16 @@ https://terianp.tistory.com/178
 스프링 시큐리티(로그인/회원가입)
 https://eunbin00.tistory.com/202
 
+Spring Boot 3.x 공식 레퍼런스 문서
+https://docs.spring.io/spring-boot/index.html
+
+Spring Security 6.x 공식 레퍼런스 (JWT 인증)
+https://docs.spring.io/spring-security/reference/index.html
+
+Spring Data JPA 공식 레퍼런스 (Repository 및 Entity 설계 참조)
+https://docs.spring.io/spring-data/jpa/reference/index.html
+
+GitHub API (v3 REST, v4 GraphQL) 공식 문서
+https://docs.github.com/en/rest?apiVersion=2022-11-28
+https://docs.github.com/en/graphql
 
