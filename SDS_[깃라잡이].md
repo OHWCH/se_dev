@@ -3427,6 +3427,83 @@
 |                   | existsById(Long id)<br>아이디 존재 여부 확인                    | boolean                     | Public     |
 |                   | save(UserEntity user)<br>사용자 정보 저장                       | UserEntity                  | Public     |
 
+#### Security Class
+
+| Class Name        | JwtTokenProvider                          |                  |            |
+| ----------------- | ------------------------------------------ | ---------------- | ---------- |
+| Class Description | JWT 액세스/리프레시 토큰 생성·검증·파싱을 담당 |                  |            |
+| 구분                | Name                                       | Type             | Visibility |
+| Attribute         | —                                           | —                | —          |
+| 구분                | Name                                       | Type             | Visibility |
+| Operations        | generateAccessToken(Long userId, String role)<br>액세스 토큰 생성 | String          | Public     |
+|                   | generateRefreshToken(Long userId)<br>리프레시 토큰 생성          | String          | Public     |
+|                   | validateToken(String token)<br>토큰 유효성 검증                  | boolean         | Public     |
+|                   | getUserIdFromToken(String token)<br>토큰에서 사용자 ID 추출       | Long            | Public     |
+|                   | getAuthentication(String token)<br>Spring Security 인증 객체 생성 | Authentication  | Public     |
+
+
+| Class Name        | JwtAuthenticationFilter                     |                  |            |
+| ----------------- | ------------------------------------------- | ---------------- | ---------- |
+| Class Description | HTTP 요청 헤더에서 JWT를 추출·검증하고 SecurityContext에 인증 등록하는 필터 |                  |            |
+| 구분                | Name                                        | Type             | Visibility |
+| Attribute         | —                                            | —                | —          |
+| 구분                | Name                                        | Type             | Visibility |
+| Operations        | doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) | void | Public     |
+
+
+| Class Name        | CustomUserDetails                           |                    |            |
+| ----------------- | ------------------------------------------- | ------------------ | ---------- |
+| Class Description | Spring Security에서 인증 주체(사용자)를 표현하는 상세 정보 객체 |                    |            |
+| 구분                | Name                                        | Type               | Visibility |
+| Attribute         | userId<br>사용자 식별자                       | Long               | Private    |
+|                   | username<br>로그인 ID(이메일)                 | String             | Private    |
+|                   | password<br>비밀번호 해시                     | String             | Private    |
+|                   | authorities<br>권한 목록                      | List<GrantedAuthority> | Private |
+| 구분                | Name                                        | Type               | Visibility |
+| Operations        | getUsername()                                 | String             | Public     |
+|                   | getPassword()                                 | String             | Public     |
+|                   | getAuthorities()                              | List<GrantedAuthority> | Public |
+|                   | isAccountNonExpired()                         | boolean            | Public     |
+|                   | isAccountNonLocked()                          | boolean            | Public     |
+|                   | isCredentialsNonExpired()                     | boolean            | Public     |
+|                   | isEnabled()                                   | boolean            | Public     |
+
+
+| Class Name        | CustomUserDetailsService                    |                  |            |
+| ----------------- | ------------------------------------------- | ---------------- | ---------- |
+| Class Description | DB에서 사용자를 조회하여 `UserDetails`로 변환해 인증에 사용하는 서비스 |                  |            |
+| 구분                | Name                                        | Type             | Visibility |
+| Attribute         | —                                            | —                | —          |
+| 구분                | Name                                        | Type             | Visibility |
+| Operations        | loadUserByUsername(String email)<br>이메일로 사용자 로드 | UserDetails | Public     |
+
+
+| Class Name        | SecurityConfig                               |                  |            |
+| ----------------- | -------------------------------------------- | ---------------- | ---------- |
+| Class Description | 전체 보안 설정: 필터 체인, 인가 규칙, 예외 핸들러, CORS/CSRF 설정 |                  |            |
+| 구분                | Name                                         | Type             | Visibility |
+| Attribute         | —                                             | —                | —          |
+| 구분                | Name                                         | Type             | Visibility |
+| Operations        | filterChain(HttpSecurity http)<br>필터 체인 및 인가 정책 구성 | SecurityFilterChain | Public  |
+
+
+| Class Name        | JwtAuthenticationEntryPoint                 |                  |            |
+| ----------------- | ------------------------------------------- | ---------------- | ---------- |
+| Class Description | 인증 실패(미인증) 시 401 Unauthorized 응답 처리 |                  |            |
+| 구분                | Name                                        | Type             | Visibility |
+| Attribute         | —                                            | —                | —          |
+| 구분                | Name                                        | Type             | Visibility |
+| Operations        | commence(HttpServletRequest req, HttpServletResponse res, AuthenticationException ex) | void | Public |
+
+
+| Class Name        | JwtAccessDeniedHandler                      |                  |            |
+| ----------------- | ------------------------------------------- | ---------------- | ---------- |
+| Class Description | 인가 실패(권한 없음) 시 403 Forbidden 응답 처리 |                  |            |
+| 구분                | Name                                        | Type             | Visibility |
+| Attribute         | —                                            | —                | —          |
+| 구분                | Name                                        | Type             | Visibility |
+| Operations        | handle(HttpServletRequest req, HttpServletResponse res, AccessDeniedException ex) | void | Public |
+
 
 #### Service Class
 
