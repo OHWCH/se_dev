@@ -4576,14 +4576,12 @@ sequenceDiagram
     AuthService-->>AuthController: AuthTokens(AT, RT)
     AuthController-->>User: 로그인 성공 (200 OK + 토큰)
 
+```
 
 
 
 
-
-
-
-## 스터디
+## 스터디디
 ### 스터디 생성
 
 ```mermaid
