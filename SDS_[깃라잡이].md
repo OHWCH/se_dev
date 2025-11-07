@@ -423,7 +423,7 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case # : 깃허브 인증**
+### **Use case #5 : 깃허브 인증**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   사용자가 마이페이지에서 자신의 깃허브 계정을 연결(인증)한다.
@@ -499,7 +499,7 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #5 : 프로필 조회**
+### **Use case #6 : 프로필 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**   
   사용자가 자신의 프로필 정보를 조회하는 기능이다. 사용자는 닉네임, 기술 스택, 선호 언어, 활동 내역 등 기본 정보를 조회할 수 있다.
@@ -567,7 +567,7 @@
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #6 : 프로필 수정**
+### **Use case #7 : 프로필 수정**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   로그인한 사용자가 자신의 프로필(닉네임, 소개, 기술 스택, 선호 언어, 프로필 이미지 등)을 수정하는 기능이다.
@@ -4547,7 +4547,75 @@
 ## 유저
 ###로그인
 
-<img width="950" height="653" alt="image" src="https://github.com/user-attachments/assets/8b00f691-bc3b-4766-987d-6266f5058e35" />
+```mermaid
+sequenceDiagram
+  autonumber
+  actor User
+  participant UI as Web/App UI
+  participant AC as AuthController
+  participant AS as AuthService
+  participant UR as UserRepository
+  participant PE as PasswordEncoder
+  participant JP as JwtTokenProvider
+  participant ST as TokenStorage(쿠키/로컬스토리지)
+
+  %% S. 로그인 페이지 진입
+  User->>UI: 로그인 페이지 접속 (S)
+
+  %% 1~2. 입력 & 제출
+  User->>UI: ID/비밀번호 입력 (1)
+  User->>UI: "로그인" 클릭 (2)
+  UI->>AC: POST /auth/login {email, password}
+
+  %% 3. ID 조회
+  AC->>AS: login(email, password)
+  AS->>UR: findByEmail(email)
+  UR-->>AS: Optional<UserEntity>
+
+  alt 3a: ID가 존재하지 않음
+    AS-->>AC: throw UserNotFound
+    AC-->>UI: 404 + "존재하지 않는 아이디입니다."
+    UI-->>User: 에러 표시(3a)
+  else ID 존재
+    %% 4. 비밀번호 검증
+    AS->>PE: matches(rawPwd, user.passwordHash)
+    alt 4a: 비밀번호 불일치
+      AS-->>AC: throw BadCredentials
+      AC-->>UI: 401 + "비밀번호가 올바르지 않습니다."
+      UI-->>User: 에러 표시(4a)
+    else 비밀번호 일치
+      %% 5. JWT 생성
+      AS->>JP: generateAccessToken(userId, role)
+      JP-->>AS: AT
+      AS->>JP: generateRefreshToken(userId)
+      JP-->>AS: RT
+      opt 5a: JWT 생성 오류
+        AS-->>AC: throw TokenIssueError
+        AC-->>UI: 500 + "로그인에 실패했습니다."
+        UI-->>User: 에러 표시(5a)
+      end
+
+      %% 6. 응답 반환
+      AS-->>AC: AuthTokens(AT, RT)
+      AC-->>UI: 200 OK + {AT, RT}
+      opt 6a: 네트워크 오류로 응답 손실
+        UI-->>User: 재시도 버튼 표시(6a)
+      end
+
+      %% 7. 토큰 저장
+      UI->>ST: save(AT, RT)
+      opt 7a: 저장 실패(LocalStorage/쿠키 접근 불가)
+        ST-->>UI: 실패
+        UI-->>User: "세션 유지에 실패했습니다." 경고(7a)
+      end
+
+      %% 8. 성공 후 이동
+      UI-->>User: "로그인 성공" 표시 및 메인 페이지로 이동
+      opt 8a: 리다이렉트 중 네트워크 오류
+        UI-->>User: 재시도 버튼 표시 후 이동 재시도(8a)
+      end
+    end
+  end
 
 
 ### 회원가입
