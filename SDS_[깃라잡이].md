@@ -1,6 +1,6 @@
 # Software Design Specification (SDS)
 
-## (Project Title)
+## 깃라잡이
 
 (Logo) - option
 
@@ -42,22 +42,27 @@
 
 ## Authors for each section
 
-- Introduction – XXX, XXX, XXX  
-- Use case analysis – XXX  
-- Class diagram – XXX, XXX  
-- Sequence diagram – XXX, XXX  
-- State machine diagram – XXX, XXX  
-- User interface prototype – XXX, XXX  
-- Implementation requirements – XXX, XXX  
-- Glossary – XXX, XXX  
-- References – XXX, XXX  
+- Introduction – 김관호, 김동규, 김성민, 박솔, 오원창, 정동현
+- Use case analysis – 김성민, 김동규
+- Class diagram – 김관호, 박솔, 오원창, 정동현
+- Sequence diagram – 김관호, 박솔, 오원창, 정동현
+- State machine diagram – 오원창
+- User interface prototype – 정동현 
+- Implementation requirements – 
+- Glossary –   
+- References –   
 
 ---
 
 ## 1. Introduction
-- Summarize the contents of this document.  
-- Describe the important points of your design.  
-- 12pt, 160%.  
+본 문서는 우리 조가 개발하고자 하는 시스템인 깃라잡이의 설계 명세서(SDS)이다. 깃라잡이는 오픈소스에 처음 기여해보는 입문자에게 쉽게 참여하고 학습할 수 있도록 지원하는 플랫폼이다.
+
+본 문서에서는 깃라잡이의 기능적 요구사항을 실현하기 위한 설계를 다양한 관점에서 제시한다. Use Case 분석은 사용자 관점에서 제공되는 주요 기능을 설명하고, Class Diagram은 시스템의 구조적 관점을, Sequence Diagram과 State Machine Diagram은 시스템의 동적 동작을 나타낸다. 또한 User Interface 설계를 통해 실제 사용자의 화면 구성과 상호작용을 시각적으로 표현하였다.
+
+깃라잡이는 good-first-issue와 같은 사용자가 참여하기 적합한 이슈를 추천하고 튜토리얼을 제공함으로서 오픈소스 기여에 조금 더 흥미를 가지고 참여해봄으로서 건전하고 활발한 오픈소스 생태계를 목표로 한다. 또한 여러 사용자가 모여 스터디를 이루어 일정관리와 커뮤니케이션을 통해 이용의 어려움을 최소화하며 자유게시판, QnA게시판등을 통해 플램폼 전역에서의 의사소통이 가능하다.
+ 
+
+
 
 ---
 
