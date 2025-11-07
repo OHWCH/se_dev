@@ -4574,6 +4574,8 @@ sequenceDiagram
         AuthController-->>User: 회원가입 실패 (409 Conflict)
     end
 ```
+사용자가 이메일, 비밀번호, 닉네임을 입력하면 시스템은 이메일 중복 여부를 확인하고,
+중복이 없으면 비밀번호를 암호화한 후 새 UserEntity를 생성하여 저장합니다.
 
 ### 로그인
 
@@ -4604,6 +4606,9 @@ sequenceDiagram
     AuthController-->>User: 로그인 성공 (200 OK + 토큰)
 
 ```
+사용자가 이메일과 비밀번호를 입력하면, 시스템은 DB에서 사용자 정보를 조회하고 비밀번호를 검증합니다.
+일치 시 JWT Access Token과 Refresh Token을 발급하여 클라이언트에 반환하며, 클라이언트는 토큰을 저장 후 메인 페이지로 이동합니다.
+
 ### 로그아웃
 ```mermaid
 sequenceDiagram
@@ -4630,6 +4635,11 @@ sequenceDiagram
     end
 
 ```
+
+사용자가 로그아웃 요청 시 시스템은 전달받은 Refresh Token의 유효성을 검증하고,
+해당 유저의 모든 토큰을 RefreshTokenStore에서 폐기하여 세션을 종료합니다.
+
+
 ### 회원탈퇴
 ```mermaid
 sequenceDiagram
@@ -4720,6 +4730,9 @@ sequenceDiagram
 
 ```
 
+사용자가 깃허브 로그인 버튼을 누르면 GitHub OAuth 인증 페이지로 이동하여 로그인 승인 후,
+시스템은 콜백으로 받은 code를 이용해 GitHub API로부터 사용자 정보를 가져와 JWT 토큰을 발급합니다.
+
 ### 프로필 조회
 ```mermaid
 sequenceDiagram
@@ -4743,6 +4756,8 @@ sequenceDiagram
     end
 
 ```
+인증된 사용자가 자신의 프로필 정보를 요청하면, 시스템은 DB에서 UserEntity를 조회하여
+UserResponseDto 형태로 반환합니다.
 
 ### 프로필 수정
 ```mermaid
@@ -4770,6 +4785,8 @@ sequenceDiagram
     end
 
 ```
+인증된 사용자가 닉네임, 프로필 이미지, 자기소개를 수정하면,
+시스템은 해당 사용자를 조회해 UserEntity.updateProfile()로 정보를 갱신하고 저장합니다.
 
 
 ## 스터디디
