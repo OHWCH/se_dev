@@ -1,8 +1,9 @@
 # Software Design Specification (SDS)
 
 ## 깃라잡이
+<img width="400" height="400" alt="깃라잡이 로고" src="https://github.com/user-attachments/assets/bf7cb8cf-26f7-452c-9b90-c1b0225fa5a7" />
 
-(Logo) - option
+
 
 **Team information:**
 |    **Project title**    |                                                                                                                  깃라잡이                                                                                                                   |
