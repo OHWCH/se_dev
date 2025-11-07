@@ -4550,6 +4550,7 @@
 
 ### 로그인
 
+```mermaid
 sequenceDiagram
     participant User
     participant AuthController
