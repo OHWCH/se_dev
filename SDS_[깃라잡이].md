@@ -48,9 +48,9 @@
 - Sequence diagram – 김관호, 박솔, 오원창, 정동현
 - State machine diagram – 오원창
 - User interface prototype – 정동현 
-- Implementation requirements – 
-- Glossary –   
-- References –   
+- Implementation requirements – 김관호, 김동규, 김성민, 박솔, 오원창, 정동현
+- Glossary – 김관호, 김동규, 김성민, 박솔, 오원창, 정동현
+- References – 김관호, 김동규, 김성민, 박솔, 오원창, 정동현
 
 ---
 
@@ -6066,11 +6066,23 @@ stateDiagram
 ---
 
 ## 8. Glossary
-- Specifically describe all of the terms used in this document.  
-- 12pt, 160%.  
-
+| 이름               | 설명                                                          |
+| ---------------- | ----------------------------------------------------------- |
+| 깃라잡이             | 플랫폼 이름으로 길라잡이와 깃허브를 합친 합성어로 사용자가 더 쉽게 오픈소스에 기여하자는 의미이다.     |
+| 스터디              | 오픈소스 기여에 어려움을 느끼거나 공통된 관심사를 가진 유저가 모여 커뮤니케이션을 이루는 가상의 공간이다. |
+| 도전과제(튜토리얼)       | 처음에 오픈소스 기여를 어떻게 시작해야하는지 모르는 입문자를 위해 최소한의 길라잡이 역할을 제공한다.    |
+| vscode.dev       | 사용자가 더 빠른 코드편집을 위해 웹상의 코드편집기이다.                             |
+| good-first-issue | 기여하기 좋은 issue를 지칭하는 태그이다.                                   |
 ---
 
 ## 9. References
-- Describe all of your references (book, paper, technical report etc).  
-- 12pt, 160%.  
+이것이 취업을 위한 백엔드 개발이다.
+https://product.kyobobook.co.kr/detail/S000211834105
+
+webrtc(화상채팅)
+https://terianp.tistory.com/178
+
+스프링 시큐리티(로그인/회원가입)
+https://eunbin00.tistory.com/202
+
+
