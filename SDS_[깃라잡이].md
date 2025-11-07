@@ -60,7 +60,7 @@
 본 문서에서는 깃라잡이의 기능적 요구사항을 실현하기 위한 설계를 다양한 관점에서 제시한다. Use Case 분석은 사용자 관점에서 제공되는 주요 기능을 설명하고, Class Diagram은 시스템의 구조적 관점을, Sequence Diagram과 State Machine Diagram은 시스템의 동적 동작을 나타낸다. 또한 User Interface 설계를 통해 실제 사용자의 화면 구성과 상호작용을 시각적으로 표현하였다.
 
 깃라잡이는 good-first-issue와 같은 사용자가 참여하기 적합한 이슈를 추천하고 튜토리얼을 제공함으로서 오픈소스 기여에 조금 더 흥미를 가지고 참여해봄으로서 건전하고 활발한 오픈소스 생태계를 목표로 한다. 또한 여러 사용자가 모여 스터디를 이루어 일정관리와 커뮤니케이션을 통해 이용의 어려움을 최소화하며 자유게시판, QnA게시판등을 통해 플램폼 전역에서의 의사소통이 가능하다.
- 
+
 
 
 
@@ -6045,8 +6045,23 @@ stateDiagram
 ---
 
 ## 7. Implementation requirements
-- Describe operating environments to implement your system.  
-- 12pt, 160%.  
+- Frontend:
+    - Framework: React.js
+    - Language: JavaScript (ES6+), HTML5, CSS3
+    - Environment: Node.js (v18 이상)
+    - Browser Compatibility: Chrome, Edge, Firefox 최신 버전
+- Backend:
+    - Framework: Spring Boot (v3.x)
+    - Language: Java (JDK 17 이상)
+    - API Communication: RESTful API, GitHub OAuth2 연동
+    - Build Tool: Gradle
+- Database & Hosting:
+    - Database: Supabase (PostgreSQL 기반)
+    - Cloud Environment: Supabase Hosting 
+- Development Environment:
+    - IDE: IntelliJ IDEA, Visual Studio Code
+    - Version Control: GitHub Organization Repository
+    - OS: Windows 10/11, macOS, Linux 지원
 
 ---
 
