@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Git-ra-jab-i Community</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#3b82f6", // blue-500
+            "background-light": "#f8fafc", // slate-50
+            "background-dark": "#1e293b", // slate-800
+            "surface-light": "#ffffff", // white
+            "surface-dark": "#334155", // slate-700
+            "text-light-primary": "#1e293b", // slate-800
+            "text-dark-primary": "#f8fafc", // slate-50
+            "text-light-secondary": "#64748b", // slate-500
+            "text-dark-secondary": "#cbd5e1", // slate-300
+            "border-light": "#e2e8f0", // slate-200
+            "border-dark": "#475569", // slate-600
+          },
+          fontFamily: {
+            display: ["Noto Sans KR", "sans-serif"],
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+          },
+        },
+      },
+    };
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24
+    }
+  </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary antialiased">
+<div class="min-h-screen">
+<header class="bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center">
+<h1 class="text-xl font-bold text-primary">Git-ra-jab-i</h1>
+<nav class="hidden md:flex ml-10 space-x-2">
+<a class="px-3 py-2 rounded-md text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">Home</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium bg-slate-100 dark:bg-slate-600 text-text-light-primary dark:text-text-dark-primary" href="#">커뮤니티</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">스터디</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">도전 과제</a>
+</nav>
+</div>
+<div class="flex items-center space-x-4">
+<button class="p-2 rounded-full text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-1 rounded-full text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600">
+<span class="material-symbols-outlined text-3xl">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-4xl mx-auto">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">자유게시판</h2>
+<a class="flex items-center justify-center bg-primary text-white font-medium px-4 py-2 rounded-md text-sm hover:opacity-90 transition-opacity" href="#">
+<span class="material-symbols-outlined mr-2 text-base">edit</span>
+            글 작성
+          </a>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+<ul class="divide-y divide-border-light dark:divide-border-dark" role="list">
+<li class="hover:bg-slate-50 dark:hover:bg-slate-600/50 transition-colors">
+<a class="block px-6 py-4" href="#">
+<div class="flex justify-between items-start gap-4">
+<div class="flex-grow min-w-0">
+<p class="font-semibold text-base truncate">Tailwind CSS로 다크모드 구현하는 방법 질문입니다.</p>
+<div class="flex items-center text-sm text-text-light-secondary dark:text-text-dark-secondary mt-2">
+<span>김개발</span>
+<span class="mx-2">·</span>
+<span>2024. 05. 21</span>
+</div>
+</div>
+<div class="flex-shrink-0 text-sm text-text-light-secondary dark:text-text-dark-secondary font-medium pt-0.5">
+<span class="flex items-center"><span class="material-symbols-outlined mr-1 text-base" style="font-size: 1rem;">chat_bubble</span>12</span>
+</div>
+</div>
+</a>
+</li>
+<li class="hover:bg-slate-50 dark:hover:bg-slate-600/50 transition-colors">
+<a class="block px-6 py-4" href="#">
+<div class="flex justify-between items-start gap-4">
+<div class="flex-grow min-w-0">
+<p class="font-semibold text-base truncate">useEffect 훅의 dependency array 관련해서 궁금한 점이 있습니다.</p>
+<div class="flex items-center text-sm text-text-light-secondary dark:text-text-dark-secondary mt-2">
+<span>박코딩</span>
+<span class="mx-2">·</span>
+<span>2024. 05. 20</span>
+</div>
+</div>
+<div class="flex-shrink-0 text-sm text-text-light-secondary dark:text-text-dark-secondary font-medium pt-0.5">
+<span class="flex items-center"><span class="material-symbols-outlined mr-1 text-base" style="font-size: 1rem;">chat_bubble</span>5</span>
+</div>
+</div>
+</a>
+</li>
+<li class="hover:bg-slate-50 dark:hover:bg-slate-600/50 transition-colors">
+<a class="block px-6 py-4" href="#">
+<div class="flex justify-between items-start gap-4">
+<div class="flex-grow min-w-0">
+<p class="font-semibold text-base truncate">자바스크립트 비동기 처리, async/await 완벽 정리</p>
+<div class="flex items-center text-sm text-text-light-secondary dark:text-text-dark-secondary mt-2">
+<span>이알고</span>
+<span class="mx-2">·</span>
+<span>2024. 05. 20</span>
+</div>
+</div>
+<div class="flex-shrink-0 text-sm text-text-light-secondary dark:text-text-dark-secondary font-medium pt-0.5">
+<span class="flex items-center"><span class="material-symbols-outlined mr-1 text-base" style="font-size: 1rem;">chat_bubble</span>28</span>
+</div>
+</div>
+</a>
+</li>
+<li class="hover:bg-slate-50 dark:hover:bg-slate-600/50 transition-colors">
+<a class="block px-6 py-4" href="#">
+<div class="flex justify-between items-start gap-4">
+<div class="flex-grow min-w-0">
+<p class="font-semibold text-base truncate">사이드 프로젝트 같이 하실 분 구합니다. (React, Node.js)</p>
+<div class="flex items-center text-sm text-text-light-secondary dark:text-text-dark-secondary mt-2">
+<span>최프젝</span>
+<span class="mx-2">·</span>
+<span>2024. 05. 19</span>
+</div>
+</div>
+<div class="flex-shrink-0 text-sm text-text-light-secondary dark:text-text-dark-secondary font-medium pt-0.5">
+<span class="flex items-center"><span class="material-symbols-outlined mr-1 text-base" style="font-size: 1rem;">chat_bubble</span>3</span>
+</div>
+</div>
+</a>
+</li>
+<li class="hover:bg-slate-50 dark:hover:bg-slate-600/50 transition-colors">
+<a class="block px-6 py-4" href="#">
+<div class="flex justify-between items-start gap-4">
+<div class="flex-grow min-w-0">
+<p class="font-semibold text-base truncate">프론트엔드 개발자 취업 준비 로드맵 공유</p>
+<div class="flex items-center text-sm text-text-light-secondary dark:text-text-dark-secondary mt-2">
+<span>정로드</span>
+<span class="mx-2">·</span>
+<span>2024. 05. 18</span>
+</div>
+</div>
+<div class="flex-shrink-0 text-sm text-text-light-secondary dark:text-text-dark-secondary font-medium pt-0.5">
+<span class="flex items-center"><span class="material-symbols-outlined mr-1 text-base" style="font-size: 1rem;">chat_bubble</span>0</span>
+</div>
+</div>
+</a>
+</li>
+</ul>
+</div>
+<nav aria-label="Pagination" class="flex items-center justify-center mt-8">
+<a class="relative inline-flex items-center rounded-md px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">
+<span class="material-symbols-outlined text-xl">chevron_left</span>
+</a>
+<a aria-current="page" class="relative z-10 inline-flex items-center bg-primary text-white rounded-md px-3 py-1 text-sm font-bold" href="#">1</a>
+<a class="relative inline-flex items-center rounded-md px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">2</a>
+<a class="relative hidden sm:inline-flex items-center rounded-md px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">3</a>
+<a class="relative hidden sm:inline-flex items-center rounded-md px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">4</a>
+<a class="relative hidden sm:inline-flex items-center rounded-md px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">5</a>
+<span class="relative inline-flex items-center px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">...</span>
+<a class="relative hidden sm:inline-flex items-center rounded-md px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">10</a>
+<a class="relative inline-flex items-center rounded-md px-3 py-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-slate-100 dark:hover:bg-slate-600" href="#">
+<span class="material-symbols-outlined text-xl">chevron_right</span>
+</a>
+</nav>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html class="" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>스터디 생성</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#135bec", "background-light": "#f6f6f8", "background-dark": "#101622"}, fontFamily: {display: "Inter"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}}}};</script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200 antialiased">
+<div class="flex flex-col min-h-screen">
+<header class="bg-white dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center space-x-8">
+<a class="text-xl font-bold text-primary" href="#">Git-ra-jab-i</a>
+<div class="hidden md:flex items-baseline space-x-2">
+<a class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" href="#">Home</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" href="#">커뮤니티</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-white bg-primary" href="#">스터디</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" href="#">도전 과제</a>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white transition-colors duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-gray-500 dark:text-gray-400">person</span>
+</button>
+</div>
+</div>
+</nav>
+</header>
+<main class="flex-grow">
+<div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+<div class="space-y-8">
+<div class="text-center">
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white">스터디 생성</h1>
+<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">새로운 스터디를 만들어 지식을 공유하고 함께 성장해 보세요.</p>
+</div>
+<form class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 space-y-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="study-name">스터디 이름</label>
+<div class="mt-1">
+<input class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" id="study-name" name="study-name" placeholder="예: 함께 성장하는 자바스크립트 스터디" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="study-capacity">스터디 정원</label>
+<div class="mt-1">
+<input class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" id="study-capacity" name="study-capacity" placeholder="모집 정원을 숫자로 입력하세요. (예: 10)" type="number"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
+<fieldset class="mt-2">
+<legend class="sr-only">카테고리를 선택하세요.</legend>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-backend" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-backend">백엔드</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-frontend" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-frontend">프론트엔드</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-mobile" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-mobile">모바일</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-ai" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-ai">인공지능</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-data" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-data">데이터</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-devops" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-devops">DevOps</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-game" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-game">게임 개발</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-gray-100 dark:bg-gray-700" id="cat-cs" name="category" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-900 dark:text-gray-200 cursor-pointer" for="cat-cs">CS</label>
+</div>
+</div>
+</fieldset>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="study-description">스터디 설명</label>
+<div class="mt-1">
+<textarea class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" id="study-description" name="study-description" placeholder="스터디의 목표, 진행 방식, 기간 등을 자세히 설명해주세요." rows="8"></textarea>
+</div>
+</div>
+<div class="pt-4 flex justify-end">
+<button class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800 transition-colors duration-200" type="submit">
+                생성하기
+              </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+</div>
+</body></html>
