@@ -1,9 +1,10 @@
 package com.example.gitrajabi.study.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class StudyJoinRequestDto {
+@Setter
+public class StudyMemberApplyRequest {
     private Long studyId;
-    private Long userId;
 }

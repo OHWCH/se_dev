@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
     int countByStudy_StudyIdAndJoinStatus(Long studyId, JoinStatus joinStatus);
     Optional<StudyMember> findByStudy_StudyIdAndUser_Id(Long studyId, Long userId);
+    boolean existsByStudy_StudyIdAndUser_Id(Long studyId, Long userId);
 
 
 
