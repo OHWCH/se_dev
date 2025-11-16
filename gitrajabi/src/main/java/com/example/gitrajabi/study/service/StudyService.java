@@ -1,6 +1,7 @@
 package com.example.gitrajabi.study.service;
 
 import com.example.gitrajabi.study.dto.StudyCreateDto;
+import com.example.gitrajabi.study.dto.StudyListResponse;
 import com.example.gitrajabi.study.entity.Study;
 import com.example.gitrajabi.study.entity.StudyMember;
 import com.example.gitrajabi.study.entity.User;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class StudyService {
     private final StudyRepository studyRepository;
     private final StudyMemberRepository studyMemberRepository;
     private final UserRepository userRepository;
+
 
     @Transactional
     public Long createStudy(StudyCreateDto request) {
@@ -58,6 +61,38 @@ public class StudyService {
         studyMemberRepository.save(leaderMember);
 
         return savedStudy.getStudyId();
+    }
+
+
+    public List<StudyListResponse> getStudyList(Long userId) {
+
+        List<Study> studies = studyRepository.findAllByIsDeletedFalse();
+
+        return studies.stream()
+                .map(study -> {
+
+                    // 현재 승인된 멤버 수
+                    int currentMembers = studyMemberRepository.countByStudy_StudyIdAndJoinStatus(
+                            study.getStudyId(),
+                            JoinStatus.APPROVED
+                    );
+
+                    // 해당 유저의 스터디 참여 상태 (없으면 null)
+                    JoinStatus userJoinStatus = studyMemberRepository
+                            .findByStudy_StudyIdAndUser_Id(study.getStudyId(), userId)
+                            .map(StudyMember::getJoinStatus)
+                            .orElse(null);
+
+                    return StudyListResponse.builder()
+                            .studyId(study.getStudyId())
+                            .name(study.getName())
+                            .description(study.getDescription())
+                            .currentMembers(currentMembers)
+                            .maxMembers(study.getMaxMemberCount())
+                            .userJoinStatus(userJoinStatus)
+                            .build();
+                })
+                .toList();
     }
 }
 
