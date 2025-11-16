@@ -1,5 +1,6 @@
 package com.example.gitrajabi.study.service;
 
+import com.example.gitrajabi.study.dto.StudyApplicantResponse;
 import com.example.gitrajabi.study.entity.Study;
 import com.example.gitrajabi.study.entity.StudyMember;
 import com.example.gitrajabi.study.entity.User;
@@ -11,6 +12,8 @@ import com.example.gitrajabi.study.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +52,21 @@ public class StudyMemberService {
                 .build();
 
         studyMemberRepository.save(member);
+    }
+
+    // 스터디 가입 신청 목록 조회
+
+    public List<StudyApplicantResponse> getApplicants(Long studyId) {
+
+        List<StudyMember> applicants =
+                studyMemberRepository.findByStudy_StudyIdAndJoinStatus(studyId, JoinStatus.APPLIED);
+
+        return applicants.stream()
+                .map(member -> StudyApplicantResponse.builder()
+                        .userId(member.getUser().getId())
+                        .nickname(member.getUser().getNickname())
+                        .joinStatus(member.getJoinStatus()) // APPLIED
+                        .build())
+                .toList();
     }
 }

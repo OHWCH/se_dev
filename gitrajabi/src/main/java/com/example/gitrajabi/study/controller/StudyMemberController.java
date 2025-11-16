@@ -1,10 +1,13 @@
 package com.example.gitrajabi.study.controller;
 
+import com.example.gitrajabi.study.dto.StudyApplicantResponse;
 import com.example.gitrajabi.study.dto.StudyMemberApplyRequest;
 import com.example.gitrajabi.study.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/studies/members")
@@ -24,4 +27,12 @@ public class StudyMemberController {
 
         return ResponseEntity.ok("스터디 가입 신청 완료");
     }
+    @GetMapping("/{studyId}/applicants")
+    public ResponseEntity<List<StudyApplicantResponse>> getApplicants(
+            @PathVariable Long studyId
+    ) {
+        List<StudyApplicantResponse> applicants = studyMemberService.getApplicants(studyId);
+        return ResponseEntity.ok(applicants);
+    }
+
 }
