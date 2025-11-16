@@ -21,13 +21,30 @@ public class StudyController {
     @PostMapping
     public ResponseEntity<Long> createStudy(@RequestBody StudyCreateDto request) {
 
-        Long studyId = studyService.createStudy(request);
+        // 스프링 시큐리티를 아직 안 써서 임시로 로그인 유저 ID를 하드코딩
+        Long testUserId = 1L;
+
+        Long studyId = studyService.createStudy(request, testUserId);
         return ResponseEntity.ok(studyId);
     }
 
-    // 스터디 삭제
+
+    // 스터디 리스트 반환
     @GetMapping
-    public List<StudyListResponse> getStudyList(@RequestParam Long userId) {
-        return studyService.getStudyList(userId);
+    public List<StudyListResponse> getStudyList() {
+
+        Long testUserId = 1L;
+        return studyService.getStudyList(testUserId);
+
+
     }
+
+/*  시큐리티 활성화시 리스트 반환 코드
+    @GetMapping
+    public List<StudyListResponse> getStudyList(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return studyService.getStudyList(user.getId());
+    }*/
+
 }

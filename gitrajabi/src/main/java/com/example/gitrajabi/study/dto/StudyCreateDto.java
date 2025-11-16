@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StudyCreateDto {
-    private Long leaderId;
     private String studyName;
     private String studyDescription;
     private StudyCategory studyCategory;
     private int maxMembers;
 }
+

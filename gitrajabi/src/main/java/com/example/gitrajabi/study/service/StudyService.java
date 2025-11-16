@@ -26,11 +26,12 @@ public class StudyService {
     private final UserRepository userRepository;
 
 
+    // 스터디 생성
     @Transactional
-    public Long createStudy(StudyCreateDto request) {
+    public Long createStudy(StudyCreateDto request, Long leaderId) {
 
         // 1) 리더 유저 조회
-        User leader = userRepository.findById(request.getLeaderId())
+        User leader = userRepository.findById(leaderId)
                 .orElseThrow(() -> new IllegalArgumentException("리더 유저가 존재하지 않습니다."));
 
         LocalDateTime now = LocalDateTime.now();
@@ -47,10 +48,10 @@ public class StudyService {
                 .isDeleted(false)
                 .build();
 
-        // 3) 스터디 저장
+        // 저장
         Study savedStudy = studyRepository.save(study);
 
-        // 4) 스터디 리더 자동 StudyMember 등록
+        // 4) 스터디 리더를 자동으로 StudyMember 등록
         StudyMember leaderMember = StudyMember.builder()
                 .study(savedStudy)
                 .user(leader)
@@ -64,6 +65,9 @@ public class StudyService {
     }
 
 
+
+
+    // 스터디 목록 조회
     public List<StudyListResponse> getStudyList(Long userId) {
 
         List<Study> studies = studyRepository.findAllByIsDeletedFalse();
@@ -82,6 +86,7 @@ public class StudyService {
                             .findByStudy_StudyIdAndUser_Id(study.getStudyId(), userId)
                             .map(StudyMember::getJoinStatus)
                             .orElse(null);
+
 
                     return StudyListResponse.builder()
                             .studyId(study.getStudyId())
