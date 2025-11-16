@@ -2,6 +2,7 @@ package com.example.gitrajabi.study.controller;
 
 import com.example.gitrajabi.study.dto.StudyApplicantResponse;
 import com.example.gitrajabi.study.dto.StudyMemberApplyRequest;
+import com.example.gitrajabi.study.dto.StudyMemberResponse;
 import com.example.gitrajabi.study.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/studies/members")
+@RequestMapping("/studies")
 @RequiredArgsConstructor
 public class StudyMemberController {
 
@@ -56,6 +57,14 @@ public class StudyMemberController {
     ) {
         studyMemberService.rejectMember(studyId, userId);
         return ResponseEntity.ok("가입 거절 완료");
+    }
+
+    @GetMapping("/{studyId}/members")
+    public ResponseEntity<List<StudyMemberResponse>> getStudyMembers(
+            @PathVariable Long studyId
+    ) {
+        List<StudyMemberResponse> members = studyMemberService.getStudyMembers(studyId);
+        return ResponseEntity.ok(members);
     }
 
 }

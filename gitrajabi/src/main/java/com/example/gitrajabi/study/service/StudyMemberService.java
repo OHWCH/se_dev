@@ -1,6 +1,7 @@
 package com.example.gitrajabi.study.service;
 
 import com.example.gitrajabi.study.dto.StudyApplicantResponse;
+import com.example.gitrajabi.study.dto.StudyMemberResponse;
 import com.example.gitrajabi.study.entity.Study;
 import com.example.gitrajabi.study.entity.StudyMember;
 import com.example.gitrajabi.study.entity.User;
@@ -103,5 +104,22 @@ public class StudyMemberService {
 
         studyMemberRepository.save(member);
     }
+    public List<StudyMemberResponse> getStudyMembers(Long studyId) {
+
+        List<StudyMember> members =
+                studyMemberRepository.findByStudy_StudyIdAndJoinStatusNot(studyId, JoinStatus.REJECTED);
+
+
+        return members.stream()
+                .map(m -> StudyMemberResponse.builder()
+                        .userId(m.getUser().getId())
+                        .nickname(m.getUser().getNickname())
+                        .joinStatus(m.getJoinStatus())
+                        .studyRole(m.getStudyRole().name())
+                        .build()
+                )
+                .toList();
+    }
+
 
 }
