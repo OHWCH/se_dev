@@ -24,18 +24,18 @@ public class StudyMemberService {
     private final StudyMemberRepository studyMemberRepository;
     private final UserRepository userRepository;
 
-    // 스터디 가입 신청
+
     public void applyToStudy(Long studyId, Long userId) {
 
-        // 1) 스터디 존재 확인
+
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디입니다."));
 
-        // 2) 유저 존재 확인
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        // 3) 이미 신청했거나 가입된 경우 체크
+
         boolean exists = studyMemberRepository
                 .existsByStudy_StudyIdAndUser_Id(studyId, userId);
 
@@ -43,7 +43,7 @@ public class StudyMemberService {
             throw new IllegalStateException("이미 가입했거나 신청한 스터디입니다.");
         }
 
-        // 4) 신청 상태로 멤버 추가
+
         StudyMember member = StudyMember.builder()
                 .study(study)
                 .user(user)
@@ -69,4 +69,39 @@ public class StudyMemberService {
                         .build())
                 .toList();
     }
+
+    // 가입 승인
+    public void approveMember(Long studyId, Long userId) {
+
+
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
+
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+
+        StudyMember member = studyMemberRepository
+                .findByStudy_StudyIdAndUser_Id(studyId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("가입 신청 내역이 없습니다."));
+
+        if (member.getJoinStatus() != JoinStatus.APPLIED) {
+            throw new IllegalStateException("이미 처리된 요청입니다.");
+        }
+
+        member.setJoinStatus(JoinStatus.APPROVED);
+    }
+
+    @Transactional
+    public void rejectMember(Long studyId, Long userId) {
+
+        StudyMember member = studyMemberRepository
+                .findByStudy_StudyIdAndUser_Id(studyId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 스터디에 가입 신청한 상태가 아닙니다."));
+
+        member.setJoinStatus(JoinStatus.REJECTED);
+
+        studyMemberRepository.save(member);
+    }
+
 }
