@@ -1,4 +1,4 @@
-package com.example.gitrajabi.config;
+package com.example.gitrajabi.IssueManagement.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +42,7 @@ public class SecurityConfig {
 
                         // (미래를 위한 예시: /api/my/.. 경로는 인증 필요)
                         // .requestMatchers("/api/my/**").authenticated()
+                        .requestMatchers("/api/my/**").permitAll()
 
                         // 그 외 나머지 모든 요청은 일단 허용 (필요에 따라 변경)
                         .anyRequest().permitAll()

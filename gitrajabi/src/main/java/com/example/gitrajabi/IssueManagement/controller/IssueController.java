@@ -1,7 +1,7 @@
-package com.example.gitrajabi.controller;
+package com.example.gitrajabi.IssueManagement.controller;
 
-import com.example.gitrajabi.dto.GithubIssueDto;
-import com.example.gitrajabi.service.IssueService;
+import com.example.gitrajabi.IssueManagement.dto.GithubIssueDto;
+import com.example.gitrajabi.IssueManagement.service.IssueService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

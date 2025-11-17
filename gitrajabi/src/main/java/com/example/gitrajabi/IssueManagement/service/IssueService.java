@@ -1,7 +1,7 @@
-package com.example.gitrajabi.service;
+package com.example.gitrajabi.IssueManagement.service;
 
-import com.example.gitrajabi.client.GithubApiClient;
-import com.example.gitrajabi.dto.GithubIssueDto;
+import com.example.gitrajabi.IssueManagement.client.GithubApiClient;
+import com.example.gitrajabi.IssueManagement.dto.GithubIssueDto;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 

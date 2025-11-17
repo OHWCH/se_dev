@@ -1,4 +1,4 @@
-package com.example.gitrajabi.dto;
+package com.example.gitrajabi.IssueManagement.dto;
 
 import java.util.List;
 

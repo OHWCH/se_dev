@@ -1,4 +1,4 @@
-package com.example.gitrajabi.config;
+package com.example.gitrajabi.IssueManagement.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
