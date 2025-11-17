@@ -30,13 +30,13 @@ public class StudyService {
     @Transactional
     public Long createStudy(StudyCreateDto request, Long leaderId) {
 
-        // 1) 리더 유저 조회
+        // 리더 유저 조회
         User leader = userRepository.findById(leaderId)
                 .orElseThrow(() -> new IllegalArgumentException("리더 유저가 존재하지 않습니다."));
 
         LocalDateTime now = LocalDateTime.now();
 
-        // 2) Study 엔티티 생성
+        // Study 엔티티 생성
         Study study = Study.builder()
                 .leader(leader)
                 .name(request.getStudyName())
@@ -51,7 +51,7 @@ public class StudyService {
         // 저장
         Study savedStudy = studyRepository.save(study);
 
-        // 4) 스터디 리더를 자동으로 StudyMember 등록
+        // 스터디 리더를 자동으로 StudyMember 등록
         StudyMember leaderMember = StudyMember.builder()
                 .study(savedStudy)
                 .user(leader)

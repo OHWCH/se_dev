@@ -1,7 +1,6 @@
 package com.example.gitrajabi.study.controller;
 
 import com.example.gitrajabi.study.dto.StudyApplicantResponse;
-import com.example.gitrajabi.study.dto.StudyMemberApplyRequest;
 import com.example.gitrajabi.study.dto.StudyMemberResponse;
 import com.example.gitrajabi.study.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +17,14 @@ public class StudyMemberController {
     private final StudyMemberService studyMemberService;
 
     // 스터디 가입 신청
-    @PostMapping("/apply")
-    public ResponseEntity<String> applyStudy(@RequestBody StudyMemberApplyRequest request) {
-
-
+    @PostMapping("/{studyId}/apply")
+    public ResponseEntity<String> applyStudy(@PathVariable Long studyId) {
         Long testUserId = 2L;
 
-        studyMemberService.applyToStudy(request.getStudyId(), testUserId);
-
+        studyMemberService.applyToStudy(studyId, testUserId);
         return ResponseEntity.ok("스터디 가입 신청 완료");
     }
+
 
     // 스터디 가입 신청 목록 조회
     @GetMapping("/{studyId}/applicants")
@@ -37,6 +34,8 @@ public class StudyMemberController {
         List<StudyApplicantResponse> applicants = studyMemberService.getApplicants(studyId);
         return ResponseEntity.ok(applicants);
     }
+
+
 
 
     // 가입 수락
@@ -59,6 +58,7 @@ public class StudyMemberController {
         return ResponseEntity.ok("가입 거절 완료");
     }
 
+    // 스터디 멤버 리스트
     @GetMapping("/{studyId}/members")
     public ResponseEntity<List<StudyMemberResponse>> getStudyMembers(
             @PathVariable Long studyId

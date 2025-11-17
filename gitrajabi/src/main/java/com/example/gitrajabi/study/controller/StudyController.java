@@ -41,9 +41,7 @@ public class StudyController {
 
 /*  시큐리티 활성화시 리스트 반환 코드
     @GetMapping
-    public List<StudyListResponse> getStudyList(
-            @AuthenticationPrincipal CustomUserDetails user
-    ) {
+    public List<StudyListResponse> getStudyList(@AuthenticationPrincipal CustomUserDetails user) {
         return studyService.getStudyList(user.getId());
     }*/
 

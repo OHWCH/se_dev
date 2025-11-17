@@ -27,24 +27,16 @@ public class StudyMemberService {
 
 
     public void applyToStudy(Long studyId, Long userId) {
-
-
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디입니다."));
-
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-
-
         boolean exists = studyMemberRepository
                 .existsByStudy_StudyIdAndUser_Id(studyId, userId);
 
         if (exists) {
             throw new IllegalStateException("이미 가입했거나 신청한 스터디입니다.");
         }
-
-
         StudyMember member = StudyMember.builder()
                 .study(study)
                 .user(user)
@@ -93,6 +85,7 @@ public class StudyMemberService {
         member.setJoinStatus(JoinStatus.APPROVED);
     }
 
+    // 가입 거절
     @Transactional
     public void rejectMember(Long studyId, Long userId) {
 
