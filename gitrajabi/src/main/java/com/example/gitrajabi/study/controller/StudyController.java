@@ -33,7 +33,7 @@ public class StudyController {
     @GetMapping
     public List<StudyListResponse> getStudyList() {
 
-        Long testUserId = 1L;
+        Long testUserId = 2L;
         return studyService.getStudyList(testUserId);
 
 

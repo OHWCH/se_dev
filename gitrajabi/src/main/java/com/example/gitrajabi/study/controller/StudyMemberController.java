@@ -13,14 +13,11 @@ import java.util.List;
 @RequestMapping("/studies")
 @RequiredArgsConstructor
 public class StudyMemberController {
-
     private final StudyMemberService studyMemberService;
-
     // 스터디 가입 신청
     @PostMapping("/{studyId}/apply")
     public ResponseEntity<String> applyStudy(@PathVariable Long studyId) {
-        Long testUserId = 2L;
-
+        Long testUserId = 3L;
         studyMemberService.applyToStudy(studyId, testUserId);
         return ResponseEntity.ok("스터디 가입 신청 완료");
     }
