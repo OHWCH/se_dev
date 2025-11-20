@@ -1,11 +1,14 @@
 package com.example.gitrajabi.study.controller;
 
 
+import com.example.gitrajabi.study.dto.ScheduleListResponse;
 import com.example.gitrajabi.study.dto.StudyScheduleCreateRequest;
 import com.example.gitrajabi.study.service.StudyScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/studies/{studyId}/schedules")
@@ -34,6 +37,19 @@ public class StudyScheduleController {
         studyScheduleService.participate(studyId, scheduleId, userId);
 
         return ResponseEntity.ok("일정 참석이 완료되었습니다.");
+    }
+
+    // 일정 목록 조회
+    @GetMapping
+    public ResponseEntity<List<ScheduleListResponse>> getSchedules(
+            @PathVariable Long studyId
+    ) {
+        Long userId = 1L;
+
+        List<ScheduleListResponse> result =
+                studyScheduleService.getScheduleList(studyId, userId);
+
+        return ResponseEntity.ok(result);
     }
 
 }

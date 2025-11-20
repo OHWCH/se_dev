@@ -1,5 +1,6 @@
 package com.example.gitrajabi.study.service;
 
+import com.example.gitrajabi.study.dto.ScheduleListResponse;
 import com.example.gitrajabi.study.dto.StudyScheduleCreateRequest;
 import com.example.gitrajabi.study.entity.*;
 import com.example.gitrajabi.study.erum.JoinStatus;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -87,6 +89,41 @@ public class StudyScheduleService {
                 .build();
 
         scheduleParticipantRepository.save(participate);
+    }
+
+
+    @Transactional
+    public List<ScheduleListResponse> getScheduleList(Long studyId, Long userId) {
+
+        // 해당 스터디의 전체 멤버 수
+        int totalMembers = studyMemberRepository.countByStudy_StudyIdAndJoinStatus(studyId, JoinStatus.APPROVED);
+
+        // 스터디 스케줄 전체 조회
+        List<StudySchedule> schedules = studyScheduleRepository.findByStudy_StudyId(studyId);
+
+        // 각 스케줄별 참여 여부 + 참여자 수 조회
+        return schedules.stream().map(schedule -> {
+
+            // 참여 인원 수
+            int participateCount =
+                    scheduleParticipantRepository.countBySchedule_ScheduleId(schedule.getScheduleId());
+
+            // 이 유저가 참여했는지 여부
+            boolean participated =
+                    scheduleParticipantRepository.existsBySchedule_ScheduleIdAndUser_Id(
+                            schedule.getScheduleId(), userId);
+
+            return ScheduleListResponse.builder()
+                    .scheduleId(schedule.getScheduleId())
+                    .comment(schedule.getComment())
+                    .startedAt(schedule.getStartedAt().toString())
+                    .endAt(schedule.getEndAt().toString())
+                    .participateCount(participateCount)
+                    .totalMemberCount(totalMembers)
+                    .isParticipated(participated)
+                    .build();
+
+        }).toList();
     }
 
 }
