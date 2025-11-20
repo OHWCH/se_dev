@@ -13,8 +13,8 @@ public class ScheduleListResponse {
     private String startedAt;
     private String endAt;
 
-    private int participateCount; // 현재 일정 참여 인원
-    private int totalMemberCount; // 스터디 전체 인원
+    private int participateCount;
+    private int totalMemberCount;
 
-    private boolean isParticipated; // 이 유저가 참여했는지 여부
+    private boolean isParticipated;
 }

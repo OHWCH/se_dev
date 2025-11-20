@@ -1,7 +1,6 @@
 package com.example.gitrajabi.study.service;
 
-import com.example.gitrajabi.study.dto.StudyCreateDto;
-import com.example.gitrajabi.study.dto.StudyListResponse;
+import com.example.gitrajabi.study.dto.*;
 import com.example.gitrajabi.study.entity.Study;
 import com.example.gitrajabi.study.entity.StudyMember;
 import com.example.gitrajabi.study.entity.User;
@@ -10,7 +9,7 @@ import com.example.gitrajabi.study.erum.StudyRole;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
 import com.example.gitrajabi.study.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +23,7 @@ public class StudyService {
     private final StudyRepository studyRepository;
     private final StudyMemberRepository studyMemberRepository;
     private final UserRepository userRepository;
+    private final StudyMemberService studyMemberService;
 
 
     // 스터디 생성
@@ -98,6 +98,32 @@ public class StudyService {
                             .build();
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public StudyManageResponse getManagePageInfo(Long studyId, Long userId) {
+
+        // 1. 스터디 정보 조회
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
+
+        // 2. 스터디 정보 DTO 변환
+        StudyInfoResponse info = StudyInfoResponse.builder()
+                .studyId(study.getStudyId())
+                .studyName(study.getName())
+                .studyDescription(study.getDescription())
+                .studyCategory(study.getCategory())
+                .maxMemberCount(study.getMaxMemberCount())
+                .build();
+
+        // 3. 신청자 리스트 조회
+        List<StudyApplicantResponse> applicants = studyMemberService.getApplicants(studyId);
+
+        // 4. 통합 Response
+        return StudyManageResponse.builder()
+                .studyInfo(info)
+                .applicants(applicants)
+                .build();
     }
 
 

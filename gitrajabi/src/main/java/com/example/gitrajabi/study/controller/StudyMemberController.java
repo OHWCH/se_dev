@@ -1,8 +1,10 @@
 package com.example.gitrajabi.study.controller;
 
 import com.example.gitrajabi.study.dto.StudyApplicantResponse;
+import com.example.gitrajabi.study.dto.StudyManageResponse;
 import com.example.gitrajabi.study.dto.StudyMemberResponse;
 import com.example.gitrajabi.study.service.StudyMemberService;
+import com.example.gitrajabi.study.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,23 +19,10 @@ public class StudyMemberController {
     // 스터디 가입 신청
     @PostMapping("/{studyId}/apply")
     public ResponseEntity<String> applyStudy(@PathVariable Long studyId) {
-        Long testUserId = 3L;
+        Long testUserId = 5L;
         studyMemberService.applyToStudy(studyId, testUserId);
         return ResponseEntity.ok("스터디 가입 신청 완료");
     }
-
-
-    // 스터디 가입 신청 목록 조회
-    @GetMapping("/{studyId}/applicants")
-    public ResponseEntity<List<StudyApplicantResponse>> getApplicants(
-            @PathVariable Long studyId
-    ) {
-        List<StudyApplicantResponse> applicants = studyMemberService.getApplicants(studyId);
-        return ResponseEntity.ok(applicants);
-    }
-
-
-
 
     // 가입 수락
     @PostMapping("/{studyId}/approve/{userId}")

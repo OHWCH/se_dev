@@ -3,6 +3,7 @@ package com.example.gitrajabi.study.controller;
 
 import com.example.gitrajabi.study.dto.StudyCreateDto;
 import com.example.gitrajabi.study.dto.StudyListResponse;
+import com.example.gitrajabi.study.dto.StudyManageResponse;
 import com.example.gitrajabi.study.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +45,15 @@ public class StudyController {
     public List<StudyListResponse> getStudyList(@AuthenticationPrincipal CustomUserDetails user) {
         return studyService.getStudyList(user.getId());
     }*/
+
+    // 스터디 관리
+    @GetMapping("/{studyId}/manage")
+    public ResponseEntity<StudyManageResponse> getManagePageInfo(
+            @PathVariable Long studyId
+    ) {
+        Long userId = 1L;
+        StudyManageResponse response = studyService.getManagePageInfo(studyId, userId);
+        return ResponseEntity.ok(response);
+    }
 
 }

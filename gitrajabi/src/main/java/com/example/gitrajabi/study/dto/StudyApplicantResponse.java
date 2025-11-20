@@ -9,5 +9,5 @@ import lombok.Getter;
 public class StudyApplicantResponse {
     private Long userId;
     private String nickname;
-    private JoinStatus joinStatus; // 항상 APPLIED
+    private JoinStatus joinStatus;
 }

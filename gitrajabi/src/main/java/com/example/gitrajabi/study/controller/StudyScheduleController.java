@@ -19,8 +19,7 @@ public class StudyScheduleController {
 
     // 스터디 일정 생성
     @PostMapping
-    public ResponseEntity<String> createSchedule(@PathVariable Long studyId, @RequestBody StudyScheduleCreateRequest request
-    ) {
+    public ResponseEntity<String> createSchedule(@PathVariable Long studyId, @RequestBody StudyScheduleCreateRequest request) {
         Long testUserId = 2L;
         studyScheduleService.createSchedule(studyId, testUserId, request);
         return ResponseEntity.ok("스터디 일정 생성 완료");
@@ -28,10 +27,7 @@ public class StudyScheduleController {
 
     // 일정 참여
     @PostMapping("/{scheduleId}/participate")
-    public ResponseEntity<String> participate(
-            @PathVariable Long studyId,
-            @PathVariable Long scheduleId
-    ) {
+    public ResponseEntity<String> participate(@PathVariable Long studyId, @PathVariable Long scheduleId) {
         Long userId = 1L;
 
         studyScheduleService.participate(studyId, scheduleId, userId);
@@ -41,9 +37,7 @@ public class StudyScheduleController {
 
     // 일정 목록 조회
     @GetMapping
-    public ResponseEntity<List<ScheduleListResponse>> getSchedules(
-            @PathVariable Long studyId
-    ) {
+    public ResponseEntity<List<ScheduleListResponse>> getSchedules(@PathVariable Long studyId) {
         Long userId = 1L;
 
         List<ScheduleListResponse> result =
