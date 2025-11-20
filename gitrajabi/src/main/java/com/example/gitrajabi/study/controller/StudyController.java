@@ -4,6 +4,7 @@ package com.example.gitrajabi.study.controller;
 import com.example.gitrajabi.study.dto.StudyCreateDto;
 import com.example.gitrajabi.study.dto.StudyListResponse;
 import com.example.gitrajabi.study.dto.StudyManageResponse;
+import com.example.gitrajabi.study.dto.StudyUpdateDto;
 import com.example.gitrajabi.study.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,18 @@ public class StudyController {
         Long userId = 1L;
         StudyManageResponse response = studyService.getManagePageInfo(studyId, userId);
         return ResponseEntity.ok(response);
+    }
+
+    // 스터디 정보 수정
+    @PutMapping("/{studyId}")
+    public ResponseEntity<String> updateStudy(
+            @PathVariable Long studyId,
+            @RequestBody StudyUpdateDto request
+    ) {
+        Long userId = 1L; // ⭐ JWT 적용 전 임시 값
+
+        studyService.updateStudy(studyId, userId, request);
+        return ResponseEntity.ok("스터디 정보가 수정되었습니다.");
     }
 
 }

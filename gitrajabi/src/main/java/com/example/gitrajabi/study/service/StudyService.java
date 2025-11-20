@@ -100,14 +100,15 @@ public class StudyService {
                 .toList();
     }
 
+    // 스터디 정보 업데이트
     @Transactional(readOnly = true)
     public StudyManageResponse getManagePageInfo(Long studyId, Long userId) {
 
-        // 1. 스터디 정보 조회
+        //  스터디 정보 조회
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
 
-        // 2. 스터디 정보 DTO 변환
+        //  스터디 정보 DTO 변환
         StudyInfoResponse info = StudyInfoResponse.builder()
                 .studyId(study.getStudyId())
                 .studyName(study.getName())
@@ -116,15 +117,37 @@ public class StudyService {
                 .maxMemberCount(study.getMaxMemberCount())
                 .build();
 
-        // 3. 신청자 리스트 조회
+        //  신청자 리스트 조회
         List<StudyApplicantResponse> applicants = studyMemberService.getApplicants(studyId);
 
-        // 4. 통합 Response
+        //  통합 Response
         return StudyManageResponse.builder()
                 .studyInfo(info)
                 .applicants(applicants)
                 .build();
     }
+
+    @Transactional
+    public void updateStudy(Long studyId, Long userId, StudyUpdateDto request) {
+
+        //  스터디 조회
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디입니다."));
+
+        //  현재 로그인 유저가 스터디장인지 검증
+        if (!study.getLeader().getId().equals(userId)) {
+            throw new IllegalArgumentException("스터디장만 스터디 정보를 수정할 수 있습니다.");
+        }
+
+        //  필드 수정 (null 체크 및 유효성 검증 추가 가능)
+        study.setName(request.getStudyName());
+        study.setDescription(request.getStudyDescription());
+        study.setCategory(request.getStudyCategory());
+        study.setMaxMemberCount(request.getMaxMembers());
+        study.setUpdatedAt(LocalDateTime.now());
+
+    }
+
 
 
 }
