@@ -97,6 +97,8 @@ public class StudyMemberService {
 
         studyMemberRepository.save(member);
     }
+
+    // 스터디 멤버 목록 조회
     public List<StudyMemberResponse> getStudyMembers(Long studyId) {
 
         List<StudyMember> members =

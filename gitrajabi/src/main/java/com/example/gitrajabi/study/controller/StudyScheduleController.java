@@ -22,4 +22,18 @@ public class StudyScheduleController {
         studyScheduleService.createSchedule(studyId, testUserId, request);
         return ResponseEntity.ok("스터디 일정 생성 완료");
     }
+
+    // 일정 참여
+    @PostMapping("/{scheduleId}/participate")
+    public ResponseEntity<String> participate(
+            @PathVariable Long studyId,
+            @PathVariable Long scheduleId
+    ) {
+        Long userId = 1L;
+
+        studyScheduleService.participate(studyId, scheduleId, userId);
+
+        return ResponseEntity.ok("일정 참석이 완료되었습니다.");
+    }
+
 }

@@ -22,16 +22,16 @@ public class StudyScheduleService {
     @Transactional
     public Long createSchedule(Long studyId, Long userId, StudyScheduleCreateRequest request) {
 
-        // 1) 스터디 조회
+        // 스터디 조회
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
 
-        // 2) 현재 유저가 스터디장인지 확인
+        // 현재 유저가 스터디장인지 확인
         if (!study.getLeader().getId().equals(userId)) {
             throw new IllegalArgumentException("스터디장만 일정을 생성할 수 있습니다.");
         }
 
-        // 3) 일정 생성
+        // 일정 생성
         StudySchedule schedule = StudySchedule.builder()
                 .study(study)
                 .comment(request.getComment())
@@ -45,7 +45,7 @@ public class StudyScheduleService {
 
         StudySchedule saved = studyScheduleRepository.save(schedule);
 
-        // 4) 일정 생성자인 스터디장을 자동 참석 등록
+        // 스터디장을 자동 참석 등록
         ScheduleParticipate leaderParticipate = ScheduleParticipate.builder()
                 .schedule(saved)
                 .user(study.getLeader())
@@ -56,4 +56,37 @@ public class StudyScheduleService {
 
         return saved.getScheduleId();
     }
+    @Transactional
+    public void participate(Long studyId, Long scheduleId, Long userId) {
+
+        // 스터디 가입 여부 + 승인 여부 확인
+        StudyMember member = studyMemberRepository
+                .findByStudy_StudyIdAndUser_Id(studyId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("스터디에 가입된 유저가 아닙니다."));
+
+        if (member.getJoinStatus() != JoinStatus.APPROVED) {
+            throw new IllegalArgumentException("승인된 스터디원만 참여할 수 있습니다.");
+        }
+
+        // 중복 참여 방지
+        boolean alreadyJoin = scheduleParticipantRepository
+                .existsBySchedule_ScheduleIdAndUser_Id(scheduleId, userId);
+
+        if (alreadyJoin) {
+            throw new IllegalArgumentException("이미 해당 일정에 참여한 유저입니다.");
+        }
+
+        // 일정 조회
+        StudySchedule schedule = studyScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 존재하지 않습니다."));
+
+        // 참여 등록
+        ScheduleParticipate participate = ScheduleParticipate.builder()
+                .schedule(schedule)
+                .user(member.getUser())
+                .build();
+
+        scheduleParticipantRepository.save(participate);
+    }
+
 }
