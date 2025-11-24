@@ -100,7 +100,7 @@ public class StudyService {
                 .toList();
     }
 
-    // 스터디 정보 업데이트
+    // 스터디 관리페이지
     @Transactional(readOnly = true)
     public StudyManageResponse getManagePageInfo(Long studyId, Long userId) {
 
@@ -127,6 +127,7 @@ public class StudyService {
                 .build();
     }
 
+    // 스터디 업데이트
     @Transactional
     public void updateStudy(Long studyId, Long userId, StudyUpdateDto request) {
 
@@ -139,7 +140,7 @@ public class StudyService {
             throw new IllegalArgumentException("스터디장만 스터디 정보를 수정할 수 있습니다.");
         }
 
-        //  필드 수정 (null 체크 및 유효성 검증 추가 가능)
+        //  필드 수정
         study.setName(request.getStudyName());
         study.setDescription(request.getStudyDescription());
         study.setCategory(request.getStudyCategory());

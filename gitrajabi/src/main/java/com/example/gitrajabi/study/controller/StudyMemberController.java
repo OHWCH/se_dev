@@ -53,4 +53,16 @@ public class StudyMemberController {
         return ResponseEntity.ok(members);
     }
 
+    // 스터디 탈퇴
+    @DeleteMapping("/{studyId}/members/me")
+    public ResponseEntity<String> leaveStudy(
+            @PathVariable Long studyId
+    ) {
+        Long userId = 1L;
+
+        studyMemberService.leaveStudy(studyId, userId);
+
+        return ResponseEntity.ok("스터디 탈퇴가 완료되었습니다.");
+    }
+
 }

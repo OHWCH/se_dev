@@ -63,7 +63,7 @@ public class StudyController {
             @PathVariable Long studyId,
             @RequestBody StudyUpdateDto request
     ) {
-        Long userId = 1L; // ⭐ JWT 적용 전 임시 값
+        Long userId = 1L;
 
         studyService.updateStudy(studyId, userId, request);
         return ResponseEntity.ok("스터디 정보가 수정되었습니다.");

@@ -102,7 +102,8 @@ public class StudyMemberService {
     public List<StudyMemberResponse> getStudyMembers(Long studyId) {
 
         List<StudyMember> members =
-                studyMemberRepository.findByStudy_StudyIdAndJoinStatusNot(studyId, JoinStatus.REJECTED);
+                studyMemberRepository.findByStudy_StudyIdAndJoinStatus(studyId, JoinStatus.APPROVED);
+
 
 
         return members.stream()
@@ -116,5 +117,35 @@ public class StudyMemberService {
                 .toList();
     }
 
+
+    // 스터디 탈퇴
+    @Transactional
+    public void leaveStudy(Long studyId, Long userId) {
+
+        // 해당 유저가 스터디 멤버인지 확인
+        StudyMember member = studyMemberRepository
+                .findByStudy_StudyIdAndUser_Id(studyId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 스터디의 멤버가 아닙니다."));
+
+        // 일반 멤버인지 스터디장인지 체크
+        boolean isLeader = (member.getStudyRole() == StudyRole.LEADER);
+
+        if (isLeader) {
+            // 스터디장일 경우 남은 멤버 체크
+            int activeCount = studyMemberRepository.countByStudy_StudyIdAndJoinStatusIn(
+                    studyId,
+                    List.of(JoinStatus.APPROVED, JoinStatus.APPLIED)
+            );
+
+            if (activeCount > 1) {
+                throw new IllegalArgumentException("스터디장은 스터디원을 모두 정리한 후 탈퇴할 수 있습니다.");
+            }
+
+        }
+
+        // 탈퇴 처리
+        member.setJoinStatus(JoinStatus.LEFT);
+
+    }
 
 }
