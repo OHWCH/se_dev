@@ -8,6 +8,6 @@ public enum StudyCategory {
     APP,
     BACKEND,
     FRONTEND,
-    DEVOPS,
-    ETC
+    CS,
+    INTERVIEW
 }

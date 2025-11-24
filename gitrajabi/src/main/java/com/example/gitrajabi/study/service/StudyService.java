@@ -8,7 +8,7 @@ import com.example.gitrajabi.study.erum.JoinStatus;
 import com.example.gitrajabi.study.erum.StudyRole;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
-import com.example.gitrajabi.study.repository.UserRepository;
+import com.example.gitrajabi.user.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
