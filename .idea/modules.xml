@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitrajabi.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gitrajabi.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/se_dev.iml" filepath="$PROJECT_DIR$/.idea/se_dev.iml" />
     </modules>
   </component>
 </project>
