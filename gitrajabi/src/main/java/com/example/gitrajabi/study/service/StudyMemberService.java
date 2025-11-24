@@ -148,4 +148,37 @@ public class StudyMemberService {
 
     }
 
+    // 멤버 강퇴
+    @Transactional
+    public void kickMember(Long studyId, Long leaderId, Long targetUserId) {
+
+        //  스터디 정보 조회
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
+
+        //  요청자가 스터디장인지 검증
+        if (!study.getLeader().getId().equals(leaderId)) {
+            throw new IllegalArgumentException("스터디장만 멤버 강퇴를 수행할 수 있습니다.");
+        }
+
+        //  강퇴 대상 멤버 조회
+        StudyMember target = studyMemberRepository
+                .findByStudy_StudyIdAndUser_Id(studyId, targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 이 스터디의 멤버가 아닙니다."));
+
+        //  스터디장을 강퇴하려는 경우 막기
+        if (target.getStudyRole() == StudyRole.LEADER) {
+            throw new IllegalArgumentException("스터디장은 강퇴할 수 없습니다.");
+        }
+
+        //  참여중인 멤버만 강퇴 가능
+        if (target.getJoinStatus() != JoinStatus.APPROVED) {
+            throw new IllegalArgumentException("강퇴는 참여중(APPROVED) 멤버만 가능합니다.");
+        }
+
+        //  강퇴 처리
+        target.setJoinStatus(JoinStatus.LEFT);
+    }
+
+
 }

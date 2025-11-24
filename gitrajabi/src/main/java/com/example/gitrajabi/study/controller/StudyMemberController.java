@@ -19,7 +19,7 @@ public class StudyMemberController {
     // 스터디 가입 신청
     @PostMapping("/{studyId}/apply")
     public ResponseEntity<String> applyStudy(@PathVariable Long studyId) {
-        Long testUserId = 5L;
+        Long testUserId = 1L;
         studyMemberService.applyToStudy(studyId, testUserId);
         return ResponseEntity.ok("스터디 가입 신청 완료");
     }
@@ -63,6 +63,19 @@ public class StudyMemberController {
         studyMemberService.leaveStudy(studyId, userId);
 
         return ResponseEntity.ok("스터디 탈퇴가 완료되었습니다.");
+    }
+
+    // 스터디 강퇴
+    @DeleteMapping("/{studyId}/members/{targetUserId}")
+    public ResponseEntity<String> kickMember(
+            @PathVariable Long studyId,
+            @PathVariable Long targetUserId
+    ) {
+        Long leaderId = 3L;
+
+        studyMemberService.kickMember(studyId, leaderId, targetUserId);
+
+        return ResponseEntity.ok("강퇴가 완료되었습니다.");
     }
 
 }
