@@ -3340,6 +3340,244 @@
 
 ## 3. Class diagram
 ### 유저 관리
+```mermaid
+classDiagram
+    direction LR
+
+    %% =========================
+    %% 공통/도메인
+    %% =========================
+    class Role {
+        <<enum>>
+        USER
+        ADMIN
+    }
+
+    class UserEntity {
+        <<entity>>
+        - Long id
+        - String email
+        - String password
+        - String nickname
+        - String githubId
+        - String profileImg
+        - String bio
+        - Role role
+        - Instant createdAt
+        - Instant updatedAt
+        - Instant deletedAt
+        + void updateProfile(String nickname, String profileImg, String bio)
+        + void changePassword(String newPassword)
+        + void linkGithub(String githubId)
+        + void unlinkGithub()
+        + void softDelete()
+        + boolean isDeleted()
+    }
+
+    %% =========================
+    %% DTOs
+    %% =========================
+    class UserRegisterDto {
+        - String email
+        - String password
+        - String nickname
+        - String bio
+    }
+
+    class UserLoginDto {
+        - String email
+        - String password
+    }
+
+    class GithubAuthDto {
+        - String code
+        - String state
+        - String accessToken
+    }
+
+    class UserUpdateDto {
+        - String nickname
+        - String profileImg
+        - String bio
+    }
+
+    class UserResponseDto {
+        - Long id
+        - String email
+        - String nickname
+        - boolean githubLinked
+        - String profileImg
+        - String bio
+        - Role role
+        - Instant createdAt
+        + static UserResponseDto from(UserEntity user)
+    }
+
+    class GithubProfileDto {
+        - String githubId
+        - String email
+        - String name
+        - String avatarUrl
+        - String bio
+    }
+
+    class AuthTokens {
+        - String accessToken
+        - String refreshToken
+    }
+
+    %% =========================
+    %% Repository
+    %% =========================
+    class UserRepository {
+        <<interface>>
+        + Optional~UserEntity~ findById(Long id)
+        + Optional~UserEntity~ findByEmail(String email)
+        + Optional~UserEntity~ findByGithubId(String githubId)
+        + boolean existsByEmail(String email)
+        + boolean existsById(Long id)
+        + UserEntity save(UserEntity user)
+    }
+
+    UserRepository --> UserEntity : manages
+
+    %% =========================
+    %% Security / JWT
+    %% =========================
+    class JwtTokenProvider {
+        - Key key
+        - long accessTokenValidityInMs
+        - long refreshTokenValidityInMs
+        + String generateAccessToken(Long userId, String role)
+        + String generateRefreshToken(Long userId)
+        + boolean validateToken(String token)
+        + Long getUserIdFromToken(String token)
+        + Authentication getAuthentication(String token)
+    }
+
+    class JwtAuthenticationFilter {
+        + void doFilterInternal(req, res, chain)
+    }
+
+    class CustomUserDetails {
+        - Long userId
+        - String username
+        - String password
+        - List~GrantedAuthority~ authorities
+        + String getUsername()
+        + String getPassword()
+        + Collection~GrantedAuthority~ getAuthorities()
+        + boolean isAccountNonExpired()
+        + boolean isAccountNonLocked()
+        + boolean isCredentialsNonExpired()
+        + boolean isEnabled()
+    }
+
+    class CustomUserDetailsService {
+        + UserDetails loadUserByUsername(String email)
+    }
+
+    class JwtAuthenticationEntryPoint {
+        + void commence(req, res, ex)
+    }
+
+    class JwtAccessDeniedHandler {
+        + void handle(req, res, ex)
+    }
+
+    class SecurityConfig {
+        + PasswordEncoder passwordEncoder()
+        + SecurityFilterChain filterChain(HttpSecurity http)
+    }
+
+    CustomUserDetailsService --> UserRepository : uses
+    JwtAuthenticationFilter --> JwtTokenProvider : uses
+    SecurityConfig --> JwtAuthenticationFilter : registers
+    SecurityConfig --> JwtAuthenticationEntryPoint
+    SecurityConfig --> JwtAccessDeniedHandler
+
+    %% =========================
+    %% Service 계층
+    %% =========================
+    class AuthService {
+        - UserRepository userRepository
+        - PasswordEncoder passwordEncoder
+        - JwtTokenProvider jwtTokenProvider
+        + UserResponseDto register(UserRegisterDto dto)
+        + AuthTokens login(UserLoginDto dto)
+        + void logout(Long userId)
+        + AuthTokens refresh(String refreshToken)
+    }
+
+    class GithubAuthService {
+        - UserRepository userRepository
+        - JwtTokenProvider jwtTokenProvider
+        - WebClient webClient
+        - String clientId
+        - String clientSecret
+        - String redirectUri
+        + String buildAuthorizeUrl()
+        + String exchangeCodeForAccessToken(String code)
+        + GithubProfileDto fetchGithubProfile(String token)
+        + AuthTokens loginWithGithub(GithubAuthDto dto)
+    }
+
+    class UserService {
+        - UserRepository userRepository
+        - PasswordEncoder passwordEncoder
+        + UserResponseDto getProfile(Long userId)
+        + void updateProfile(Long userId, UserUpdateDto dto)
+        + void changePassword(Long userId, String newPassword)
+        + void deleteAccount(Long userId)
+    }
+
+    AuthService --> UserRepository : uses
+    AuthService --> JwtTokenProvider : uses
+    AuthService --> PasswordEncoder : uses
+
+    GithubAuthService --> UserRepository : uses
+    GithubAuthService --> JwtTokenProvider : uses
+
+    UserService --> UserRepository : uses
+    UserService --> PasswordEncoder : uses
+
+    %% =========================
+    %% Controller 계층
+    %% =========================
+    class AuthController {
+        - AuthService authService
+        + ResponseEntity~UserResponseDto~ register(UserRegisterDto dto)
+        + ResponseEntity~AuthTokens~ login(UserLoginDto dto)
+        + ResponseEntity~Void~ logout(Long userId)
+        + ResponseEntity~AuthTokens~ refresh(String refreshToken)
+    }
+
+    class GithubAuthController {
+        - GithubAuthService githubAuthService
+        + ResponseEntity~String~ getAuthorizeUrl()
+        + ResponseEntity~AuthTokens~ callback(String code, String state)
+        + ResponseEntity~AuthTokens~ loginWithGithub(GithubAuthDto dto)
+    }
+
+    class UserController {
+        - UserService userService
+        + ResponseEntity~UserResponseDto~ getMyProfile()
+        + ResponseEntity~Void~ updateMyProfile(UserUpdateDto dto)
+        + ResponseEntity~Void~ deleteMyAccount()
+    }
+
+    AuthController --> AuthService : uses
+    GithubAuthController --> GithubAuthService : uses
+    UserController --> UserService : uses
+
+    %% =========================
+    %% 관계: 도메인 / DTO / 기타
+    %% =========================
+    UserEntity --> Role
+    UserResponseDto --> Role
+    UserResponseDto --> UserEntity : from()
+    JwtTokenProvider --> Role : (role claim)
+```
 <img width="759" height="422" alt="image" src="https://github.com/user-attachments/assets/9e2ddc87-2739-4271-b062-550d4d96c21b" />
 
 
