@@ -4884,7 +4884,6 @@ AuthService 내부에서는 먼저 중복 가입을 막기 위해 UserRepository
 ### 2. 로그인(이메일/비밀번호)
 ```mermaid
 sequenceDiagram
-    sequenceDiagram
     actor U as User(클라이언트)
     participant AC as AuthController
     participant AS as AuthService
@@ -4918,6 +4917,7 @@ sequenceDiagram
         AS-->>AC: 인증 실패 예외
         AC-->>U: 401/404 + "사용자를 찾을 수 없습니다."
     end
+
 
 ```
 
