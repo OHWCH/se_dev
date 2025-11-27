@@ -4839,89 +4839,112 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant AuthController
-    participant AuthService
-    participant UserRepository
-    participant PasswordEncoder
+    actor U as User(클라이언트)
+    participant AC as AuthController
+    participant AS as AuthService
+    participant UR as UserRepository
+    participant UE as UserEntity
+    participant DB as DB(PostgreSQL)
 
-    User->>AuthController: 회원가입 요청 (POST /auth/register)
-    AuthController->>AuthService: register(UserRegisterDto)
+    U->>AC: POST /api/auth/register<br/>UserRegisterDto(email, pw, nickname, bio)
+    AC->>AS: register(dto)
 
-    AuthService->>UserRepository: existsByEmail(email)
-    UserRepository-->>AuthService: boolean (중복 여부 확인)
+    AS->>UR: existsByEmail(dto.email)
+    UR-->>AS: boolean (exists / not exists)
 
     alt 이메일 중복 없음
-        AuthService->>PasswordEncoder: encode(password)
-        PasswordEncoder-->>AuthService: encodedPassword
-        AuthService->>UserRepository: save(new UserEntity)
-        UserRepository-->>AuthService: UserEntity
-        AuthService-->>AuthController: UserResponseDto
-        AuthController-->>User: 회원가입 성공 (201 Created)
-    else 이메일 중복됨
-        AuthService-->>AuthController: DuplicateEmailException
-        AuthController-->>User: 회원가입 실패 (409 Conflict)
+        AS->>AS: passwordEncoder.encode(dto.password)
+        AS->>UE: UserEntity.builder()...build()
+        AS->>UR: save(userEntity)
+        UR-->>AS: savedUserEntity
+
+        AS->>AS: UserResponseDto.from(savedUserEntity)
+        AS-->>AC: UserResponseDto
+        AC-->>U: 201 Created + UserResponseDto(JSON)
+    else 이메일 중복 있음
+        AS-->>AC: 예외 발생 (DuplicateEmailException)
+        AC-->>U: 400/409 + "이미 사용 중인 이메일입니다."
     end
+
 ```
 사용자가 이메일, 비밀번호, 닉네임을 입력하면 시스템은 이메일 중복 여부를 확인하고,
 중복이 없으면 비밀번호를 암호화한 후 새 UserEntity를 생성하여 저장합니다.
 
 ### 로그인
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant AuthController
-    participant AuthService
-    participant UserRepository
-    participant JwtTokenProvider
-    participant PasswordEncoder
+```sequenceDiagram
+    actor U as User(클라이언트)
+    participant AC as AuthController
+    participant AS as AuthService
+    participant UR as UserRepository
+    participant UE as UserEntity
+    participant JP as JwtTokenProvider
 
-    User->>AuthController: 로그인 요청 (POST /auth/login)
-    AuthController->>AuthService: login(email, password)
+    U->>AC: POST /api/auth/login<br/>UserLoginDto(email, password)
+    AC->>AS: login(dto)
 
-    AuthService->>UserRepository: findByEmail(email)
-    UserRepository-->>AuthService: Optional<UserEntity>
+    AS->>UR: findByEmail(dto.email)
+    UR-->>AS: Optional<UserEntity>
 
-    AuthService->>PasswordEncoder: matches(raw, user.passwordHash)
-    PasswordEncoder-->>AuthService: true
+    alt 사용자 존재 && !user.isDeleted()
+        AS->>AS: passwordEncoder.matches(dto.password, user.password)
 
-    AuthService->>JwtTokenProvider: generateAccessToken(userId, role)
-    JwtTokenProvider-->>AuthService: accessToken
-    AuthService->>JwtTokenProvider: generateRefreshToken(userId)
-    JwtTokenProvider-->>AuthService: refreshToken
+        alt 비밀번호 일치
+            AS->>JP: generateAccessToken(user.id, user.role)
+            JP-->>AS: accessToken
 
-    AuthService-->>AuthController: AuthTokens(AT, RT)
-    AuthController-->>User: 로그인 성공 (200 OK + 토큰)
+            AS->>JP: generateRefreshToken(user.id)
+            JP-->>AS: refreshToken
+
+            AS-->>AC: AuthTokens(accessToken, refreshToken)
+            AC-->>U: 200 OK + AuthTokens(JSON)
+        else 비밀번호 불일치
+            AS-->>AC: 인증 실패 예외
+            AC-->>U: 401 Unauthorized + "이메일 또는 비밀번호가 올바르지 않습니다."
+        end
+    else 사용자 없음 또는 삭제 상태
+        AS-->>AC: 인증 실패 예외
+        AC-->>U: 401/404 + "사용자를 찾을 수 없습니다."
+    end
+
 
 ```
-사용자가 이메일과 비밀번호를 입력하면, 시스템은 DB에서 사용자 정보를 조회하고 비밀번호를 검증합니다.
-일치 시 JWT Access Token과 Refresh Token을 발급하여 클라이언트에 반환하며, 클라이언트는 토큰을 저장 후 메인 페이지로 이동합니다.
+1. 사용자 → AuthController
+ - 사용자가 회원가입 폼에 이메일, 비밀번호, 닉네임, 자기소개를 입력하고 “회원가입” 버튼을 클릭하면,
+클라이언트는 이 데이터를 UserRegisterDto 형태의 JSON으로 만들어 POST /api/auth/register 요청을 보낸다.
+2. AuthController → AuthService
+ - AuthController.register()는 HTTP 요청 본문을 UserRegisterDto로 매핑한 뒤,
+실제 비즈니스 로직을 수행하는 AuthService.register(dto)를 호출한다.
+3. 이메일 중복 검사 (AuthService → UserRepository)
+ - AuthService는 먼저 userRepository.existsByEmail(dto.getEmail())을 호출하여
+동일한 이메일이 이미 DB(users 테이블)에 존재하는지 확인한다.
+ - 반환값이 true이면, 이미 가입된 이메일이므로 예외를 발생시키고 컨트롤러를 통해 에러 응답을 보낸다.
+4. 비밀번호 암호화 및 엔티티 생성 
+ - 중복이 없으면, PasswordEncoder(BCrypt)를 사용해 dto.getPassword()를 해시값으로 암호화한다.
+ - 그 후, UserEntity.builder()로 이메일, 암호화된 비밀번호, 닉네임, bio, 기본 권한(Role.USER) 등을 채운 UserEntity 객체를 생성한다. 
+5. UserRepository를 통한 DB 저장
+ - 생성된 UserEntity는 userRepository.save(user)를 통해 Supabase PostgreSQL DB의 users 테이블에 저장된다.
+ - JPA는 자동으로 PK(id), createdAt, updatedAt 등을 채워서 영속화한다.
+6. UserResponseDto로 변환 후 응답 반환
+ - AuthService는 저장된 엔티티를 기반으로 UserResponseDto.from(savedUser)를 호출하여, 클라이언트에 노출해도 되는 정보만 담은 응답 DTO를 생성한다.
+ - AuthController는 이 DTO를 201 Created HTTP 상태 코드와 함께 JSON으로 응답한다.
+7. 클라이언트 처리
+ - 클라이언트는 “회원가입이 완료되었습니다.”와 같은 메시지를 표시하고, 보통 로그인 페이지 또는 메인 화면으로 사용자를 이동시킨다.
+ - 이 단계에서는 JWT 토큰을 발급하지 않고, 이후 로그인 Use Case에서 토큰을 발급하도록 설계되어 있다.
 
-### 로그아웃
+### GitHub 로그인(OAuth)
 ```mermaid
 sequenceDiagram
-    participant User
-    participant AuthController
-    participant AuthService
-    participant JwtTokenProvider
-    participant RefreshTokenStore
+    actor U as User(클라이언트)
+    participant GC as GithubAuthController
+    participant GS as GithubAuthService
 
-    User->>AuthController: 로그아웃 요청 (POST /auth/logout)
-    AuthController->>AuthService: logout(userId, refreshToken)
+    U->>GC: GET /api/github/authorize-url
+    GC->>GS: buildAuthorizeUrl()
+    GS-->>GC: authorizeUrl(GitHub OAuth URL)
+    GC-->>U: 200 OK + authorizeUrl
+    U->>U: 브라우저를 GitHub 로그인 페이지로 리다이렉트
 
-    AuthService->>JwtTokenProvider: validateToken(refreshToken)
-    JwtTokenProvider-->>AuthService: boolean (유효성 결과)
-
-    alt 토큰 유효함
-        AuthService->>RefreshTokenStore: revokeByUserId(userId)
-        RefreshTokenStore-->>AuthService: void
-        AuthService-->>AuthController: void
-        AuthController-->>User: 로그아웃 성공 (204 No Content)
-    else 토큰 무효 또는 만료
-        AuthService-->>AuthController: InvalidTokenException
-        AuthController-->>User: 로그아웃 실패 (401 Unauthorized)
-    end
 
 ```
 
@@ -4929,149 +4952,185 @@ sequenceDiagram
 해당 유저의 모든 토큰을 RefreshTokenStore에서 폐기하여 세션을 종료합니다.
 
 
-### 회원탈퇴
+### 내 프로필 조회
 ```mermaid
 sequenceDiagram
-    participant User
-    participant UserController
-    participant UserService
-    participant UserRepository
-    participant PasswordEncoder
-    participant RefreshTokenStore
+    actor U as User(클라이언트)
+    participant F as JwtAuthenticationFilter
+    participant JP as JwtTokenProvider
+    participant UC as UserController
+    participant US as UserService
+    participant UR as UserRepository
+    participant UE as UserEntity
 
-    User->>UserController: 회원 탈퇴 요청 (DELETE /users/me)
-    UserController->>UserService: deleteAccount(userId, password)
+    U->>F: GET /api/users/me<br/>Header: Authorization: Bearer accessToken
 
-    UserService->>UserRepository: findById(userId)
-    UserRepository-->>UserService: Optional<UserEntity>
+    F->>JP: validateToken(accessToken)
+    JP-->>F: boolean(valid/invalid)
 
-    alt 사용자 존재
-        UserService->>PasswordEncoder: matches(password, user.passwordHash)
-        PasswordEncoder-->>UserService: boolean (검증 결과)
+    alt 토큰 유효
+        F->>JP: getUserIdFromToken(accessToken)
+        JP-->>F: userId
+        F->>UC: 요청을 전달 (SecurityContext에 인증 정보 세팅)
 
-        alt 비밀번호 일치
-            UserService->>UserEntity: softDelete()  %% 탈퇴 상태 플래그/삭제일자 설정
-            UserService->>UserRepository: save(user)
-            UserRepository-->>UserService: UserEntity
-            UserService->>RefreshTokenStore: revokeByUserId(userId)
-            RefreshTokenStore-->>UserService: void
-            UserService-->>UserController: void
-            UserController-->>User: 회원 탈퇴 완료 (204 No Content)
-        else 비밀번호 불일치
-            UserService-->>UserController: BadCredentialsException
-            UserController-->>User: 회원 탈퇴 실패 (401 Unauthorized)
+        UC->>US: getProfile(userId)
+        US->>UR: findById(userId)
+        UR-->>US: Optional<UserEntity>
+
+        alt 사용자 존재 && !user.isDeleted()
+            US->>US: UserResponseDto.from(user)
+            US-->>UC: UserResponseDto
+            UC-->>U: 200 OK + UserResponseDto(JSON)
+        else 사용자 없음/삭제
+            US-->>UC: 예외 발생
+            UC-->>U: 404/400 + "사용자 정보를 찾을 수 없습니다."
         end
-    else 사용자 없음
-        UserService-->>UserController: UserNotFoundException
-        UserController-->>User: 회원 탈퇴 실패 (404 Not Found)
+    else 토큰 무효/만료
+        F-->>U: 401 Unauthorized + "인증이 필요합니다."
     end
 
 ```
 
-### 깃허브 인증
+### 내 프로필 수
 ```mermaid
 sequenceDiagram
-    participant User
-    participant GithubAuthController
-    participant GithubAuthService
-    participant GitHubAPI
-    participant UserRepository
-    participant JwtTokenProvider
+    actor U as User(클라이언트)
+    participant F as JwtAuthenticationFilter
+    participant JP as JwtTokenProvider
+    participant UC as UserController
+    participant US as UserService
+    participant UR as UserRepository
+    participant UE as UserEntity
+    participant DB as DB(PostgreSQL)
 
-    %% 1단계: 인증 URL 요청
-    User->>GithubAuthController: 깃허브 로그인 요청 (GET /auth/github/url)
-    GithubAuthController->>GithubAuthService: buildAuthorizeUrl()
-    GithubAuthService-->>GithubAuthController: authorizeUrl
-    GithubAuthController-->>User: 깃허브 로그인 URL 응답 (200 OK)
+    U->>F: PUT /api/users/me<br/>Header: Authorization + UserUpdateDto
+    F->>JP: validateToken(accessToken)
+    JP-->>F: boolean
 
-    %% 2단계: GitHub 인증 및 콜백
-    User->>GitHubAPI: 인증 URL로 리다이렉트 (GitHub 로그인/권한 승인)
-    GitHubAPI-->>User: code, state 포함 콜백 리다이렉트
-    User->>GithubAuthController: GET /auth/github/callback?code=...&state=...
-    GithubAuthController->>GithubAuthService: loginWithGithub(code, state)
+    alt 토큰 유효
+        F->>JP: getUserIdFromToken(accessToken)
+        JP-->>F: userId
+        F->>UC: 요청 전달
 
-    %% 3단계: 액세스 토큰 발급
-    GithubAuthService->>GitHubAPI: exchange code → accessToken
-    GitHubAPI-->>GithubAuthService: accessToken
+        UC->>US: updateProfile(userId, dto)
+        US->>UR: findById(userId)
+        UR-->>US: Optional<UserEntity>
 
-    %% 4단계: 사용자 프로필 조회
-    GithubAuthService->>GitHubAPI: fetch user profile (accessToken)
-    GitHubAPI-->>GithubAuthService: githubProfile
-
-    %% 5단계: DB 사용자 매칭 및 생성
-    GithubAuthService->>UserRepository: findByGithubId(profile.id)
-    UserRepository-->>GithubAuthService: Optional<UserEntity>
-
-    alt 기존 사용자 존재
-        note over GithubAuthService: 기존 깃허브 계정과 연결된 사용자 로그인
-    else 신규 사용자
-        GithubAuthService->>UserRepository: save(new UserEntity from githubProfile)
-        UserRepository-->>GithubAuthService: UserEntity
+        alt 사용자 존재
+            US->>UE: user.updateProfile(dto.nickname, dto.profileImg, dto.bio)
+            US->>DB: 트랜잭션 커밋(JPA dirty checking)
+            DB-->>US: 업데이트 완료
+            US-->>UC: void
+            UC-->>U: 204 No Content (또는 200 OK)
+        else 사용자 없음
+            US-->>UC: 예외 발생
+            UC-->>U: 404 Not Found
+        end
+    else 토큰 무효/만료
+        F-->>U: 401 Unauthorized
     end
-
-    %% 6단계: JWT 발급 및 반환
-    GithubAuthService->>JwtTokenProvider: generateAccessToken(userId, role)
-    JwtTokenProvider-->>GithubAuthService: accessToken
-    GithubAuthService->>JwtTokenProvider: generateRefreshToken(userId)
-    JwtTokenProvider-->>GithubAuthService: refreshToken
-    GithubAuthService-->>GithubAuthController: AuthTokens(AT, RT)
-    GithubAuthController-->>User: 깃허브 로그인 성공 (200 OK + 토큰)
 
 ```
 
 사용자가 깃허브 로그인 버튼을 누르면 GitHub OAuth 인증 페이지로 이동하여 로그인 승인 후,
 시스템은 콜백으로 받은 code를 이용해 GitHub API로부터 사용자 정보를 가져와 JWT 토큰을 발급합니다.
 
-### 프로필 조회
+### 계정 탈퇴( 소프트 삭제)
 ```mermaid
 sequenceDiagram
-    participant User
-    participant UserController
-    participant UserService
-    participant UserRepository
+    actor U as User(클라이언트)
+    participant F as JwtAuthenticationFilter
+    participant JP as JwtTokenProvider
+    participant UC as UserController
+    participant US as UserService
+    participant UR as UserRepository
+    participant UE as UserEntity
+    participant DB as DB(PostgreSQL)
 
-    User->>UserController: 프로필 조회 요청 (GET /users/me)
-    UserController->>UserService: getProfile(authUserId)
+    U->>F: DELETE /api/users/me<br/>Header: Authorization: Bearer accessToken
+    F->>JP: validateToken(accessToken)
+    JP-->>F: boolean
 
-    UserService->>UserRepository: findById(authUserId)
-    UserRepository-->>UserService: Optional<UserEntity>
+    alt 토큰 유효
+        F->>JP: getUserIdFromToken(accessToken)
+        JP-->>F: userId
+        F->>UC: 요청 전달
 
-    alt 사용자 존재
-        UserService-->>UserController: UserResponseDto
-        UserController-->>User: 프로필 정보 응답 (200 OK)
-    else 사용자 없음
-        UserService-->>UserController: UserNotFoundException
-        UserController-->>User: 프로필 조회 실패 (404 Not Found)
+        UC->>US: deleteAccount(userId)
+        US->>UR: findById(userId)
+        UR-->>US: Optional<UserEntity>
+
+        alt 사용자 존재
+            US->>UE: user.softDelete()<br/>(deletedAt = now())
+            US->>DB: 트랜잭션 커밋
+            DB-->>US: 업데이트 완료
+            US-->>UC: void
+            UC-->>U: 204 No Content + "계정 탈퇴 완료"
+        else 사용자 없음
+            US-->>UC: 예외
+            UC-->>U: 404 Not Found
+        end
+    else 토큰 무효/만료
+        F-->>U: 401 Unauthorized
     end
 
 ```
 인증된 사용자가 자신의 프로필 정보를 요청하면, 시스템은 DB에서 UserEntity를 조회하여
 UserResponseDto 형태로 반환합니다.
 
-### 프로필 수정
+### 토큰 재발급
 ```mermaid
 sequenceDiagram
-    participant User
-    participant UserController
-    participant UserService
-    participant UserRepository
+    actor U as User(클라이언트)
+    participant AC as AuthController
+    participant AS as AuthService
+    participant JP as JwtTokenProvider
 
-    User->>UserController: 프로필 수정 요청 (PUT /users/me) <br> UserUpdateDto(nickname, profileImg, bio)
-    UserController->>UserService: updateProfile(authUserId, dto)
+    U->>AC: POST /api/auth/refresh?refreshToken=...
+    AC->>AS: refresh(refreshToken)
 
-    UserService->>UserRepository: findById(authUserId)
-    UserRepository-->>UserService: Optional<UserEntity>
+    AS->>JP: validateToken(refreshToken)
+    JP-->>AS: boolean(valid/invalid)
 
-    alt 사용자 존재
-        UserService->>UserEntity: updateProfile(dto.nickname, dto.profileImg, dto.bio)
-        UserService->>UserRepository: save(UserEntity)
-        UserRepository-->>UserService: UserEntity
-        UserService-->>UserController: void
-        UserController-->>User: 프로필 수정 성공 (204 No Content)
-    else 사용자 없음
-        UserService-->>UserController: UserNotFoundException
-        UserController-->>User: 프로필 수정 실패 (404 Not Found)
+    alt 토큰 유효
+        AS->>JP: getUserIdFromToken(refreshToken)
+        JP-->>AS: userId
+
+        AS->>JP: generateAccessToken(userId, role)
+        JP-->>AS: newAccessToken
+
+        AS->>JP: generateRefreshToken(userId) (옵션)
+        JP-->>AS: newRefreshToken
+
+        AS-->>AC: AuthTokens(newAccessToken, newRefreshToken)
+        AC-->>U: 200 OK + AuthTokens(JSON)
+    else 토큰 무효/만료
+        AS-->>AC: 예외 발생
+        AC-->>U: 401 Unauthorized + "세션이 만료되었습니다. 다시 로그인하세요."
     end
+
+
+```
+인증된 사용자가 닉네임, 프로필 이미지, 자기소개를 수정하면,
+시스템은 해당 사용자를 조회해 UserEntity.updateProfile()로 정보를 갱신하고 저장합니다.
+
+### 로그아
+```mermaid
+sequenceDiagram
+    actor U as User(클라이언트)
+    participant AC as AuthController
+    participant AS as AuthService
+
+    U->>AC: POST /api/auth/logout/{userId}
+    AC->>AS: logout(userId)
+
+    AS->>AS: (필요 시) 로그 기록/추가 처리<br/>현재 구현에선 별도 상태 저장 없음
+    AS-->>AC: void
+    AC-->>U: 204 No Content
+
+    U->>U: LocalStorage/쿠키에 저장된 JWT 삭제<br/>→ 로그인 화면/메인 화면으로 이동
+
+
 
 ```
 인증된 사용자가 닉네임, 프로필 이미지, 자기소개를 수정하면,
