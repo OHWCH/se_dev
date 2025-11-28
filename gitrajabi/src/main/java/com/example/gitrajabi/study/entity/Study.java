@@ -3,7 +3,8 @@ package com.example.gitrajabi.study.entity;
 
 
 import com.example.gitrajabi.study.erum.StudyCategory;
-import com.example.gitrajabi.user_login.domain.user.entity.User;
+
+import com.example.gitrajabi.test_user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
