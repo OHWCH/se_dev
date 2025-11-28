@@ -6,11 +6,12 @@ import com.example.gitrajabi.board.dto.PostResponse;
 import com.example.gitrajabi.board.dto.PostUpdateRequest;
 import com.example.gitrajabi.board.service.PostManagementService;
 import com.example.gitrajabi.board.service.PostQueryService;
+import com.example.gitrajabi.user_login.common.security.SecurityUtil; // ⭐️ JWT userId 추출 유틸리티 추가
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+// import org.springframework.security.core.annotation.AuthenticationPrincipal; // ❌ 삭제
+// import org.springframework.security.oauth2.core.user.OAuth2User; // ❌ 삭제
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,56 +32,45 @@ public class PostController {
     // Use Case #17: GET /api/posts - 게시글 목록 조회 (인증 필요 없음)
     @GetMapping
     public ResponseEntity<List<PostResponse>> getPostList(
-            @RequestParam(required = false, defaultValue = "latest") String type,
-            @RequestParam(required = false, defaultValue = "0") int page
+            @RequestParam(defaultValue = "latest") String type,
+            @RequestParam(defaultValue = "0") int page
     ) {
-        List<Post> posts = postQueryService.getPostList(type, page);
-        List<PostResponse> response = posts.stream()
+        List<PostResponse> response = postQueryService.getPostList(type, page).stream()
                 .map(PostResponse::from)
                 .toList();
         return ResponseEntity.ok(response);
     }
 
-    // Use Case #18: GET /api/posts/{postId} - 게시글 상세 조회 (인증 필요 없음)
+    // Use Case #18: GET /api/posts/{postId} - 게시글 상세 조회 (조회수 증가 포함, 인증 필요 없음)
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse> getPostDetail(@PathVariable Long postId) {
-        try {
-            Post post = postQueryService.getPostDetail(postId);
-            return ResponseEntity.ok(PostResponse.from(post));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+    public ResponseEntity<PostResponse> getPostDetail(@PathVariable Long postId) throws Throwable {
+        Post post = postQueryService.getPostDetail(postId);
+        return ResponseEntity.ok(PostResponse.from(post));
     }
 
     // Use Case #14: POST /api/posts - 게시글 작성 (인증 필요)
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
-            // GitHub OAuth로 로그인한 사용자의 정보를 가져옵니다.
-            @AuthenticationPrincipal OAuth2User oauthUser,
+//            @AuthenticationPrincipal OAuth2User oauthUser, // 삭제
             @RequestBody PostCreationRequest request
     ) {
-        // OAuth2User에서 GitHub ID(Long)를 추출합니다.
-        // GitHub 'id' 속성은 Integer/Long 형태로 제공됩니다.
-        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
+        // ⭐️ JWT에서 현재 로그인된 사용자의 ID를 가져옵니다.
+        Long currentUserId = SecurityUtil.getCurrentUserId();
 
-        try {
-            Post createdPost = postManagementService.createPost(currentUserId, request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(PostResponse.from(createdPost));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Post createdPost = postManagementService.createPost(currentUserId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(PostResponse.from(createdPost));
     }
 
     // Use Case #15: PUT /api/posts/{postId} - 게시글 수정 (인증 필요)
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(
-            @AuthenticationPrincipal OAuth2User oauthUser,
+//            @AuthenticationPrincipal OAuth2User oauthUser, // 삭제
             @PathVariable Long postId,
             @RequestBody PostUpdateRequest request
     ) {
-        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
+        // ⭐️ JWT에서 현재 로그인된 사용자의 ID를 가져옵니다.
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+//        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString()); // 삭제
 
         try {
             Post updatedPost = postManagementService.updatePost(currentUserId, postId, request);
@@ -97,10 +87,12 @@ public class PostController {
     // Use Case #16: DELETE /api/posts/{postId} - 게시글 삭제 (인증 필요)
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
-            @AuthenticationPrincipal OAuth2User oauthUser,
+//            @AuthenticationPrincipal OAuth2User oauthUser, // 삭제
             @PathVariable Long postId
     ) {
-        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
+        // ⭐️ JWT에서 현재 로그인된 사용자의 ID를 가져옵니다.
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+//        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString()); // 삭제
 
         try {
             postManagementService.deletePost(currentUserId, postId);
