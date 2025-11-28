@@ -2,6 +2,7 @@ package com.example.gitrajabi.study.controller;
 
 
 import com.example.gitrajabi.study.dto.MessageResponse;
+import com.example.gitrajabi.study.dto.StudyMemberResponse;
 import com.example.gitrajabi.study.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

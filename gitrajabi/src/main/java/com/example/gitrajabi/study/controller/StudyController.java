@@ -1,9 +1,7 @@
 package com.example.gitrajabi.study.controller;
 
 
-import com.example.gitrajabi.study.dto.MessageResponse;
-import com.example.gitrajabi.study.dto.StudyCreateDto;
-import com.example.gitrajabi.study.dto.StudyListResponse;
+import com.example.gitrajabi.study.dto.*;
 import com.example.gitrajabi.study.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
