@@ -1,7 +1,6 @@
 package com.example.gitrajabi.IssueManagement.client;
 
 import com.example.gitrajabi.IssueManagement.dto.GithubIssueSearchResponseDto;
-// [추가] GraphQL DTO들을 import 합니다.
 import com.example.gitrajabi.IssueManagement.dto.GraphQLRequestDto;
 import com.example.gitrajabi.IssueManagement.dto.GraphQLResponseDto;
 import org.springframework.stereotype.Component;
@@ -18,7 +17,7 @@ public class GithubApiClient {
     }
 
     // (기능 27: 이전 단계에서 구현한 메소드)
-    public Mono<GithubIssueSearchResponseDto> searchGoodFirstIssues(String keyword) {
+    public Mono<GithubIssueSearchResponseDto> searchGoodFirstIssues(String keyword, int page) {
         // ... (이전과 동일) ...
         String query = "label:\"good first issue\" state:open " + keyword;
 
@@ -26,6 +25,9 @@ public class GithubApiClient {
                 .uri(uriBuilder -> uriBuilder
                         .path("/search/issues")
                         .queryParam("q", query)
+                        .queryParam("sort", "created")
+                        .queryParam("per_page", "10")
+                        .queryParam("page", page)
                         .build())
                 .retrieve()
                 .bodyToMono(GithubIssueSearchResponseDto.class);
