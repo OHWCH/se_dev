@@ -1,11 +1,12 @@
-package com.user.user_login.domain.user.service;
+package com.example.gitrajabi.user_login.domain.user.service;
 
 
-import com.user.user_login.common.security.SecurityUtil;
-import com.user.user_login.domain.user.dto.UserResponseDto;
-import com.user.user_login.domain.user.dto.UserUpdateDto;
-import com.user.user_login.domain.user.entity.UserEntity;
-import com.user.user_login.domain.user.repository.UserRepository;
+
+import com.example.gitrajabi.user_login.common.security.SecurityUtil;
+import com.example.gitrajabi.user_login.domain.user.dto.UserResponseDto;
+import com.example.gitrajabi.user_login.domain.user.dto.UserUpdateDto;
+import com.example.gitrajabi.user_login.domain.user.entity.UserEntity;
+import com.example.gitrajabi.user_login.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

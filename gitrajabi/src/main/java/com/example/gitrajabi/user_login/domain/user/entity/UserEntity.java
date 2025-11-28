@@ -1,6 +1,7 @@
-package com.user.user_login.domain.user.entity;
+package com.example.gitrajabi.user_login.domain.user.entity;
 
-import com.user.user_login.common.security.Role;
+
+import com.example.gitrajabi.user_login.common.security.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

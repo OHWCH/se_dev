@@ -1,9 +1,10 @@
-package com.user.user_login.domain.user.controller;
+package com.example.gitrajabi.user_login.domain.user.controller;
 
-import com.user.user_login.common.security.JwtTokenProvider;
-import com.user.user_login.domain.user.dto.UserResponseDto;
-import com.user.user_login.domain.user.dto.UserUpdateDto;
-import com.user.user_login.domain.user.service.UserService;
+
+import com.example.gitrajabi.user_login.common.security.JwtTokenProvider;
+import com.example.gitrajabi.user_login.domain.user.dto.UserResponseDto;
+import com.example.gitrajabi.user_login.domain.user.dto.UserUpdateDto;
+import com.example.gitrajabi.user_login.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
