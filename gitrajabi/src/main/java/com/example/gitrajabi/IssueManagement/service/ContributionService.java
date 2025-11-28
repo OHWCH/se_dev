@@ -108,10 +108,12 @@ public class ContributionService {
     }
 
     private Badge calculateBadge(int score) {
-        if (score > 1000) return Badge.PLATINUM;
-        if (score > 500) return Badge.GOLD;
-        if (score > 100) return Badge.SILVER;
-        if (score > 0) return Badge.BRONZE;
+        if (score >= 30000) return Badge.RUBY;      // 30,000점 이상
+        if (score >= 15000) return Badge.DIAMOND;   // 15,000점 이상
+        if (score >= 5000)  return Badge.PLATINUM;  // 5,000점 이상
+        if (score >= 2500)  return Badge.GOLD;      // 2,500점 이상
+        if (score >= 500)   return Badge.SILVER;    // 500점 이상
+        if (score > 0)      return Badge.BRONZE;    // 1점 이상
         return Badge.NONE;
     }
 }

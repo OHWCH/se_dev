@@ -6,14 +6,11 @@ package com.example.gitrajabi.IssueManagement.domain;
  * (가독성, 관리성 원칙 준수)
  */
 public enum Badge {
-    // 점수 0점 (기본값)
-    NONE,
-    // 점수 1-100점
-    BRONZE,
-    // 점수 101-500점
-    SILVER,
-    // 점수 501-1000점
-    GOLD,
-    // 점수 1001점 이상
-    PLATINUM
+    NONE, // 0점
+    BRONZE, // 1 ~ 500
+    SILVER, // 500 ~ 2500
+    GOLD, // 2500 ~ 5000
+    PLATINUM, // 5000 ~ 15000
+    DIAMOND, // 15000 ~ 30000
+    RUBY // 30000 이상
 }
