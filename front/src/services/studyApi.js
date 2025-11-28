@@ -41,7 +41,11 @@ export async function createStudy(studyData) {
     try {
         const res = await axios.post(`http://localhost:8080/studies`, studyData);
     } catch (e) {
+<<<<<<< HEAD
         console.log(e.response); 
+=======
+        console.log(e.response);
+>>>>>>> 5d22b08be717990b6d943a53cb068ca0ebc2dda6
     }
     
     // Mock 데이터 처리 (임시)

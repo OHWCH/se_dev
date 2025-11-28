@@ -20,17 +20,24 @@ public class StudyController {
     @PostMapping
     public ResponseEntity<MessageResponse> createStudy(@RequestBody StudyCreateDto request) {
 
-        Long testUserId = 2L; // 임시 로그인 유저
+        Long testUserId = 1L; // 임시 로그인 유저
 
         Long studyId = studyService.createStudy(request, testUserId);
         return ResponseEntity.ok(new MessageResponse("스터디 생성 완료. id = " + studyId));
     }
 
+    // 스터디 목록 조회
+    @GetMapping
+    public ResponseEntity<List<StudyListResponse>> getStudyList() {
+        Long userId = 1L; // 임시 로그인 유저
+        List<StudyListResponse> list = studyService.getStudyList(userId);
+        return ResponseEntity.ok(list);
+    }
     // 스터디 리스트 반환
     @GetMapping("/me")
     public ResponseEntity<List<StudyListResponse>> getMyStudyList() {
 
-        Long testUserId = 1L;
+        Long testUserId = 2L;
 
         List<StudyListResponse> list = studyService.getMyStudyList(testUserId);
 

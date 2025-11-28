@@ -1,4 +1,4 @@
-package com.example.gitrajabi.user_login.domain.user.dto;
+package com.user.user_login.domain.user.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

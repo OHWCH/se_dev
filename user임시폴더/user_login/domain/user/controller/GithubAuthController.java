@@ -1,9 +1,8 @@
-package com.example.gitrajabi.user_login.domain.user.controller;
+package com.user.user_login.domain.user.controller;
 
-
-import com.example.gitrajabi.user_login.domain.user.dto.AuthTokens;
-import com.example.gitrajabi.user_login.domain.user.dto.GithubAuthDto;
-import com.example.gitrajabi.user_login.domain.user.service.GithubAuthService;
+import com.user.user_login.domain.user.dto.AuthTokens;
+import com.user.user_login.domain.user.dto.GithubAuthDto;
+import com.user.user_login.domain.user.service.GithubAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;

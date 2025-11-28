@@ -1,14 +1,10 @@
-package com.example.gitrajabi.user_login.domain.user.service;
+package com.user.user_login.domain.user.service;
 
-
-import com.example.gitrajabi.user_login.common.security.JwtTokenProvider;
-import com.example.gitrajabi.user_login.common.security.Role;
-import com.example.gitrajabi.user_login.domain.user.dto.AuthTokens;
-import com.example.gitrajabi.user_login.domain.user.dto.UserLoginDto;
-import com.example.gitrajabi.user_login.domain.user.dto.UserRegisterDto;
-import com.example.gitrajabi.user_login.domain.user.dto.UserResponseDto;
-import com.example.gitrajabi.user_login.domain.user.entity.UserEntity;
-import com.example.gitrajabi.user_login.domain.user.repository.UserRepository;
+import com.user.user_login.common.security.JwtTokenProvider;
+import com.user.user_login.common.security.Role;
+import com.user.user_login.domain.user.dto.*;
+import com.user.user_login.domain.user.entity.UserEntity;
+import com.user.user_login.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.example.gitrajabi.user_login.common.security;
+package com.user.user_login.common.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import com.user.user_login.domain.user.service.AuthService;
+import com.user.user_login.domain.user.service.UserService;
 
 @Configuration
 @EnableMethodSecurity
