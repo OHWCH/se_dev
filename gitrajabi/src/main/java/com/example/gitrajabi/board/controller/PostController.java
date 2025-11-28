@@ -10,8 +10,6 @@ import com.example.gitrajabi.user_login.common.security.SecurityUtil; // ⭐️ 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-// import org.springframework.security.core.annotation.AuthenticationPrincipal; // ❌ 삭제
-// import org.springframework.security.oauth2.core.user.OAuth2User; // ❌ 삭제
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
