@@ -1,4 +1,5 @@
-package com.user.user_login;
+/*
+package com.example.gitrajabi.user_login;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +7,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 
 @SpringBootApplication
-public class UserLoginApplication {
+public class GitrajabiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserLoginApplication.class, args);
+		SpringApplication.run(GitrajabiApplication.class, args);
 	}
 
 }
+*/
