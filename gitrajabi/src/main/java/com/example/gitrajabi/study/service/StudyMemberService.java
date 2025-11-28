@@ -60,7 +60,7 @@ public class StudyMemberService {
         return applicants.stream()
                 .map(member -> StudyApplicantResponse.builder()
                         .userId(member.getUser().getId())
-                        .nickname(member.getUser().getGithubId())
+                        .githubId(member.getUser().getGithubId())
                         .joinStatus(member.getJoinStatus()) // APPLIED
                         .build())
                 .toList();
@@ -112,7 +112,7 @@ public class StudyMemberService {
         return members.stream()
                 .map(m -> StudyMemberResponse.builder()
                         .userId(m.getUser().getId())
-                        .nickname(m.getUser().getGithubId())
+                        .githubId(m.getUser().getGithubId())
                         .joinStatus(m.getJoinStatus())
                         .studyRole(m.getStudyRole().name())
                         .build()
