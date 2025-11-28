@@ -20,7 +20,7 @@ public class StudyMemberController {
     // 스터디 가입 신청
     @PostMapping("/{studyId}/apply")
     public ResponseEntity<MessageResponse> applyStudy(@PathVariable Long studyId) {
-        Long testUserId = 4L;
+        Long testUserId = 2L;
 
         studyMemberService.applyToStudy(studyId, testUserId);
 

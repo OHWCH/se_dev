@@ -39,7 +39,7 @@ public class StudyScheduleController {
             @PathVariable Long studyId,
             @PathVariable Long scheduleId
     ) {
-        Long userId = 1L;
+        Long userId = 2L;
 
         studyScheduleService.participate(studyId, scheduleId, userId);
 

@@ -39,9 +39,9 @@ export async function getStudyList() {
 export async function createStudy(studyData) {
     // 백엔드 연동 후
     try {
-        const res = await axios.post(`http://localhost:8080/studies`, newStudy);
+        const res = await axios.post(`http://localhost:8080/studies`, studyData);
     } catch (e) {
-        consol.log(e.response); 
+        console.log(e.response);
     }
     
     // Mock 데이터 처리 (임시)
