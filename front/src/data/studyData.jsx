@@ -108,4 +108,4 @@ export const mockApplications = [
     { id: 202, applicant: "유저455", date: "2025.04.03" },
 ];
 
-export const mockCategories = ["전체", "알고리즘", "프론트엔드", "백엔드", "CS", "면접"];
+export const mockCategories = ["ALGORITHM", "WEB", "APP", "BACKEND", "FRONTEND", "CS", "INTERVIEW"];

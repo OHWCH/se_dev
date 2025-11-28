@@ -13,7 +13,7 @@ const STUDY_API_URL = '/api/studies'; // 백엔드 스터디 생성 엔드포인
 
 export async function getStudyList() {
     /*try {
-        const response = await axios.get(`${API_BASE_URL}/api/studies`);
+        const response = await axios.get(`http://localhost:8080/studies`);
         return response.data;
     } catch (error) {
         console.error("스터디 목록 조회 실패:", error);
