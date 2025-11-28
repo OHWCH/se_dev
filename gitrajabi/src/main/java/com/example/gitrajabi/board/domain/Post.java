@@ -11,6 +11,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,6 +37,10 @@ public class Post {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
+    // TODO: Comment 엔티티 연관 관계 설정
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
     public Post(Long userId, String title, String content) {
         this.userId = userId;
         this.title = title;
@@ -50,13 +56,15 @@ public class Post {
         // updatedAt은 @LastModifiedDate에 의해 자동 업데이트
     }
 
-    // Use Case #18: 상세 조회 시 조회수 증가
-    public void increaseViewCount() {
-        this.viewCount++;
-    }
-
     // Use Case #16: 소프트 삭제 플래그 설정
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
+        // @SQLDelete에 의해 DB에서는 자동으로 deleted_at와 updated_at이 업데이트되지만,
+        // JPA 영속성 컨텍스트 내의 객체 상태를 업데이트하는 것이 좋습니다.
+    }
+
+    // Use Case #18: 조회수 증가
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }

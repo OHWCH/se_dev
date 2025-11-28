@@ -38,13 +38,14 @@ public class PostQueryService {
 
     // Use Case #18: 게시글 상세 조회 (조회수 증가 포함)
     @Transactional
-    public Post getPostDetail(Long postId) throws Throwable {
+    public Post getPostDetail(Long postId) { // throws Throwable 제거
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다. Post ID: " + postId));
 
-        post.increaseViewCount(); // Entity 상태 변경
-        // @Transactional에 의해 트랜잭션 종료 시점에 DB에 자동 반영
+        // 조회수 증가
+        post.increaseViewCount();
+        // save를 명시적으로 호출하지 않아도 @Transactional에 의해 dirty checking으로 업데이트 됩니다.
 
         return post;
     }
