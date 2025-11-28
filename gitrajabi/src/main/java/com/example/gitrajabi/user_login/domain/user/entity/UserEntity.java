@@ -1,3 +1,4 @@
+/*
 package com.example.gitrajabi.user_login.domain.user.entity;
 
 
@@ -81,3 +82,4 @@ public class UserEntity {
     }
 }
 
+*/

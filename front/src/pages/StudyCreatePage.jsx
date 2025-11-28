@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import Header from '../components/ui/Header';
-import MaterialSymbol from '../components/ui/MaterialSymbol';
-import { mockCategories } from '../data/studyData'; // 카테고리 재사용
+import { useStudyForm } from '../hooks/useStudyForm';
+import { mockStudies, mockCategories } from '../data/studyData'; // 카테고리 재사용
+
+const addStudyToMockData = (newStudy) => {
+    mockStudies.push(newStudy);
+    console.log("새 스터디가 추가되었습니다:", newStudy);
+    console.log("현재 Mock 스터디 목록:", mockStudies);
+};
 
 const StudyCreatePage = () => {
-    // 폼 상태 관리는 생략하고 템플릿 구조만 구현합니다.
-    const [selectedCategories, setSelectedCategories] = useState([]);
-    
-    // 임시 태그 목록
-    const mockTags = ["React", "Algorithm", "Next.js"];
+
+    const { 
+        formData, 
+        handleChange, 
+        handleSubmit, 
+        isSubmitting 
+    } = useStudyForm();
+
+
 
     return (
         <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark font-display text-text-light-primary dark:text-text-dark-primary antialiased">
@@ -20,7 +30,10 @@ const StudyCreatePage = () => {
                     <h1 className="text-3xl font-bold tracking-tight mb-6">스터디 생성</h1>
 
                     {/* 폼 영역 */}
-                    <form className="bg-surface-light dark:bg-surface-dark rounded-lg shadow-xl border border-border-light dark:border-border-dark p-6 sm:p-8 space-y-6">
+                    <form 
+                        className="bg-surface-light dark:bg-surface-dark rounded-lg shadow-xl border border-border-light dark:border-border-dark p-6 sm:p-8 space-y-6"
+                        onSubmit={handleSubmit} // 핸들러 연결
+                    >
                         
                         {/* 1. 스터디 제목 */}
                         <div>
@@ -29,9 +42,11 @@ const StudyCreatePage = () => {
                                 <input 
                                     className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary placeholder-text-light-secondary" 
                                     id="study-title" 
-                                    name="study-title" 
+                                    name="title" 
                                     placeholder="ex) 실전! React & Next.js 포트폴리오 스터디"
                                     type="text"
+                                    value={formData.title}
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
@@ -46,33 +61,12 @@ const StudyCreatePage = () => {
                                     <input 
                                         className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary" 
                                         id="max-members" 
-                                        name="max-members" 
+                                        name="maxMembers" 
                                         type="number"
                                         min="2"
-                                        defaultValue="4"
+                                        value={formData.maxMembers}
+                                        onChange={handleChange}
                                     />
-                                </div>
-                            </div>
-                            
-                            {/* 태그 입력 */}
-                            <div>
-                                <label className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary" htmlFor="tags">주요 태그 (최대 5개)</label>
-                                <div className="mt-1">
-                                    <input 
-                                        className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary placeholder-text-light-secondary" 
-                                        id="tags" 
-                                        name="tags" 
-                                        placeholder="React, Next.js, 알고리즘 등"
-                                        type="text"
-                                    />
-                                </div>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {mockTags.map(tag => (
-                                        <span key={tag} className="text-xs font-medium bg-primary/10 text-primary dark:bg-primary/20 dark:text-white px-2 py-1 rounded-full flex items-center">
-                                            {tag}
-                                            <MaterialSymbol name="close" className="ml-1 text-xs cursor-pointer" style={{fontSize: '0.75rem'}} />
-                                        </span>
-                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -82,13 +76,16 @@ const StudyCreatePage = () => {
                             <fieldset>
                                 <legend className="text-base font-medium text-text-light-secondary dark:text-text-dark-secondary">스터디 카테고리</legend>
                                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-4">
-                                    {mockCategories.filter(c => c !== '전체').map(category => ( // '전체'는 제외
+                                    {mockCategories.filter(c => c).map(category => ( 
                                         <div key={category} className="flex items-center">
                                             <input 
                                                 className="h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-background-light dark:bg-background-dark" 
                                                 id={`cat-${category}`} 
                                                 name="category" 
-                                                type="checkbox"
+                                                type="radio"
+                                                value={category}
+                                                checked={formData.category === category}
+                                                onChange={handleChange}
                                             />
                                             <label className="ml-2 block text-sm text-text-light-primary dark:text-text-dark-primary cursor-pointer" htmlFor={`cat-${category}`}>{category}</label>
                                         </div>
@@ -104,9 +101,11 @@ const StudyCreatePage = () => {
                                 <textarea 
                                     className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary placeholder-text-light-secondary" 
                                     id="study-description" 
-                                    name="study-description" 
+                                    name="description" 
                                     placeholder="스터디의 목표, 진행 방식, 기간 등을 자세히 설명해주세요." 
                                     rows="8"
+                                    value={formData.description}
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
