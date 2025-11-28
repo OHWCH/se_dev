@@ -10,6 +10,8 @@ import com.example.gitrajabi.study.erum.JoinStatus;
 import com.example.gitrajabi.study.erum.StudyRole;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
+import com.example.gitrajabi.user_login.domain.user.entity.User;
+import com.example.gitrajabi.user_login.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,8 @@ public class StudyMemberService {
 
     private final StudyRepository studyRepository;
     private final StudyMemberRepository studyMemberRepository;
-    private final com.user.user_login.domain.user.repository.UserRepository userRepository;
+    private final UserRepository userRepository;
+
 
     // 스터디 가입 신청
     public void applyToStudy(Long studyId, Long userId) {
@@ -57,7 +60,7 @@ public class StudyMemberService {
         return applicants.stream()
                 .map(member -> StudyApplicantResponse.builder()
                         .userId(member.getUser().getId())
-                        .nickname(member.getUser().getNickname())
+                        .nickname(member.getUser().getGithubId())
                         .joinStatus(member.getJoinStatus()) // APPLIED
                         .build())
                 .toList();
@@ -109,7 +112,7 @@ public class StudyMemberService {
         return members.stream()
                 .map(m -> StudyMemberResponse.builder()
                         .userId(m.getUser().getId())
-                        .nickname(m.getUser().getNickname())
+                        .nickname(m.getUser().getGithubId())
                         .joinStatus(m.getJoinStatus())
                         .studyRole(m.getStudyRole().name())
                         .build()

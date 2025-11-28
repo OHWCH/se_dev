@@ -11,7 +11,7 @@ import lombok.Getter;
 public class StudyMemberResponse {
 
     private Long userId;
-    private String nickname;
+    private String githubId;
     private JoinStatus joinStatus;
     private String studyRole;
 }
