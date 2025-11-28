@@ -4,10 +4,11 @@ import com.example.gitrajabi.board.domain.Comment;
 import com.example.gitrajabi.board.dto.CommentCreationRequest;
 import com.example.gitrajabi.board.dto.CommentResponse;
 import com.example.gitrajabi.board.service.CommentManagementService;
+import com.example.gitrajabi.user_login.common.security.SecurityUtil; // ⭐️ JWT userId 추출 유틸리티 추가
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+// import org.springframework.security.core.annotation.AuthenticationPrincipal; // ❌ 삭제
+// import org.springframework.security.oauth2.core.user.OAuth2User; // ❌ 삭제
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
@@ -27,12 +28,12 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long postId,
-            // GitHub OAuth로 로그인한 사용자의 정보를 가져옵니다.
-            @AuthenticationPrincipal OAuth2User oauthUser,
+//            @AuthenticationPrincipal OAuth2User oauthUser, // 삭제
             @RequestBody CommentCreationRequest request
     ) {
-        // OAuth2User에서 GitHub ID(Long)를 추출합니다.
-        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
+        // ⭐️ JWT에서 현재 로그인된 사용자의 ID를 가져옵니다.
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+//        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString()); // 삭제
 
         try {
             Comment createdComment = commentManagementService.createComment(postId, currentUserId, request);
@@ -46,10 +47,12 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,
-            @AuthenticationPrincipal OAuth2User oauthUser,
+//            @AuthenticationPrincipal OAuth2User oauthUser, // 삭제
             @PathVariable Long commentId
     ) {
-        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
+        // ⭐️ JWT에서 현재 로그인된 사용자의 ID를 가져옵니다.
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+//        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString()); // 삭제
 
         try {
             commentManagementService.deleteComment(currentUserId, commentId);
