@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 import StudyListItem from '../components/study/StudyListItem';
-import Pagination from '../components/ui/Pagination'; // 커뮤니티 페이지에서 재사용
-import { mockStudies, mockCategories } from '../data/studyData.jsx';
+import { getStudyList } from '../services/studyApi.js';
+import Pagination from '../components/ui/Pagination';
+import { mockCategories } from '../data/studyData.jsx';
 import { Link } from 'react-router-dom';
 
 const StudyListPage = () => {
+    const [studies, setStudies] = useState([]); // 데이터를 저장할 배열
+    const [loading, setLoading] = useState(true); // 로딩 상태
+    const [error, setError] = useState(null); // 에러 메시지
+   
     const [activeCategory, setActiveCategory] = useState('전체');
     const mockPaginationLinks = [
     { label: '1', href: '#', current: true },
@@ -14,7 +19,28 @@ const StudyListPage = () => {
     { label: '3', href: '#', current: false },
     { label: '...', href: '#', current: false, disabled: true },
     { label: '10', href: '#', current: false },
-];
+    ];
+
+    useEffect(() => {
+        const fetchStudies = async () => {
+            setLoading(true); // 로딩 시작
+            try {
+                const fetchedStudies = await getStudyList(); 
+                
+                setStudies(fetchedStudies); 
+                
+                setError(null);
+            } catch (err) {
+                console.error("데이터 패칭 오류:", err);
+                setError("스터디 목록을 불러오는 데 실패했습니다."); 
+                setStudies([]);
+            } finally {
+                setLoading(false); // 로딩 종료
+            }
+        };
+        
+        fetchStudies();
+    }, []); // 훅이 마운트될 때 한 번만 실행
 
 
     return (
@@ -78,8 +104,8 @@ const StudyListPage = () => {
 
                 {/* 스터디 목록 (3열 그리드) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {mockStudies.map(study => (
-                        <StudyListItem key={study.id} study={study} />
+                    {studies.map(studies => (
+                        <StudyListItem key={studies.id} study={studies} />
                     ))}
                 </div>
                 

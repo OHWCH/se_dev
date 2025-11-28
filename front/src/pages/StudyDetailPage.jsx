@@ -4,6 +4,7 @@ import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 import { mockStudyDetail } from '../data/studyData';
 import { Link } from 'react-router-dom';
+import { getStudyDetail, getStudyMember } from '../services/studyApi';
 
 // 컴포넌트 재사용을 위해 내부적으로 정의 (옵션)
 const TaskItem = ({ task }) => (
@@ -31,11 +32,10 @@ const MemberItem = ({ member }) => {
 
 const StudyDetailPage = () => {
     const { id } = useParams(); // 라우팅 파라미터에서 ID를 가져옵니다.
-    //const study = mockStudyDetail[id]; // 임시로 Mock Data 사용
 
-    // 🌟 1. Mock 데이터 배열에서 ID가 일치하는 스터디를 찾습니다.
-    // URL에서 가져온 id는 문자열이므로, 숫자로 변환하여 비교합니다 (parseInt).
-    const foundStudyDetail = mockStudyDetail.find(detail => detail.id === parseInt(id));
+    const foundStudyDetail = mockStudyDetail.find(detail => detail.id === parseInt(id));  //MOCK데이터
+    //const foundStudyDetail = getStudyDetail(id);    //백엔드 연동 시
+    //const foundStudyMembers = getStudyMember(id);   //스터디 멤버 조회 api
 
     // 🌟 2. 해당 ID의 스터디가 없을 경우 처리 (예외 처리)
     if (!foundStudyDetail) {
@@ -88,62 +88,35 @@ const StudyDetailPage = () => {
 
                         {/* 메뉴 링크 (임시) */}
                         <div className="bg-surface-light dark:bg-surface-dark p-2 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-                            <Link to={`/study/${id}`} className="flex items-center p-3 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-700 text-primary dark:text-white transition-colors">
-                                <MaterialSymbol name="dashboard" className="mr-3 text-lg" />
-                                메인 대시보드
-                            </Link>
-                            <Link to={`/study/${id}/tasks`} className="flex items-center p-3 rounded-md text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                <MaterialSymbol name="checklist" className="mr-3 text-lg" />
-                                할 일 목록
-                            </Link>
-                            <Link to={`/study/${id}/docs`} className="flex items-center p-3 rounded-md text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                <MaterialSymbol name="folder" className="mr-3 text-lg" />
-                                문서/자료
-                            </Link>
+                           <h2 className="text-xl font-bold mb-4 text-text-light-primary dark:text-text-dark-primary">구성원 ({foundStudyDetail.members.length}명)</h2>
+                            <div className="space-y-1">
+                                {foundStudyDetail.members.map((member, index) => (
+                                    <MemberItem key={index} member={member} />
+                                ))}
+                                {/*{foundStudyMembers.map((member, index) => (
+                                    <MemberItem key={index} member={member} />
+                                ))  --> api 연동 후 이걸로 대체*/}  
+                                
+                            </div>
                         </div>
                     </div>
                     
                     {/* 우측: 진행 현황 및 구성원 (2/3) */}
                     <div className="lg:col-span-2 space-y-8">
                         
-                        {/* 1. 진행 현황 카드 */}
-                        <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
-                            <h2 className="text-xl font-bold mb-4 text-text-light-primary dark:text-text-dark-primary">진행 현황</h2>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">
-                                    완료 {foundStudyDetail.progress.completedTasks} / {foundStudyDetail.progress.totalTasks}개
-                                </span>
-                                <span className="text-lg font-bold text-primary">{foundStudyDetail.progress.completionRate}%</span>
-                            </div>
-                            {/* 진행률 Bar */}
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                                <div className="bg-primary h-2.5 rounded-full transition-all duration-500" style={{ width: progressBarWidth }}></div>
-                            </div>
-                        </div>
-
                         {/* 2. 다가오는 할 일 카드 */}
-                        <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
-                            <h2 className="text-xl font-bold mb-4 text-text-light-primary dark:text-text-dark-primary">다가오는 할 일</h2>
+                        <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark h-full">
+                            <h2 className="text-xl font-bold mb-4 text-text-light-primary dark:text-text-dark-primary">일정</h2>
                             <div className="divide-y divide-border-light dark:divide-border-dark">
                                 {foundStudyDetail.upcomingTasks.map(task => (
                                     <TaskItem key={task.id} task={task} />
                                 ))}
                             </div>
-                            <div className="mt-4 text-right">
+                            {/*<div className="mt-4 text-right">
                                 <Link to={`/study/${id}/tasks`} className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                                     전체 할 일 목록 보기 &rarr;
                                 </Link>
-                            </div>
-                        </div>
-
-                        {/* 3. 구성원 목록 카드 */}
-                        <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
-                            <h2 className="text-xl font-bold mb-4 text-text-light-primary dark:text-text-dark-primary">구성원 ({foundStudyDetail.members.length}명)</h2>
-                            <div className="space-y-1">
-                                {foundStudyDetail.members.map((member, index) => (
-                                    <MemberItem key={index} member={member} />
-                                ))}
-                            </div>
+                            </div>*/}
                         </div>
                     </div>
                 </div>

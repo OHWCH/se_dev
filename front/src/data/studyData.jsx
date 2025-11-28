@@ -3,7 +3,6 @@ export const mockStudies = [
         id: 1,
         title: "실전! React & Next.js 프로젝트 (모집중)",
         description: "포트폴리오 완성을 목표로 주 2회 화상 스터디를 진행합니다. 초중급 환영합니다.",
-        tags: ["React", "Next.js", "Frontend"],
         members: 5,
         maxMembers: 8,
         status: "open", // 'open' | 'closed'
@@ -13,7 +12,6 @@ export const mockStudies = [
         id: 2,
         title: "알고리즘 코딩 테스트 완벽 대비반",
         description: "매일 한 문제씩 풀고 코드 리뷰 진행합니다. 알고리즘 기본기 다지기.",
-        tags: ["Algorithm", "PS"],
         members: 12,
         maxMembers: 15,
         status: "open",
@@ -23,7 +21,6 @@ export const mockStudies = [
         id: 3,
         title: "CS 지식 면접 대비 스터디 (마감)",
         description: "OS, 네트워크, 자료구조 등 핵심 CS 지식을 정리합니다.",
-        tags: ["CS", "Interview"],
         members: 4,
         maxMembers: 4,
         status: "closed",
@@ -33,7 +30,6 @@ export const mockStudies = [
         id: 4,
         title: "Git & GitHub 마스터",
         description: "Git 고급 사용법, PR 리뷰 문화 익히기 스터디입니다.",
-        tags: ["Git", "GitHub"],
         members: 7,
         maxMembers: 10,
         status: "open",
@@ -43,7 +39,6 @@ export const mockStudies = [
         id: 5,
         title: "실전! React & Next.js 프로젝트 (모집중)",
         description: "포트폴리오 완성을 목표로 주 2회 화상 스터디를 진행합니다. 초중급 환영합니다.",
-        tags: ["React", "Next.js", "Frontend"],
         members: 5,
         maxMembers: 8,
         status: "open", // 'open' | 'closed'
@@ -53,7 +48,6 @@ export const mockStudies = [
         id: 6,
         title: "알고리즘 코딩 테스트 완벽 대비반",
         description: "매일 한 문제씩 풀고 코드 리뷰 진행합니다. 알고리즘 기본기 다지기.",
-        tags: ["Algorithm", "PS"],
         members: 12,
         maxMembers: 15,
         status: "open",
@@ -82,6 +76,8 @@ export const mockStudyDetail = [
         upcomingTasks: [
             { id: 101, title: "Next.js 서버 컴포넌트 이해", dueDate: "2025.04.15" },
             { id: 102, title: "포트폴리오 기능 정의 회의", dueDate: "2025.04.17" },
+             { id: 103, title: "Next.js 서버 컴포넌트 이해", dueDate: "2025.04.15" },
+            { id: 104, title: "포트폴리오 기능 정의 회의", dueDate: "2025.04.17" },
         ]
     },
     {

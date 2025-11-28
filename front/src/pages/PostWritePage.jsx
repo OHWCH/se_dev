@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from '../components/ui/Header';
-import MaterialSymbol from '../components/ui/MaterialSymbol';
+import { createPost } from '../services/postApi';
 
 const PostWritePage = () => {
     return (
