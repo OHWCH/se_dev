@@ -10,6 +10,6 @@ import lombok.Getter;
 @Builder
 public class StudyApplicantResponse {
     private Long userId;
-    private String nickname;
+    private String githubId;
     private JoinStatus joinStatus;
 }
