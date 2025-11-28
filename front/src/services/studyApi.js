@@ -12,7 +12,7 @@ const STUDY_API_URL = '/api/studies'; // 백엔드 스터디 생성 엔드포인
  */
 
 export async function getStudyList() {
-    /*try {
+    try {
         const response = await axios.get(`http://localhost:8080/studies`);
         return response.data;
     } catch (error) {
@@ -29,7 +29,7 @@ export async function getStudyList() {
         } else {
             throw new Error("요청 설정 중 오류 발생.");
         }
-    }*/
+    }
 
         // MOCK 데이터 임시로 
         return mockStudies;
@@ -38,14 +38,14 @@ export async function getStudyList() {
 
 export async function createStudy(studyData) {
     // 백엔드 연동 후
-    /*try {
-        const res = await axios.post(STUDY_API_URL, newStudy);
+    try {
+        const res = await axios.post(`http://localhost:8080/studies`, newStudy);
     } catch (e) {
         consol.log(e.response); 
-    }*/
+    }
     
     // Mock 데이터 처리 (임시)
-    return new Promise(resolve => {
+    /*return new Promise(resolve => {
         setTimeout(() => {
             // 1. 새 스터디 객체 생성
             const newStudy = {  
@@ -61,7 +61,7 @@ export async function createStudy(studyData) {
             // 3. 삽입된 객체 반환
             resolve(newStudy);
         }, 500); // 0.5초 지연
-    });
+    });*/
 }
 
 export async function joinStudy(studyId) {  //가입신청
