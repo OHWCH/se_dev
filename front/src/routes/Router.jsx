@@ -31,7 +31,6 @@ const Router = () => {
                 <Route path="/study/:id" element={<StudyDetailPage />} />
                 <Route path="/study/:id/manage" element={<StudyManagePage />} />
                 <Route path="/challenge" element={<ChallengePage />} />
-                
             </Routes>
         
     );

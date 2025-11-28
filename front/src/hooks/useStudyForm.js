@@ -14,10 +14,10 @@ export function useStudyForm(initialData = {}) {
     const [formData, setFormData] = useState({
         // 기존 초기값(빈값)을 기본으로 설정하되,
         // initialData로 전달된 값이 있으면 그 값을 사용합니다.
-        title: '',
+        studyName: '',
         maxMembers: 4,
-        category: '', 
-        description: '',
+        studyCategory: '', 
+        studyDescription: '',
         ...initialData // 👈 전달받은 초기 데이터로 덮어쓰기
     });
     const [isSubmitting, setIsSubmitting] = useState(false); // 로딩 상태 추가
@@ -28,9 +28,9 @@ export function useStudyForm(initialData = {}) {
         const { name, value, type } = e.target;
         
         // 라디오 버튼 처리
-        if (type === 'radio' && name === 'category') {
+        if (type === 'radio' && name === 'studyCategory') { 
             setFormData(prev => ({ ...prev, [name]: value }));
-        } 
+        }
         // 일반 입력 필드 처리
         else {
             setFormData(prev => ({ ...prev, [name]: value }));
@@ -39,8 +39,8 @@ export function useStudyForm(initialData = {}) {
     
     // 폼 데이터 유효성 검사 (간단한 예시)
     const validate = (data) => {
-        if (!data.title || data.title.length < 5) return '스터디 제목은 5자 이상이어야 합니다.';
-        if (!data.category) return '카테고리를 선택해주세요.';
+        if (!data.studyName || data.studyName.length < 5) return '스터디 제목은 5자 이상이어야 합니다.';
+        if (!data.studyCategory) return '카테고리를 선택해주세요.';
         if (Number(data.maxMembers) < 2) return '최소 인원 수는 2명 이상이어야 합니다.';
         return null; // 유효성 통과
     };
@@ -93,10 +93,10 @@ export function patchStudyForm(initialData = {}) {
     const [formData, setFormData] = useState({
         // 기존 초기값(빈값)을 기본으로 설정하되,
         // initialData로 전달된 값이 있으면 그 값을 사용합니다.
-        title: '',
+        studyName: '',
         maxMembers: 4,
-        category: '', 
-        description: '',
+        studyCategory: '', 
+        studyDescription: '',
         ...initialData // 👈 전달받은 초기 데이터로 덮어쓰기
     });
     const [isSubmitting, setIsSubmitting] = useState(false); // 로딩 상태 추가
