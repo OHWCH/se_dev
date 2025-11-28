@@ -1,13 +1,10 @@
-package com.example.gitrajabi.user_login.domain.user.service;
+package com.user.user_login.domain.user.service;
 
-
-import com.example.gitrajabi.user_login.common.security.JwtTokenProvider;
-import com.example.gitrajabi.user_login.common.security.Role;
-import com.example.gitrajabi.user_login.domain.user.dto.AuthTokens;
-import com.example.gitrajabi.user_login.domain.user.dto.GithubAuthDto;
-import com.example.gitrajabi.user_login.domain.user.dto.GithubProfileDto;
-import com.example.gitrajabi.user_login.domain.user.entity.UserEntity;
-import com.example.gitrajabi.user_login.domain.user.repository.UserRepository;
+import com.user.user_login.common.security.JwtTokenProvider;
+import com.user.user_login.common.security.Role;
+import com.user.user_login.domain.user.dto.*;
+import com.user.user_login.domain.user.entity.UserEntity;
+import com.user.user_login.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

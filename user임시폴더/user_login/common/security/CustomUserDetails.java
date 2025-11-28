@@ -1,7 +1,6 @@
-package com.example.gitrajabi.user_login.common.security;
+package com.user.user_login.common.security;
 
-
-import com.example.gitrajabi.user_login.domain.user.entity.UserEntity;
+import com.user.user_login.domain.user.entity.UserEntity;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
