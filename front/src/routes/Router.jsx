@@ -9,6 +9,7 @@ import StudyCreatePage from '../pages/StudyCreatePage';
 import StudyDetailPage from "../pages/StudyDetailPage";
 import StudyManagePage from "../pages/StudyManagePage";
 import ChallengePage from "../pages/ChallengePage";
+import LoginPage from '../pages/LoginPage';
 
 
 const Router = () => {
@@ -25,6 +26,7 @@ const Router = () => {
             
                 <Route path="/study/:id/manage" element={<StudyManagePage />} />
                 <Route path="/challenge" element={<ChallengePage />} />
+                <Route path="login" element={<LoginPage />} />
             
             </Routes>
         
