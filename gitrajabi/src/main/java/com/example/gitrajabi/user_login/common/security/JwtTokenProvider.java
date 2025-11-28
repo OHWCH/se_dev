@@ -1,4 +1,4 @@
-package com.user.user_login.common.security;
+package com.example.gitrajabi.user_login.common.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

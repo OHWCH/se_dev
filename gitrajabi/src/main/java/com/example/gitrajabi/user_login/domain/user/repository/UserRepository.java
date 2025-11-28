@@ -1,6 +1,7 @@
-package com.user.user_login.domain.user.repository;
+package com.example.gitrajabi.user_login.domain.user.repository;
 
-import com.user.user_login.domain.user.entity.UserEntity;
+
+import com.example.gitrajabi.user_login.domain.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

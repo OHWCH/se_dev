@@ -1,7 +1,8 @@
-package com.user.user_login.domain.user.dto;
+package com.example.gitrajabi.user_login.domain.user.dto;
 
-import com.user.user_login.common.security.Role;
-import com.user.user_login.domain.user.entity.UserEntity;
+
+import com.example.gitrajabi.user_login.common.security.Role;
+import com.example.gitrajabi.user_login.domain.user.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 

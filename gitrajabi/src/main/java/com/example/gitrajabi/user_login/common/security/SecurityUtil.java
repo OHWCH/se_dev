@@ -1,4 +1,4 @@
-package com.user.user_login.common.security;
+package com.example.gitrajabi.user_login.common.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

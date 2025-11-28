@@ -1,4 +1,4 @@
-package com.user.user_login.common.security;
+package com.example.gitrajabi.user_login.common.security;
 
 import jakarta.servlet.http.*;
 import lombok.extern.slf4j.Slf4j;
