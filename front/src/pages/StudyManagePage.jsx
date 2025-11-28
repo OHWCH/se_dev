@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { patchStudyForm } from '../hooks/useStudyForm';
 import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 import { mockStudyDetail, mockApplications, mockCategories } from '../data/studyData';
 import { Link } from 'react-router-dom';
+import { getStudyDetail, getStudyMember, approveApplicant, rejectApplicant, deleteMember } from '../services/studyApi';
 
 // ---------------------------------------------------------------------
 // 탭 컴포넌트 1: 스터디 정보 수정 폼
 // ---------------------------------------------------------------------
 const StudyInfoTab = ({ study }) => {
     // 이전 스터디 생성 페이지의 폼을 재활용합니다.
-    const mockTags = ["React", "Next.js", "Frontend"]; 
+    const mockTags = ["React", "Next.js", "Frontend"];
+    const { 
+            formData, 
+            handleChange, 
+            handleSubmit, 
+            isSubmitting 
+        } = patchStudyForm(study); 
 
     return (
-        <form className="space-y-6 mt-6">
+        <form 
+            className="space-y-6 mt-6"
+            onSubmit={handleSubmit}
+        >
             
             {/* 1. 스터디 제목 */}
             <div>
@@ -22,9 +33,10 @@ const StudyInfoTab = ({ study }) => {
                     <input 
                         className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary" 
                         id="study-title" 
-                        name="study-title" 
-                        defaultValue={study.title}
+                        name="title" 
                         type="text"
+                        value={formData.title}
+                        onChange={handleChange}
                     />
                 </div>
             </div>
@@ -43,8 +55,9 @@ const StudyInfoTab = ({ study }) => {
                                     className="h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-background-light dark:bg-background-dark" 
                                     id={`cat-${category}`} 
                                     name="category" 
-                                    type="checkbox"
-                                    defaultChecked={category === study.category} // 현재 카테고리 체크
+                                    type="radio"
+                                    value={formData.category}
+                                    onChange={handleChange}
                                 />
                                 <label className="ml-2 block text-sm text-text-light-primary dark:text-text-dark-primary cursor-pointer" htmlFor={`cat-${category}`}>{category}</label>
                             </div>
@@ -60,9 +73,10 @@ const StudyInfoTab = ({ study }) => {
                     <textarea 
                         className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary" 
                         id="study-description" 
-                        name="study-description" 
-                        defaultValue={study.description}
+                        name="description" 
                         rows="8"
+                        value={formData.description}
+                        onChange={handleChange}
                     />
                 </div>
             </div>
@@ -103,7 +117,7 @@ const MemberManageTab = ({ members, studyId }) => {
                         
                         {/* 리더가 아닐 때만 추방 버튼 표시 */}
                         {!isLeader && (
-                            <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                            <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" onClick={() => deleteMember(studyId, member.name)}>
                                 추방
                             </button>
                         )}
@@ -117,7 +131,7 @@ const MemberManageTab = ({ members, studyId }) => {
 // ---------------------------------------------------------------------
 // 탭 컴포넌트 3: 참여 신청 관리
 // ---------------------------------------------------------------------
-const ApplicationManageTab = ({ applications }) => {
+const ApplicationManageTab = ({ applications, studyId }) => {
     return (
         <div className="space-y-4 mt-6">
             {applications.length === 0 ? (
@@ -136,8 +150,8 @@ const ApplicationManageTab = ({ applications }) => {
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     {/* 수락/거절 버튼 */}
-                                    <button className="px-2.5 py-1 text-xs font-semibold text-primary border border-primary rounded-md hover:bg-primary/10 transition-colors" type="button">수락</button>
-                                    <button className="px-2.5 py-1 text-xs font-semibold text-text-light-secondary dark:text-text-dark-secondary border border-border-light dark:border-border-dark rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" type="button">거절</button>
+                                    <button className="px-2.5 py-1 text-xs font-semibold text-primary border border-primary rounded-md hover:bg-primary/10 transition-colors" type="button" onClick={() => approveApplicant(studyId, app.id)}>수락</button>
+                                    <button className="px-2.5 py-1 text-xs font-semibold text-text-light-secondary dark:text-text-dark-secondary border border-border-light dark:border-border-dark rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" type="button" onClick={() => rejectApplicant(studyId, app.id)}>거절</button>
                                 </div>
                             </div>
                         </li>
@@ -154,6 +168,8 @@ const ApplicationManageTab = ({ applications }) => {
 const StudyManagePage = () => {
     const { id } = useParams();
     const foundStudyDetail = mockStudyDetail.find(detail => detail.id === parseInt(id));
+    //const foundStudyDetail = getStudyDetail(id);
+    //const foundStudyMembers = getStudyMember(id);
     
         // 🌟 2. 해당 ID의 스터디가 없을 경우 처리 (예외 처리)
         if (!foundStudyDetail) {
@@ -169,7 +185,9 @@ const StudyManagePage = () => {
     const tabs = [
         { name: '스터디 정보 수정', component: <StudyInfoTab study={foundStudyDetail} /> },
         { name: '구성원 관리', component: <MemberManageTab members={foundStudyDetail.members} studyId={id} /> },
-        { name: '참여 신청 관리', component: <ApplicationManageTab applications={mockApplications} /> },
+        //{ name: '구성원 관리', component: <MemberManageTab members={foundStudyMembers} studyId={id} /> },     백엔드 연동시 교체
+        { name: '참여 신청 관리', component: <ApplicationManageTab applications={mockApplications} studyId={id}/> },
+        //{ name: '참여 신청 관리', component: <ApplicationManageTab applications={foundStudyDetail.applicants} studyId={id} /> },   //백엔드 연동 시 이걸로 교체
     ];
     
     // 기본 탭을 '스터디 정보 수정'으로 설정
