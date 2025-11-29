@@ -18,10 +18,10 @@ const StudyListItem = ({ study }) => {
         <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-sm border border-border-light dark:border-border-dark flex flex-col justify-between transition-shadow hover:shadow-md">
             <div className="flex-grow">
                 <Link 
-                    to={`/study/${study.id}`} 
+                    to={`/study/${study.studyId}`} 
                     className="flex justify-between items-start mb-3 cursor-pointer hover:opacity-80 transition-opacity" 
                 >
-                    <h3 className="text-lg font-bold text-text-light-primary dark:text-text-dark-primary">{study.title}</h3>
+                    <h3 className="text-lg font-bold text-text-light-primary dark:text-text-dark-primary">{study.name}</h3>
                 </Link>
 
                 <p className="text-text-light-secondary dark:text-text-dark-secondary text-sm mb-4 line-clamp-2">{study.description}</p>
@@ -32,7 +32,7 @@ const StudyListItem = ({ study }) => {
                 {/* 인원수 표시 */}
                 <div className="flex items-center text-text-light-secondary dark:text-text-dark-secondary text-sm">
                     <MaterialSymbol name="group" className="mr-1 text-base" style={{ fontSize: '1rem' }} />
-                    {study.members} / {study.maxMembers} 명
+                    {study.currentMembers} / {study.maxMembers} 명
                 </div>
                 
                 {/* 참여/마감 버튼 */}
@@ -43,7 +43,7 @@ const StudyListItem = ({ study }) => {
                         if (isClosed) return;
 
                         try {
-                            await joinStudy(study.id);   // API 호출
+                            await joinStudy(study.studyId);   // API 호출
                             navigate('/study/${study.id}');        // 성공하면 페이지 이동
                         } catch (error) {
                             console.error("스터디 가입 실패:", error);

@@ -41,11 +41,8 @@ export async function createStudy(studyData) {
     try {
         const res = await axios.post(`http://localhost:8080/studies`, studyData);
     } catch (e) {
-<<<<<<< HEAD
-        console.log(e.response); 
-=======
         console.log(e.response);
->>>>>>> 5d22b08be717990b6d943a53cb068ca0ebc2dda6
+
     }
     
     // Mock 데이터 처리 (임시)
@@ -66,6 +63,10 @@ export async function createStudy(studyData) {
             resolve(newStudy);
         }, 500); // 0.5초 지연
     });*/
+}
+
+export async function deleteStudy(studyId) {
+    //스터디 삭제 미구현
 }
 
 export async function joinStudy(studyId) {  //가입신청
@@ -106,13 +107,12 @@ export async function getStudyMember(studyId) { //스터디 멤버조회
     }
 }
 
-export async function putStudyDetail(studyId, studyData) { //스터디 상세정보
-    /*try {
-        const res = await axios.put(`http://localhost:8080/studies/${studyId}`, newStudy);
+export async function putStudyDetail(studyId, studyData) { //스터디 상세정보 수정
+    try {
+        const res = await axios.put(`http://localhost:8080/studies/${studyId}`, studyData);
     } catch (e) {
-        consol.log(e.res); 
-    }*/
-   console.log('수정완료');
+        console.log(e.res); 
+    }
 }
 
 export async function approveApplicant(studyId, applicantionId) {
@@ -153,5 +153,32 @@ export async function getMyStudy() {
         return response.data;
     } catch (e) {
         console.log(e.response);
+    }
+}
+
+export async function getStudySchedule(studyId) {
+    try {
+        const response = await axios.get(`http://localhost:8080/studies/${studyId}/schedules`)
+        return response.data;
+    } catch (e) {
+        console.log(e.response)
+    }
+}
+
+export async function createStudySchedule(studyId, scheduleData) {
+    try {
+        const res = await axios.post(
+            `http://localhost:8080/studies/${studyId}/schedules`,
+            scheduleData,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            }
+        );
+        return res.data;
+    } catch (e) {
+        console.error("일정 생성 실패:", e.response ? e.response.data : e);
+        throw new Error("일정 생성에 실패했습니다.");
     }
 }
