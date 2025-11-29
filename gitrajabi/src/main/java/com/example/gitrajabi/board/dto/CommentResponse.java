@@ -10,7 +10,7 @@ public record CommentResponse(
         Long postId,
         String content,
         Long userId, // 작성자 ID
-        //String nickname, // TODO: User 엔티티 연동 시 추가
+        // String userName, // ❌ 제거: 주석 처리된 부분 포함
         LocalDateTime createdAt
 ) {
     public static CommentResponse from(Comment comment) {
@@ -19,7 +19,7 @@ public record CommentResponse(
                 comment.getPostId(),
                 comment.getContent(),
                 comment.getUserId(),
-                 // TODO: User 엔티티 연동 시 수정
+                // "임시 사용자 이름", // ❌ 제거: 임시 사용자 이름 필드 제거
                 comment.getCreatedAt()
         );
     }

@@ -1,5 +1,6 @@
 package com.example.gitrajabi.board.domain;
 
+import com.example.gitrajabi.user_login.domain.user.entity.User; // 🌟 UserEntity 임포트
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,13 +24,19 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
 
-    // TODO: Post 엔티티와의 연관 관계 매핑
-    // private Long postId; // 기존 Long 필드를 연관 관계로 대체
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id") // DB 컬럼 이름 설정
-    private Post post;
-
+    // private Long postId; // 기존 필드 유지 (FK로 사용)
+    private Long postId;
+    // private Long userId; // 기존 필드 유지 (FK로 사용)
     private Long userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", insertable = false, updatable = false)
+    private Post post; // 🌟 추가: 게시글 엔티티 매핑
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User author; // 🌟 추가: 작성자 엔티티 매핑
+
     private String content;
 
     @CreatedDate
@@ -38,14 +45,8 @@ public class Comment {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    /**
-     * Comment 생성자.
-     * @param post 댓글이 달릴 게시글 엔티티
-     * @param userId 댓글 작성자의 GitHub ID
-     * @param content 댓글 내용
-     */
-    public Comment(Post post, Long userId, String content) {
-        this.post = post;
+    public Comment(Long postId, Long userId, String content) {
+        this.postId = postId;
         this.userId = userId;
         this.content = content;
         this.deletedAt = null;
