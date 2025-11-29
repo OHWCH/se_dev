@@ -2,86 +2,72 @@ package com.example.gitrajabi.IssueManagement.service;
 
 import com.example.gitrajabi.IssueManagement.client.GithubApiClient;
 import com.example.gitrajabi.IssueManagement.domain.Badge;
-import com.example.gitrajabi.IssueManagement.domain.UserBaseline;
 import com.example.gitrajabi.IssueManagement.dto.ContributionStatsDto;
 import com.example.gitrajabi.IssueManagement.dto.MyContributionResponseDto;
 import com.example.gitrajabi.IssueManagement.dto.GraphQLResponseDto;
-import com.example.gitrajabi.IssueManagement.repository.UserBaselineRepository;
+import com.example.gitrajabi.test_user.User;
+import com.example.gitrajabi.test_user.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class ContributionService {
 
     private final GithubApiClient githubApiClient;
-    private final UserBaselineRepository userBaselineRepository;
+    private final UserRepository userRepository; // UserBaselineRepository 대신 사용
     private final ChallengeService challengeService;
 
     public ContributionService(GithubApiClient githubApiClient,
-                               UserBaselineRepository userBaselineRepository,
+                               UserRepository userRepository,
                                ChallengeService challengeService) {
         this.githubApiClient = githubApiClient;
-        this.userBaselineRepository = userBaselineRepository;
+        this.userRepository = userRepository;
         this.challengeService = challengeService;
     }
 
     /**
-     * (기능 28 - 초기화) 회원가입 시점에 딱 한 번 호출됩니다.
-     * 현재 GitHub의 횟수를 가져와 DB에 'Baseline'으로 저장합니다.
+     * [핵심 로직 변경]
+     * 1. GitHub API에서 최신 데이터 조회
+     * 2. 조회된 값으로 User 테이블 업데이트 (DB 동기화)
+     * 3. 총 활동량을 기준으로 점수 및 뱃지 계산
      */
-    public Mono<UserBaseline> initializeBaseline(Long userId, String githubUsername) {
+    @Transactional
+    public Mono<MyContributionResponseDto> getMyContribution(Long userId, String githubUsername) {
+        // 1. GitHub API 호출 (비동기)
         return githubApiClient.fetchContributionData(githubUsername)
                 .map(this::transformToStats)
-                .map(stats -> UserBaseline.builder()
-                        .userId(userId)
-                        .CommitCount(stats.commitCount())
-                        .PrCount(stats.prCount())
-                        .IssueCount(stats.issueCount())
-                        .build())
-                .map(userBaselineRepository::save);
-    }
-
-    /**
-     * (기능 28, 29 - 조회) 마이페이지 조회 시 호출됩니다.
-     * (Current - Baseline) 공식을 사용하여 순수 활동량을 계산합니다.
-     */
-    public Mono<MyContributionResponseDto> getMyContribution(Long userId, String githubUsername) {
-
-        // 1. DB에서 가입 시점의 Baseline 데이터를 조회 (Blocking I/O 처리)
-        Mono<UserBaseline> baselineMono = Mono.fromCallable(
-                () -> userBaselineRepository.findById(userId)
-                        // Baseline이 없으면 0으로 가정 (예외 방지)
-                        .orElse(UserBaseline.builder().userId(userId).build())
-        ).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
-
-        // 2. GitHub API에서 현재(Current) 데이터를 조회
-        Mono<ContributionStatsDto> currentStatsMono = githubApiClient.fetchContributionData(githubUsername)
-                .map(this::transformToStats);
-
-        // 3. 두 데이터를 결합하여 계산
-        return Mono.zip(currentStatsMono, baselineMono)
-                .map(tuple -> {
-                    ContributionStatsDto currentStats = tuple.getT1(); // 현재값 (Current)
-                    UserBaseline baseline = tuple.getT2();           // 초기값 (Baseline)
-
-                    // [핵심 로직] 순수 증가분 계산 (Current - Baseline)
-                    int displayCommits = Math.max(0, currentStats.commitCount() - baseline.getCommitCount());
-                    int displayPrs = Math.max(0, currentStats.prCount() - baseline.getPrCount());
-                    int displayIssues = Math.max(0, currentStats.issueCount() - baseline.getIssueCount());
-
-                    // 결과 DTO 생성
-                    ContributionStatsDto displayStats = new ContributionStatsDto(displayCommits, displayPrs, displayIssues);
-
-                    // 4. 계산된 '순수 증가분'으로 점수 및 뱃지 산정
-                    int score = calculateScore(displayStats);
+                .flatMap(stats -> {
+                    // 2. DB 업데이트 (Blocking I/O 처리)
+                    return Mono.fromCallable(() -> {
+                        updateUserStatsInDb(userId, stats);
+                        return stats;
+                    }).subscribeOn(Schedulers.boundedElastic());
+                })
+                .map(stats -> {
+                    // 3. 점수 및 뱃지 계산 (Baseline 차감 로직 삭제됨)
+                    int score = calculateScore(stats);
                     Badge badge = calculateBadge(score);
 
-                    // (도전과제 체크도 이 '순수 증가분'을 기준으로 할지, '전체'로 할지 결정 필요)
-                    // 여기서는 '순수 증가분'을 기준으로 도전과제를 체크하도록 전달합니다.
-                    challengeService.updateChallengeStatus(userId, displayStats);
+                    // 4. 도전과제 업데이트
+                    challengeService.updateChallengeStatus(userId, stats);
 
-                    return new MyContributionResponseDto(displayStats, badge);
+                    return new MyContributionResponseDto(stats, badge);
                 });
+    }
+
+    // [Helper] DB의 User 정보를 최신 횟수로 업데이트
+    private void updateUserStatsInDb(Long userId, ContributionStatsDto stats) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다. id=" + userId));
+
+        // Lombok @Setter를 사용하여 값 갱신
+        user.setCommitCount(stats.commitCount());
+        user.setPrCount(stats.prCount());
+        user.setIssueCount(stats.issueCount());
+
+        userRepository.save(user);
     }
 
     private ContributionStatsDto transformToStats(GraphQLResponseDto response) {
