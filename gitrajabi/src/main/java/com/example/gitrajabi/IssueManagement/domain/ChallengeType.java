@@ -5,23 +5,27 @@ package com.example.gitrajabi.IssueManagement.domain;
  */
 public enum ChallengeType {
     // 커밋 관련
-    COMMIT_1("커밋 1회 완료"),
-    COMMIT_5("커밋 5회 완료"),
-    COMMIT_10("커밋 10회 완료"),
+    COMMIT_1("커밋 100회 완료"),
+    COMMIT_5("커밋 300회 완료"),
+    COMMIT_10("커밋 500회 완료"),
 
     // PR 관련
-    PR_1("PR 1회 완료"),
-    PR_5("PR 5회 완료"),
-    PR_10("PR 10회 완료"),
+    PR_1("PR 10회 완료"),
+    PR_5("PR 30회 완료"),
+    PR_10("PR 50회 완료"),
 
     // 이슈 관련
-    ISSUE_1("이슈 1회 등록"),
-    ISSUE_5("이슈 5회 등록"),
-    ISSUE_10("이슈 10회 등록");
+    ISSUE_1("이슈 5회 등록"),
+    ISSUE_5("이슈 30회 등록"),
+    ISSUE_10("이슈 500회 등록");
 
     private final String title;
 
     ChallengeType(String title) {
         this.title = title;
+    }
+
+    public String getTitle() {
+        return this.title;
     }
 }
