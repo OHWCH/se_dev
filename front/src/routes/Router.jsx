@@ -11,6 +11,7 @@ import StudyDetailPage from "../pages/StudyDetailPage";
 import StudyManagePage from "../pages/StudyManagePage";
 import ChallengePage from "../pages/ChallengePage";
 import LoginPage from '../pages/LoginPage';
+import LoginTestPage from '../pages/LoginTestPage';
 
 
 const Router = () => {
@@ -19,6 +20,7 @@ const Router = () => {
                 {/* 1. 보호되지 않는 경로: 로그인 페이지는 로그인 여부와 상관없이 접근 가능 */}
                 <Route path="/" element={<Homepage />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/logintest" element={<LoginTestPage />} />
                 {/* 2. 보호된 경로 그룹 설정 */}
                 {/* ProtectedRoute를 부모 엘리먼트로 설정합니다. */}
                 
