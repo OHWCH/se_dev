@@ -44,7 +44,6 @@ public class TodoService {
     public void toggleTodo(Long userId, Long todoId) {
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 할 일입니다."));
-        todo.toggle();
 
         // 소유자 확인
         if (!todo.getUserId().equals(userId)){
