@@ -12,6 +12,7 @@ import StudyManagePage from "../pages/StudyManagePage";
 import ChallengePage from "../pages/ChallengePage";
 import LoginPage from '../pages/LoginPage';
 import LoginTestPage from '../pages/LoginTestPage';
+import CallbackPage from '../pages/CallBackPage';
 
 
 const Router = () => {
@@ -21,6 +22,7 @@ const Router = () => {
                 <Route path="/" element={<Homepage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/logintest" element={<LoginTestPage />} />
+                <Route path="/callback" element={<CallbackPage />} />
                 {/* 2. 보호된 경로 그룹 설정 */}
                 {/* ProtectedRoute를 부모 엘리먼트로 설정합니다. */}
                 

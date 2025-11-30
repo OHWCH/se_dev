@@ -14,6 +14,7 @@ const STUDY_API_URL = '/api/studies'; // 백엔드 스터디 생성 엔드포인
 export async function getStudyList() {
     try {
         const response = await axios.get(`http://localhost:8080/studies`);
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error("스터디 목록 조회 실패:", error);
@@ -30,39 +31,32 @@ export async function getStudyList() {
             throw new Error("요청 설정 중 오류 발생.");
         }
     }
-
-        // MOCK 데이터 임시로 
-        return mockStudies;
 }
 
 
 export async function createStudy(studyData) {
-    // 백엔드 연동 후
-    try {
-        const res = await axios.post(`http://localhost:8080/studies`, studyData);
-    } catch (e) {
-        console.log(e.response);
+    // 🌟 이 부분을 수정합니다 🌟
+    const token = localStorage.getItem("accessToken");
 
+    if (!token) {
+        console.error("스터디 생성 실패: Access Token이 없습니다. 로그인 상태를 확인하세요.");
+        throw new Error("인증 토큰이 누락되었습니다.");
     }
-    
-    // Mock 데이터 처리 (임시)
-    /*return new Promise(resolve => {
-        setTimeout(() => {
-            // 1. 새 스터디 객체 생성
-            const newStudy = {  
-                ...studyData
-            };
-            
-            // 2. 🎯 mockStudyList 배열에 새 객체 삽입 (핵심)
-            mockStudies.push(newStudy); 
-            
-            console.log("Mock API: 새 스터디가 데이터 목록에 삽입되었습니다.", newStudy);
-            console.log("현재 총 스터디 개수:", mockStudies.length);
-            
-            // 3. 삽입된 객체 반환
-            resolve(newStudy);
-        }, 500); // 0.5초 지연
-    });*/
+
+    try {
+        const res = await axios.post(`http://localhost:8080/studies`, studyData, {
+            headers: {
+                // 🌟 Authorization 헤더에 토큰을 "Bearer " 형식으로 추가
+                Authorization: `Bearer ${token}` 
+            }
+        });
+        return res.data; // 성공 시 응답 데이터 반환
+
+    } catch (e) {
+        console.error("스터디 생성 실패:", e.response);
+        // 400 Bad Request의 상세 원인을 콘솔에서 확인 가능합니다.
+        throw e; // 오류 재발생
+    }
 }
 
 export async function deleteStudy(studyId) {
@@ -109,7 +103,11 @@ export async function getStudyMember(studyId) { //스터디 멤버조회
 
 export async function putStudyDetail(studyId, studyData) { //스터디 상세정보 수정
     try {
-        const res = await axios.put(`http://localhost:8080/studies/${studyId}`, studyData);
+        const res = await axios.put(`http://localhost:8080/studies/${studyId}`, studyData, {
+            headers: {
+                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            }
+        });
     } catch (e) {
         console.log(e.res); 
     }

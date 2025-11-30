@@ -11,7 +11,7 @@ const CallbackPage = () => {
         const accessToken = searchParams.get('accessToken'); 
 
         if (accessToken) {
-            console.log('Access Token 수신 완료:', accessToken.substring(0, 10) + '...');
+            console.log('Access Token 수신 완료:', accessToken);
             
             // 2. localStorage에 토큰 저장 (Study API에서 사용됨)
             localStorage.setItem('accessToken', accessToken);
