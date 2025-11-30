@@ -37,9 +37,10 @@ public class IssueController {
      */
     @GetMapping("/good-first")
     public Mono<List<GithubIssueDto>> getGoodFirstIssues(
-            @RequestParam(defaultValue = "") String keyword
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page
     ) {
         // 줄바꿈을 통해 인자 구분을 명확하게 합니다. (가독성 원칙 준수)
-        return issueService.searchGoodFirstIssues(keyword);
+        return issueService.searchGoodFirstIssues(keyword, page);
     }
 }
