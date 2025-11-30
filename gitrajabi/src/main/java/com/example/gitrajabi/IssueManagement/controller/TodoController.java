@@ -3,6 +3,7 @@ package com.example.gitrajabi.IssueManagement.controller;
 import com.example.gitrajabi.IssueManagement.dto.TodoRequestDto;
 import com.example.gitrajabi.IssueManagement.dto.TodoResponseDto;
 import com.example.gitrajabi.IssueManagement.service.TodoService;
+import com.example.gitrajabi.IssueManagement.dto.TodoBatchDeleteRequestDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -51,11 +52,12 @@ public class TodoController {
     }
 
     /**
-     * 할 일 삭제
-     * DELETE /api/todos/{todoId}
+     * [변경] 할 일 일괄 삭제 (Batch Delete)
+     * POST /api/todos/batch-delete
+     * Body: { "todoIds": [1, 3, 5] }
      */
-    @DeleteMapping("/{todoId}")
-    public void deleteTodo(@PathVariable Long todoId) {
-        todoService.deleteTodo(todoId);
+    @PostMapping("/batch-delete")
+    public void deleteTodos(@RequestBody TodoBatchDeleteRequestDto request) {
+        todoService.deleteTodos(request.todoIds());
     }
 }

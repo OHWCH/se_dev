@@ -9,6 +9,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class TodoService {
@@ -45,8 +47,9 @@ public class TodoService {
         // @Transactional 덕분에 save 호출 없어도 자동 업데이트됨
     }
 
-    // 4. 삭제
-    public void deleteTodo(Long todoId) {
-        todoRepository.deleteById(todoId);
+    // 4. 일괄 삭제 기능
+    public void deleteTodos(List<Long> todoIds) {
+        // JPA 기본 메소드: 리스트에 들어있는 ID들을 찾아서 한 번에 지워줍니다.
+        todoRepository.deleteAllById(todoIds);
     }
 }

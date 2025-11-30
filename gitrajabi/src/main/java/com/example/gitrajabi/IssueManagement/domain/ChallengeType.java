@@ -17,7 +17,7 @@ public enum ChallengeType {
     // 이슈 관련
     ISSUE_1("이슈 5회 등록"),
     ISSUE_5("이슈 30회 등록"),
-    ISSUE_10("이슈 500회 등록");
+    ISSUE_10("이슈 50회 등록");
 
     private final String title;
 
