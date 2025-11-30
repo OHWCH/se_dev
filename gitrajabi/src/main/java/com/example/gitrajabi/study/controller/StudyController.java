@@ -25,8 +25,19 @@ public class StudyController {
         Long studyId = studyService.createStudy(request, testUserId);
         return ResponseEntity.ok(new MessageResponse("스터디 생성 완료. id = " + studyId));
     }
-
     // 스터디 리스트 반환
+    @GetMapping
+    public ResponseEntity<List<StudyListResponse>> getStudyList() {
+
+        Long testUserId = 1L;
+
+        List<StudyListResponse> list = studyService.getStudyList(testUserId);
+
+        return ResponseEntity.ok(list);
+    }
+
+
+    // 내 스터디 리스트 반환
     @GetMapping("/me")
     public ResponseEntity<List<StudyListResponse>> getMyStudyList() {
 
