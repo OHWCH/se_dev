@@ -58,7 +58,7 @@ public class ChallengeDataLoader implements CommandLineRunner {
 
             case ISSUE_1 -> 5;
             case ISSUE_5 -> 30;
-            case ISSUE_10 -> 500;
+            case ISSUE_10 -> 50;
         };
     }
 

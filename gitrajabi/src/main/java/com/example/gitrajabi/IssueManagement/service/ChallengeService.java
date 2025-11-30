@@ -128,7 +128,5 @@ public class ChallengeService {
 
         userChallenge.complete(); // 완료 상태 및 시간 설정
         userChallengeRepository.save(userChallenge);
-
-        // TODO: "축하합니다! 도전과제 달성" 알림 전송 로직을 여기에 추가 가능
     }
 }
