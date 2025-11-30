@@ -3,16 +3,19 @@ package com.example.gitrajabi.user.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.*;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.example.gitrajabi.user.domain.service.AuthService;
-import com.example.gitrajabi.user.domain.service.UserService;
+
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableMethodSecurity
@@ -24,10 +27,22 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler accessDeniedHandler;
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("http://localhost:5173"); // React 개발 서버
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,11 +60,40 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()   // 로그인/회원가입은 모두 허용
-                        .requestMatchers("/api/github/**").permitAll() // OAuth 콜백 허용
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // ADMIN만 접근
-                        .requestMatchers("/studies/**").permitAll() // 테스트 용
-                        .anyRequest().authenticated()  // 그 외 모든 요청은 인증 필요
+                        // --- 🔥 정적 리소스 허용 ---
+                        .requestMatchers(
+                                "/",
+                                "/favicon.ico",
+                                "/error",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/static/**"
+                        ).permitAll()
+
+                        // --- 🔥 OAuth2 로그인 경로 허용 ---
+                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
+
+                        // --- 🔥 Swagger 허용(선택) ---
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
+
+                        // --- 🔥 기존 허용 경로 ---
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/github/**").permitAll()
+                        .requestMatchers("/studies/**").permitAll()
+
+                        // --- OPTIONS 프리플라이트 허용 ---
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // --- ADMIN ---
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // --- 나머지는 인증 필요 ---
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
