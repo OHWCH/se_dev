@@ -2,6 +2,7 @@ package com.example.gitrajabi.IssueManagement.controller;
 
 import com.example.gitrajabi.IssueManagement.dto.ChallengeResponseDto;
 import com.example.gitrajabi.IssueManagement.service.ChallengeService;
+import com.example.gitrajabi.user.security.SecurityUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,7 +14,6 @@ import java.util.List;
 public class ChallengeController {
 
     private final ChallengeService challengeService;
-    private final Long devUserId = 1L; // 테스트용 고정 ID
 
     public ChallengeController(ChallengeService challengeService) {
         this.challengeService = challengeService;
@@ -25,6 +25,9 @@ public class ChallengeController {
      */
     @GetMapping
     public List<ChallengeResponseDto> getAllChallenges() {
-        return challengeService.getChallengeList(devUserId);
+        Long userId = SecurityUtil.getCurrentUserId();
+        if (userId == null) throw new IllegalStateException("로그인이 필요합니다.");
+
+        return challengeService.getChallengeList(userId);
     }
 }

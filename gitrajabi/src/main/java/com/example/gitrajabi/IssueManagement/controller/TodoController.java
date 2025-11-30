@@ -4,6 +4,7 @@ import com.example.gitrajabi.IssueManagement.dto.TodoRequestDto;
 import com.example.gitrajabi.IssueManagement.dto.TodoResponseDto;
 import com.example.gitrajabi.IssueManagement.service.TodoService;
 import com.example.gitrajabi.IssueManagement.dto.TodoBatchDeleteRequestDto;
+import com.example.gitrajabi.user.security.SecurityUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 public class TodoController {
 
     private final TodoService todoService;
-    private final Long devUserId = 1L; // 테스트용 고정 ID
 
     public TodoController(TodoService todoService) {
         this.todoService = todoService;
@@ -27,7 +27,10 @@ public class TodoController {
      */
     @PostMapping
     public TodoResponseDto createTodo(@RequestBody TodoRequestDto request) {
-        return todoService.createTodo(devUserId, request);
+        Long userId = SecurityUtil.getCurrentUserId();
+        if (userId == null) throw new IllegalStateException("로그인이 필요합니다.");
+
+        return todoService.createTodo(userId, request);
     }
 
     /**
@@ -39,25 +42,35 @@ public class TodoController {
     public Slice<TodoResponseDto> getTodos(
             @PageableDefault(size = 5) Pageable pageable // 기본 5개씩 조회
     ) {
-        return todoService.getTodos(devUserId, pageable);
+        Long userId = SecurityUtil.getCurrentUserId();
+        if (userId == null) throw new IllegalStateException("로그인이 필요합니다.");
+
+        return todoService.getTodos(userId, pageable);
     }
 
     /**
      * 할 일 완료 체크/해제
-     * PATCH /api/todos/{todoId}/check
+     * - 로그인한 유저 ID를 서비스로 전달하여 검증
      */
     @PatchMapping("/{todoId}/check")
     public void toggleTodo(@PathVariable Long todoId) {
-        todoService.toggleTodo(todoId);
+        Long userId = SecurityUtil.getCurrentUserId();
+        if (userId == null) throw new IllegalStateException("로그인이 필요합니다.");
+
+        // userId 전달
+        todoService.toggleTodo(userId, todoId);
     }
 
     /**
-     * [변경] 할 일 일괄 삭제 (Batch Delete)
-     * POST /api/todos/batch-delete
-     * Body: { "todoIds": [1, 3, 5] }
+     * 할 일 일괄 삭제
+     * - 로그인한 유저 ID를 서비스로 전달하여 검증
      */
     @PostMapping("/batch-delete")
     public void deleteTodos(@RequestBody TodoBatchDeleteRequestDto request) {
-        todoService.deleteTodos(request.todoIds());
+        Long userId = SecurityUtil.getCurrentUserId();
+        if (userId == null) throw new IllegalStateException("로그인이 필요합니다.");
+
+        // userId 전달
+        todoService.deleteTodos(userId, request.todoIds());
     }
 }

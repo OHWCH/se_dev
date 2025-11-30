@@ -4,8 +4,8 @@ import com.example.gitrajabi.IssueManagement.domain.*;
 import com.example.gitrajabi.IssueManagement.repository.*;
 import com.example.gitrajabi.IssueManagement.dto.ContributionStatsDto; // 횟수 정보 DTO
 import com.example.gitrajabi.IssueManagement.dto.ChallengeResponseDto;
-import com.example.gitrajabi.test_user.User;
-import com.example.gitrajabi.test_user.UserRepository;
+import com.example.gitrajabi.user.domain.entity.UserEntity;
+import com.example.gitrajabi.user.domain.repository.UserRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +36,7 @@ public class ChallengeService {
     @Transactional(readOnly = true)
     public List<ChallengeResponseDto> getChallengeList(Long userId) {
         // 1. 유저 정보 조회 (현재 커밋/PR/이슈 횟수를 알기 위해)
-        User user = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. id=" + userId));
 
         // 2. 모든 도전과제 메타데이터 조회
@@ -64,7 +64,7 @@ public class ChallengeService {
     }
 
     // [내부 헬퍼 메소드] 도전과제 타입에 따라 현재 유저의 어떤 카운트를 쓸지 결정
-    private int getCurrentCountForChallenge(User user, ChallengeType type) {
+    private int getCurrentCountForChallenge(UserEntity user, ChallengeType type) {
         String typeName = type.name();
         if (typeName.startsWith("COMMIT")) return user.getCommitCount();
         if (typeName.startsWith("PR")) return user.getPrCount();

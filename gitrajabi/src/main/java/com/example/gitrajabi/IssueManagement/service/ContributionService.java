@@ -5,8 +5,8 @@ import com.example.gitrajabi.IssueManagement.domain.Badge;
 import com.example.gitrajabi.IssueManagement.dto.ContributionStatsDto;
 import com.example.gitrajabi.IssueManagement.dto.MyContributionResponseDto;
 import com.example.gitrajabi.IssueManagement.dto.GraphQLResponseDto;
-import com.example.gitrajabi.test_user.User;
-import com.example.gitrajabi.test_user.UserRepository;
+import com.example.gitrajabi.user.domain.entity.UserEntity;
+import com.example.gitrajabi.user.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -29,28 +29,37 @@ public class ContributionService {
 
     /**
      * [핵심 로직 변경]
-     * 1. GitHub API에서 최신 데이터 조회
-     * 2. 조회된 값으로 User 테이블 업데이트 (DB 동기화)
-     * 3. 총 활동량을 기준으로 점수 및 뱃지 계산
+     * 1. DB에서 사용자 정보(GitHub ID) 조회
+     * 2. GitHub API에서 최신 데이터 조회
+     * 3. 조회된 값으로 User 테이블 업데이트 (DB 동기화)
+     * 4. 총 활동량을 기준으로 점수 및 뱃지 계산
      */
     @Transactional
-    public Mono<MyContributionResponseDto> getMyContribution(Long userId, String githubUsername) {
-        // 1. GitHub API 호출 (비동기)
-        return githubApiClient.fetchContributionData(githubUsername)
-                .map(this::transformToStats)
-                .flatMap(stats -> {
-                    // 2. DB 업데이트 (Blocking I/O 처리)
-                    return Mono.fromCallable(() -> {
-                        updateUserStatsInDb(userId, stats);
-                        return stats;
-                    }).subscribeOn(Schedulers.boundedElastic());
+    public Mono<MyContributionResponseDto> getMyContribution(Long userId) {
+        // 1. DB에서 유저 조회 (Blocking -> Non-Blocking 래핑)
+        return Mono.fromCallable(() -> userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다. id=" + userId)))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(user -> {
+                    String githubId = user.getGithubId();
+
+                    // 2. GitHub API 호출
+                    return githubApiClient.fetchContributionData(githubId)
+                            .map(this::transformToStats)
+                            .flatMap(stats -> {
+                                // 3. DB 업데이트 (Blocking I/O 처리)
+                                return Mono.fromCallable(() -> {
+                                    updateUserStatsInDb(user, stats);
+                                    return stats;
+                                }).subscribeOn(Schedulers.boundedElastic());
+                            });
                 })
                 .map(stats -> {
-                    // 3. 점수 및 뱃지 계산 (Baseline 차감 로직 삭제됨)
+                    // 4. 점수 및 뱃지 계산
                     int score = calculateScore(stats);
                     Badge badge = calculateBadge(score);
 
-                    // 4. 도전과제 업데이트
+                    // 5. 도전과제 업데이트
                     challengeService.updateChallengeStatus(userId, stats);
 
                     return new MyContributionResponseDto(stats, badge);
@@ -58,15 +67,9 @@ public class ContributionService {
     }
 
     // [Helper] DB의 User 정보를 최신 횟수로 업데이트
-    private void updateUserStatsInDb(Long userId, ContributionStatsDto stats) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다. id=" + userId));
-
-        // Lombok @Setter를 사용하여 값 갱신
-        user.setCommitCount(stats.commitCount());
-        user.setPrCount(stats.prCount());
-        user.setIssueCount(stats.issueCount());
-
+    private void updateUserStatsInDb(UserEntity user, ContributionStatsDto stats) {
+        // 도메인 메소드를 사용하여 값 갱신
+        user.updateStats(stats.commitCount(), stats.issueCount(), stats.prCount());
         userRepository.save(user);
     }
 
