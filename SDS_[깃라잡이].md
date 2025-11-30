@@ -120,20 +120,18 @@
 
 ## 오픈소스 이슈 관리
 37. Good First Issue 이슈 목록 조회
-38. 이슈 북마크 저장
-39. 이슈 북마크 삭제
-40. 키워드 검색
-41. OSS 이슈 이동
-42. vscode.dev 열기
 
 ## 기여도 및 도전과제
-43. 도전과제 진행 상태 조회
-44. 도전과제 완료
-45. 오픈소스 기여 배지 획득
-46. 오픈소스 기여 배지 조회
-47. 오픈소스 기여도 랭킹 확인
-48. OSS 뉴스 목록 조회
-49. OSS 뉴스 페이지로 이동
+38. Good First Issue 검색: GitHub API를 통해 초보자용 이슈를 검색한다.
+39. 내 기여도 조회: GitHub GraphQL API로 커밋/PR/이슈 통계를 조회하고 점수와 뱃지를 계산한다.
+40. 도전과제 목록 조회: 현재 나의 기여도에 따른 도전과제 달성 현황(진행률)을 확인한다.
+41. 도전과제 자동 달성: 기여도 갱신 시 조건이 충족된 도전과제를 자동으로 완료 처리한다.
+
+## Todo List
+42. 할 일(Todo) 등록: 개발 목표나 할 일을 생성한다.
+43. 할 일 목록 조회: 무한 스크롤 방식으로 할 일 목록을 조회한다.
+44. 할 일 체크 토글: 할 일의 완료 여부를 변경한다.
+45. 할 일 일괄 삭제: 완료된 할 일들을 선택하여 한 번에 삭제한다.
 
 ---
 ## 회원 관리
@@ -2617,781 +2615,369 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
 - **Due Date**: 2025. 11 .01 (예정)
   
 ## 오픈소스 이슈 관리
-### **Use case #35 : Good First Issue 이슈 목록 조회**
+### **Use case #37 : Good First Issue 검색**
 #### GENERAL CHARACTERISTICS
-- **Summary**    
-  사용자가 초보자에게 적합한 Good First Issue 태그가 지정된 오픈소스 이슈 목록을 확인하고 필터링하는 기능이다.
+- **Summary** 사용자가 키워드를 입력하여 GitHub의 'good first issue' 라벨이 붙은 초보자용 이슈를 검색하는 기능
 
-- **Scope**  
-  깃라잡이
+- **Scope** 깃라잡이
 
-- **Level**  
-  User level  
+- **Level** User level  
 
-- **Author**  
-  김관호
+- **Author** 오원창  
 
-- **Last Update**  
-  2025. 10. 17
+- **Last Update** 2025. 11. 30.  
 
-- **Status**  
-  Design
+- **Status** Design
 
-- **Primary Actor**  
-  User
+- **Primary Actor** User
 
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
-  
-- **Trigger**  
-  사용자가 메인 페이지 또는 별도의 메뉴에서 "Good First Issue" 목록 메뉴를 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  사용자의 선호 설정(언어, 기술 스택)에 기반한 필터링 및 정렬된 Good First Issue 목록이 화면에 성공적으로 표시된다.
-  
-- **Failed Post Condition** 
-  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
-| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
-| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
-| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
-| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
-| 5    | 프로세스가 종료된다.  |
+- **Preconditions** 사용자가 깃라잡이에 로그인한 상태여야 한다.
 
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-|------|------------------|
-|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
-|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
-|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
+- **Trigger** 사용자가 ‘이슈 검색’ 화면에서 키워드를 입력할 때  
 
-#### RELATED INFORMATION
-- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
+- **Success Post Condition** 검색 조건(키워드, good first issue 라벨)에 맞는 GitHub 이슈 목록이 화면에 표시된다.  
 
-- **Frequency**: 높음
+- **Failed Post Condition** GitHub API 호출 실패 또는 네트워크 오류로 인해 검색 결과를 불러오지 못한다.  
 
-- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case #36 : 이슈 북마크 저장**
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  사용자가 관심 있는 이슈를 개인 북마크 목록에 저장하여 나중에 쉽게 접근할 수 있게 하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level  
-
-- **Author**  
-  김관호
-
-- **Last Update**  
-  2025. 10. 17
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  북마크하려는 이슈가 화면에 표시되어 있어야 한다.
-  
-- **Trigger**  
-  사용자가 특정 이슈 옆의 "북마크" 아이콘을 클릭했을 때
-
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  깃라잡이 서버가 GitHub API를 통해 이슈 데이터를 주기적으로 동기화하고 있어야 한다.
-  
-- **Failed Post Condition** 
-  GitHub API 호출 실패 또는 데이터베이스 조회 오류로 인해 목록을 불러올 수 없으며, 오류 메시지가 사용자에게 출력된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 메인 화면에서 "Good First Issue 목록" 메뉴를 클릭한다.        |
-| 1    | 시스템은 사용자 선호 설정(언어, 분야)을 확인하여 기본 필터 조건을 설정한다.             |
-| 2    | 시스템은 데이터베이스에서 Good First Issue 라벨이 있는 활성화된(Open) 이슈 목록을 조회한다.  |
-| 3    | 조회된 이슈 목록을 최신 업데이트 순으로 정렬하여 사용자에게 전송한다.            |
-| 4    | 시스템은 각 이슈의 제목, 리포지토리명, 주요 언어, 생성일, 라벨 정보를 목록 형태로 화면에 표시한다.   |
-| 5    | 프로세스가 종료된다.  |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-|------|------------------|
-|  2a  | DB 조회 결과 이슈 목록이 비어있는 경우, “현재 추천할 수 있는 Good First Issue가 없습니다.” 메시지를 표시한다. |
-|  3a  | 목록 로딩 시간이 5초를 초과할 경우, 로딩 지연 알림을 표시하고 백그라운드에서 로딩을 계속한다.      |
-|  4a  | 시스템은 목록 상단에 언어/기술 스택별 필터를 제공하여 사용자가 목록을 재구성할 수 있도록 한다. |
-
-#### RELATED INFORMATION
-
-- **Performance**: 목록 데이터 조회 및 화면 렌더링 < 3s  필터링 및 정렬 변경 시 재조회 시간 < 2s
-
-- **Frequency**: 높음
-
-- **Concurrency**: 최대 1,000명의 동시 접속 사용자가 목록을 조회할 수 있도록 DB 연결 및 캐시 전략이 설계
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case #37 : 이슈 북마크 삭제**
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  사용자가 이전에 저장했던 이슈 북마크를 개인 목록에서 제거하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level  
-
-- **Author**  
-  김관호
-
-- **Last Update**  
-  2025. 10. 18
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인되어 있어야 한다.
-  삭제하려는 이슈가 이미 북마크 목록에 저장되어 있어야 한다.
-  
-- **Trigger**  
-  사용자가 북마크됨 상태의 아이콘을 다시 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  이슈 정보가 해당 사용자의 북마크 목록에서 제거되고, 아이콘의 상태가 "북마크 안 함" 상태로 변경된다.
-  
-- **Failed Post Condition** 
-  DB 삭제 오류로 인해 북마크 제거에 실패하며, 오류 메시지가 사용자에게 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 북마크 목록 또는 이슈 상세 화면에서 활성화된 북마크 아이콘을 클릭한다.        |
-| 1    | 시스템은 해당 이슈의 고유 ID와 현재 사용자 ID를 식별한다.             |
-| 2    | 시스템은 해당 이슈-사용자 조합의 정보를 사용자 북마크 DB 테이블에서 삭제한다.  |
-| 3    | 시스템은 북마크 아이콘의 상태를 비활성화 상태로 업데이트하고, "북마크에서 삭제되었습니다." 알림 메시지를 표시한다. |
-| 4    | 사용자가 북마크 목록 화면에서 삭제를 수행했다면, 해당 항목을 목록에서 즉시 제거한다.   |
-| 5    | 프로세스가 종료된다.  |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-|------|------------------|
-|  2a  | DB 삭제 중 오류 발생 시, "북마크 삭제에 실패했습니다. 관리자에게 문의하세요." 오류 메시지를 표시한다. |
-|  3a  | 북마크 삭제에 성공했으나 아이콘 업데이트가 실패한 경우, 로그를 기록하고 목록만 업데이트한다.      |
-
-#### RELATED INFORMATION
-
-- **Performance**: 북마크 삭제 요청 후 DB 삭제 및 화면 업데이트 < 500ms
-
-- **Frequency**: 보통
-
-- **Concurrency**: 개인 DB에 대한 삭제 작업이므로, 데이터 무결성에 중점을 둔 트랜잭션 처리가 필요
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case #38 : 키워드 검색**
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  사용자가 입력한 키워드를 기반으로 오픈소스 이슈 및 리포지토리를 검색하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level  
-
-- **Author**  
-  김관호
-
-- **Last Update**  
-  2025. 10. 18
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자가 검색 기능을 이용할 수 있는 화면에 진입해 있어야 한다.
-
-- **Trigger**  
-  사용자가 검색 입력 창에 키워드를 입력하고 검색 버튼을 클릭하거나 Enter 키를 눌렀을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  검색 결과가 이슈, 리포지토리 등 카테고리별로 분리되어 목록 형태로 화면에 표시된다.
-  
-- **Failed Post Condition** 
-  검색 서버와의 통신 오류, 유효하지 않은 검색어로 인해 검색 결과를 반환하지 못하며, 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 검색 입력 창에 검색 키워드를 입력하고 검색을 요청한다.       |
-| 1    | 시스템은 입력된 키워드의 유효성을 검사한다 (최소 길이, 특수 문자 등).           |
-| 2    | 시스템은 키워드를 포함하여 GitHub Search API 또는 내부 검색 인덱스에 검색 요청을 보낸다.  |
-| 3    | 시스템은 검색 결과를 수신하고, 이를 이슈, 리포지토리 등 카테고리별로 구분하여 정렬한다.          |
-| 4    | 검색 결과를 페이지네이션 형태로 사용자에게 표시하며, 각 결과 항목에는 제목, 출처, 간단한 요약 정보가 포함된다.   |
-| 5    | 프로세스가 종료된다.  |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-|------|------------------|
-|  1a  | 키워드 유효성 검사 실패 시, “유효하지 않은 검색어입니다. 다시 확인해 주세요.” 메시지를 표시한다. |
-|  3a  | 검색 결과가 없는 경우, “일치하는 검색 결과가 없습니다.” 메시지를 표시하고, 관련 추천 검색어를 제시한다.    |
-|  4a  | GitHub API의 속도 제한(Rate Limit)에 걸린 경우, 사용자에게 잠시 후 다시 시도하도록 안내한다. |
-
-#### RELATED INFORMATION
-
-- **Performance**: 검색 요청부터 결과 표시 < 2s
-
-- **Frequency**: 매우 높음
-
-- **Concurrency**: 최대 2,000명의 동시 검색 요청을 처리할 수 있도록 설계되어야 하며, API Rate Limit 관리가 핵심
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case #39 : OSS 이슈 이동**
-#### GENERAL CHARACTERISTICS
-- **Summary**  
-  깃라잡이에서 확인한 이슈를 실제 GitHub의 해당 이슈 페이지로 이동하여 상세 내용을 확인하고 기여할 수 있게 하는 기능이다.
-
-- **Scope**  
-  깃라잡이, Github
-
-- **Level**  
-  User level  
-
-- **Author**  
-  김관호
-
-- **Last Update**  
-  2025. 10. 18
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User
-
-- **Preconditions**  
-  사용자가 이슈 목록 또는 상세 화면을 보고 있어야 한다.
-  해당 이슈가 유효한 GitHub URL을 가지고 있어야 한다.
-  
-- **Trigger**  
-  사용자가 이슈 상세 화면 또는 목록에서 “GitHub에서 보기” 버튼을 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  사용자의 웹 브라우저가 GitHub의 해당 이슈 페이지로 성공적으로 리다이렉트된다.
-  
-- **Failed Post Condition** 
-  유효하지 않은 URL이거나 네트워크 오류 발생 시, 이동에 실패하며 오류 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                             |
-| ---- | ---------------------------------- |
-| S    | 사용자가 이슈 상세 화면에서 “GitHub에서 보기” 버튼을 클릭한다.        |
-| 1    | 시스템은 클릭된 이슈에 연결된 고유 GitHub URL을 식별한다.             |
-| 2    | 시스템은 해당 URL로 사용자를 새 탭에 리다이렉트한다.  |
-| 3    | GitHub 서버는 해당 이슈 페이지를 사용자에게 표시한다.           |
-| 4    | 프로세스가 종료된다.   |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-|------|------------------|
-|  1a  | 이슈에 연결된 GitHub URL이 유효하지 않거나 누락된 경우, “GitHub 이슈 링크를 찾을 수 없습니다.” 메시지를 표시한다. |
-|  2a  | 브라우저 설정(팝업 차단 등)으로 인해 새 탭을 열 수 없는 경우, 사용자에게 팝업 차단 해제를 유도하는 메시지를 표시한다.     |
-
-#### RELATED INFORMATION
-
-- **Performance**: 버튼 클릭부터 리다이렉트 처리 < 300ms 
-
-- **Frequency**: 보통 
-
-- **Concurrency**: 단순 리다이렉션이므로 서버 부하에 큰 영향은 없으나, 로그 기록 시 동시 트래픽을 고려
-
-- **Due Date**: 2025. 11 .01 (예정)
-
-### **Use case #40 : vscode.dev 열기 **  
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  사용자가 브라우저에서 vscode.dev을 열어 지정된 GitHub 리포지토리를 즉시 편집/탐색하는 기능이다.
-
-- **Scope**  
-  깃라잡이
-
-- **Level**
-  User level  
-  
-- **Author**  
-  박솔
-
-- **Last Update** 
-  2025. 10. 16
-
-- **Status** 
-  Design
-
-- **Primary Actor** 
-  User
-
-- **Preconditions**  
- - 지원 브라우저 환경(팝업 허용, 3rd-party 쿠키 설정 등)이어야 한다.
- - 열 대상 리포지토리의 owner/repo 또는 URL이 확보되어 있어야 한다.
- - Private 리포의 경우 GitHub 인증 권한이 있어야 한다.
-  
-- **Trigger**  
-  사용자가 “vscode.dev 열기” 버튼을 클릭한다.
-  
-- **Success Post Condition**  
-  새 탭에서 https://vscode.dev/github/{owner}/{repo}가 열리고, 파일 트리가 로드된다.
-  
-- **Failed Post Condition** 
-  팝업 차단/권한 부족/리포 파라미터 누락 시 오류 메시지를 표시하고 재시도 또는 설정 변경을 안내한다.
-  
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
-| ---- | ------ |
-| S    |  사용자가 리포지토리 컨텍스트 화면에서 “vscode.dev 열기” 버튼을 본다.      |
-| 1    |사용자가 버튼을 클릭한다.|
-| 2    |시스템은 대상 리포의 owner/repo 정보를 확인하고 vscode.dev URL을 구성한다.|
-| 3    |브라우저가 새 탭을 열어 vscode.dev으로 이동한다.|
-| 4    |(Private 리포) vscode.dev은 GitHub 인증을 요구하고 사용자는 권한 승인을 진행한다.|
-| 5    |vscode.dev이 리포 파일 트리/에디터를 렌더링한다.|
-| 6    |사용자는 브라우저 내에서 코드 탐색/편집(웹 권한 범위 내)을 수행한다.|
-| 7    |프로세스가 종료된다.|
-
+|------|--------|
+| S | 사용자가 이슈를 검색한다. |
+| 1 | 이 Use case는 사용자가 키워드를 입력하고 검색을 요청할 때 시작된다. |
+| 2 | 시스템은 GitHub Search API를 호출하여 `label:"good first issue"` 조건과 키워드를 포함한 이슈를 조회한다. |
+| 3 | 조회된 이슈 목록(제목, URL, 작성자 등)을 가공하여 사용자 화면에 표시한다. |
+| 4 | 이 Use case는 검색 결과 목록이 정상적으로 표시되면 종료된다. |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
-| ---- | ---------------- |
-|  2a    |리포 파라미터 누락 → 최근 사용 리포 선택 모달 표시 또는 입력 유도.|
-|  3a    |팝업 차단으로 새 탭이 열리지 않음 → “팝업을 허용해 주세요” 토스트와 재시도 버튼.|
-|  4a    |권한 부족/404 → “접근 권한이 없습니다” 메시지와 권한 요청/로그인 유도.|
-|  5a    |	네트워크 지연/로드 실패 → 로딩 재시도, 네트워크 확인 안내.|
-  
-  
+|------|------------------|
+| 2 | 2a. 외부 API 호출 실패 시 <br>…2a1. “이슈 정보를 불러오는 데 실패했습니다.” 라는 오류 메시지를 출력한다. |
+
 #### RELATED INFORMATION
-
-- **Performance**: 새 탭 오픈 즉시, vscode.dev 초기 로드 p95 ≤ 3s(네트워크 의존).
-
-- **Frequency**: 잦음(개발자 워크플로에서 수시 사용).
-
-- **Concurrency**: 클라이언트 측 동작으로 서버 부하는 경미(로그/메트릭 수집 정도).
-
-- **Due Date**: 2025. 11. 01 (예정)
+- **Performance**: ≤ 3 seconds (GitHub API 응답 속도에 의존)  
+- **Frequency**: 수시로 발생  
+- **Concurrency**: 제한 없음  
+- **Due Date**: 2025. 11. 30.
 
 ## 기여도 및 도전과제
-
-  ----
-  
-### **Use case #41 : 도전과제 진행 상태 조회**
+### **Use case #38 : 내 기여도 조회**
 #### GENERAL CHARACTERISTICS
-- **Summary**  
-  사용자가 현재 진행 중인 오픈소스 도전과제의 목록과 달성률을 확인하는 기능  
+- **Summary** GitHub API를 통해 사용자의 최신 활동(커밋, PR, 이슈)을 조회하고, 이를 바탕으로 점수와 뱃지를 계산하여 보여주는 기능  
 
-- **Scope**  
-  깃라잡이 시스템  
+- **Scope** 깃라잡이  
 
-- **Level**  
-  User level  
+- **Level** User level  
 
-- **Author**  
-  오원창  
+- **Author** 오원창  
 
-- **Last Update**  
-  2025. 10. 20.  
+- **Last Update** 2025. 11. 30.  
 
-- **Status**  
-  Design
+- **Status** Design
 
-- **Primary Actor**  
-  User
+- **Primary Actor** User
 
-- **Preconditions**  
-  사용자가 깃라잡이에 로그인한 상태여야 하며, 하나 이상의 도전과제가 등록되어 있어야 한다.  
+- **Preconditions** 사용자의 GitHub ID가 시스템에 연동되어 있어야 한다.  
 
-- **Trigger**  
-  사용자가 ‘도전과제 진행 현황’ 메뉴를 클릭할 때  
+- **Trigger** 사용자가 ‘마이페이지’ 또는 ‘기여도 확인’ 메뉴에 진입할 때  
 
-- **Success Post Condition**  
-  사용자에게 현재 진행 중인 도전과제 목록과 각 과제의 진행률이 표시된다.  
+- **Success Post Condition** 최신 기여 횟수가 DB에 업데이트되고, 계산된 점수에 따른 뱃지 등급(Bronze~Ruby)이 화면에 표시된다.  
 
-- **Failed Post Condition**  
-  시스템 오류로 인해 도전과제 진행 상태를 불러오지 못한다.  
+- **Failed Post Condition** GitHub API 연동 실패로 최신 정보를 가져오지 못하는 경우, 기존 DB에 저장된 정보를 표시하거나 오류 메시지를 출력한다.  
 
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
-| S | 사용자가 도전과제 진행 현황을 확인한다. |
-| 1 | 이 Use case는 사용자가 ‘도전과제 진행 현황’ 버튼을 클릭할 때 시작된다. |
-| 2 | 시스템은 DB에서 사용자의 도전과제 데이터를 조회한다. |
-| 3 | 각 과제의 이름, 진행률, 달성 조건을 사용자 화면에 표시한다. |
-| 4 | 이 Use case는 모든 과제의 정보가 정상적으로 표시되면 종료된다. |
+| S | 사용자가 자신의 기여도를 조회한다. |
+| 1 | 이 Use case는 사용자가 기여도 조회 화면에 진입할 때 시작된다. |
+| 2 | 시스템은 사용자의 GitHub ID를 이용해 GraphQL API를 호출하여 커밋, PR, 이슈 횟수를 조회한다. |
+| 3 | 조회된 통계 데이터를 DB에 갱신하고, 활동 점수를 계산하여 적절한 뱃지 등급을 산정한다. |
+| 4 | 사용자의 기여 횟수(Stats)와 획득한 뱃지(Badge) 정보를 화면에 표시한다. |
+| 5 | 이 Use case는 기여도 정보가 정상적으로 표시되면 종료된다. |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
-| 2 | 2a. DB 연결이 실패한 경우 <br>…2a1. “진행 현황을 불러올 수 없습니다.” 라는 오류 메시지를 출력한다. |
+| 2 | 2a. GitHub ID가 없는 경우 <br>…2a1. “GitHub 계정 연동이 필요합니다.” 메시지를 표시한다. |
 
 #### RELATED INFORMATION
 - **Performance**: ≤ 2 seconds  
-- **Frequency**: 사용자당 하루 1회  
+- **Frequency**: 사용자당 하루 수 회  
 - **Concurrency**: 제한 없음  
-- **Due Date**: 2025. 11. 03.
+- **Due Date**: 2025. 11. 30.
 
-### **Use case #42 : 도전과제 완료**
+
+### **Use case #39 : 도전과제 목록 조회**
 #### GENERAL CHARACTERISTICS
-- **Summary**  
-  사용자가 도전과제의 모든 조건을 충족했을 때 과제를 완료 처리하는 기능  
+- **Summary** 사용자가 현재 도전과제의 목록과 나의 달성 현황(진행률)을 확인하는 기능  
 
-- **Scope**  
-  깃라잡이 시스템  
+- **Scope** 깃라잡이  
 
-- **Level**  
-  User level  
+- **Level** User level  
 
-- **Author**  
-  오원창  
+- **Author** 오원창  
 
-- **Last Update**  
-  2025. 10. 20.  
+- **Last Update** 2025. 11. 30.  
 
-- **Status**  
-  Design
+- **Status** Design
 
-- **Primary Actor**  
-  User  
+- **Primary Actor** User
 
-- **Preconditions**  
-  사용자가 로그인한 상태이며, 특정 도전과제의 모든 조건을 달성해야 한다.  
+- **Preconditions** 사용자가 로그인 상태여야 한다.  
 
-- **Trigger**  
-  도전과제 조건을 충족했을 때 또는 ‘완료하기’ 버튼을 클릭했을 때  
+- **Trigger** 사용자가 ‘도전과제 리스트’ 메뉴를 클릭할 때  
 
-- **Success Post Condition**  
-  과제 상태가 ‘완료됨’으로 변경되고 보상이 지급된다.  
+- **Success Post Condition** 전체 도전과제 목록과 함께 각 과제의 목표 횟수 대비 현재 사용자의 횟수가 표시된다.  
 
-- **Failed Post Condition**  
-  보상 지급 과정에서 오류가 발생한다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action |
-|------|--------|
-| S | 사용자가 도전과제를 완료한다. |
-| 1 | 이 Use case는 사용자가 과제 조건을 충족했을 때 시작된다. |
-| 2 | 시스템은 조건 검증 후 완료 여부를 판정한다. |
-| 3 | 완료된 과제 상태를 DB에 갱신하고 보상을 지급한다. |
-| 4 | 사용자 화면에 “과제가 완료되었습니다.” 메시지를 표시한다. |
-| 5 | Use case 종료. |
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action |
-|------|------------------|
-| 2 | 2a. 일부 조건이 충족되지 않은 경우 <br>…2a1. “아직 완료 조건을 만족하지 않았습니다.” 메시지를 표시한다. |
-
-#### RELATED INFORMATION
-- **Performance**: ≤ 3 seconds  
-- **Frequency**: 과제별 1회  
-- **Concurrency**: 제한 없음  
-- **Due Date**: 2025. 11. 03.
-
-### **Use case #43 : 오픈소스 기여 배지 획득**
-#### GENERAL CHARACTERISTICS
-- **Summary**  
-  사용자가 일정 조건을 만족할 때 자동으로 오픈소스 기여 배지를 획득하는 기능  
-
-- **Scope**  
-  깃라잡이 시스템  
-
-- **Level**  
-  User level  
-
-- **Author**  
-  오원창  
-
-- **Last Update**  
-  2025. 10. 20.  
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  User 
-
-- **Preconditions**  
-  사용자가 로그인 상태이며, 배지 획득 조건(기여도, 완료 과제 수 등)을 충족해야 한다.  
-
-- **Trigger**  
-  조건 충족 시 자동 또는 이벤트 발생 시 서버에 의해 실행  
-
-- **Success Post Condition**  
-  신규 배지가 사용자 계정에 추가된다.  
-
-- **Failed Post Condition**  
-  시스템 오류로 인해 배지 등록에 실패한다.  
+- **Failed Post Condition** 시스템 오류로 목록을 불러오지 못한다.  
 
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
-| S | 사용자가 배지를 획득한다. |
-| 1 | 시스템이 배지 조건 충족 여부를 주기적으로 점검한다. |
-| 2 | 조건을 만족하면 해당 배지를 생성하여 사용자 계정에 추가한다. |
-| 3 | 사용자 화면에 배지 획득 알림을 표시한다. |
-| 4 | Use case 종료. |
+| S | 사용자가 도전과제 목록을 조회한다. |
+| 1 | 이 Use case는 사용자가 도전과제 메뉴에 접근할 때 시작된다. |
+| 2 | 시스템은 DB에서 모든 도전과제 정보와 사용자의 현재 활동 횟수(커밋, PR 등)를 조회한다. |
+| 3 | 각 과제별로 달성 여부(완료/미완료)와 진행률을 계산하여 목록 형태로 표시한다. |
+| 4 | 이 Use case는 목록이 정상적으로 렌더링되면 종료된다. |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
-| 2 | 2a. 동일한 배지를 이미 보유 중인 경우 <br>…2a1. “이미 획득한 배지입니다.” 메시지를 표시한다. |
-
+| 2 | 2a. DB 연결 실패 시 <br>…2a1. “도전과제 정보를 불러올 수 없습니다.” 메시지를 표시한다. |
 
 #### RELATED INFORMATION
-- **Performance**: ≤ 3 seconds  
-- **Frequency**: 사용자당 월 1–3회  
+- **Performance**: ≤ 1 second  
+- **Frequency**: 수시로 발생  
 - **Concurrency**: 제한 없음  
-- **Due Date**: 2025. 11. 03.
+- **Due Date**: 2025. 11. 30.
 
-### **Use case #44 : 오픈소스 기여 배지 조회**
+
+### **Use case #40 : 도전과제 자동 달성**
 #### GENERAL CHARACTERISTICS
-- **Summary**  
-  사용자가 보유 중인 오픈소스 기여 배지를 목록으로 확인하는 기능  
+- **Summary** 사용자의 기여도 정보가 갱신될 때, 조건이 충족된 도전과제를 시스템이 자동으로 ‘완료’ 처리하는 기능  
 
-- **Scope**  
-  깃라잡이 시스템  
+- **Scope** 깃라잡이  
 
-- **Level**  
-  User level  
+- **Level** System level (Backend Process)  
 
-- **Author**  
-  오원창  
+- **Author** 오원창  
 
-- **Last Update**  
-  2025. 10. 20.  
+- **Last Update** 2025. 11. 30.  
 
-- **Status**  
-  Design
+- **Status** Design
 
-- **Primary Actor**  
-  User 
+- **Primary Actor** System
 
-- **Preconditions**  
-  사용자가 로그인되어 있어야 한다.  
+- **Preconditions** 기여도 조회(Use case #38)가 성공적으로 수행되어 최신 통계 데이터가 확보되어야 한다.  
 
-- **Trigger**  
-  사용자가 ‘내 배지 보기’ 메뉴를 클릭할 때  
+- **Trigger** 기여도 정보 갱신 직후 시스템 내부적으로 호출된다.  
 
-- **Success Post Condition**  
-  보유 배지 목록과 획득일, 배지 설명이 화면에 표시된다.  
+- **Success Post Condition** 목표 횟수를 달성한 도전과제에 대해 `UserChallenge` 데이터가 생성되고 완료 상태(Completed)로 저장된다.  
 
-- **Failed Post Condition**  
-  배지 목록을 불러오지 못한다.  
+- **Failed Post Condition** DB 업데이트 실패 시 달성 처리가 누락될 수 있다.  
 
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
-| S | 사용자가 보유 배지를 조회한다. |
-| 1 | 사용자가 ‘내 배지 보기’ 버튼을 클릭한다. |
-| 2 | 시스템이 사용자 ID를 기반으로 DB에서 배지 정보를 조회한다. |
-| 3 | 사용자 화면에 배지 이름, 획득일, 설명이 목록 형태로 표시된다. |
-| 4 | Use case 종료. |
+| S | 시스템이 도전과제 달성 여부를 판단한다. |
+| 1 | 이 Use case는 기여도 정보가 갱신된 직후 자동으로 시작된다. |
+| 2 | 시스템은 미완료된 도전과제들의 목표 조건과 현재 사용자의 활동 횟수를 비교한다. |
+| 3 | 조건(예: 커밋 100회)을 충족한 과제가 있다면, 해당 과제를 ‘완료’ 상태로 DB에 저장한다. |
+| 4 | 이 Use case는 모든 과제에 대한 체크가 끝나면 종료된다. |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
-| 2 | 2a. 서버 연결 실패 <br>…2a1. “배지 목록을 불러올 수 없습니다.” 메시지를 표시한다. |
+| 3 | 3a. 이미 완료된 과제인 경우 <br>…3a1. 중복 처리를 하지 않고 건너뛴다. |
 
 #### RELATED INFORMATION
-- **Performance**: ≤ 2 seconds  
-- **Frequency**: 사용자당 주 1회  
-- **Concurrency**: 제한 없음  
-- **Due Date**: 2025. 11. 03.
+- **Performance**: < 500ms (Internal Transaction)  
+- **Frequency**: 기여도 조회 시마다 수행  
+- **Concurrency**: Transaction 관리 필요  
+- **Due Date**: 2025. 11. 30.
 
-### **Use case #45 : 오픈소스 기여도 랭킹 확인**
+## Todo 리스트
+### **Use case #41 : 할 일(Todo) 등록**
 #### GENERAL CHARACTERISTICS
-- **Summary**  
-  사용자가 전체 사용자 중 자신의 오픈소스 기여 순위를 확인하는 기능  
+- **Summary** 사용자가 개인적인 개발 목표나 할 일을 등록하는 기능  
 
-- **Scope**  
-  깃라잡이 시스템  
+- **Scope** 깃라잡이  
 
-- **Level**  
-  User level  
+- **Level** User level  
 
-- **Author**  
-  오원창  
+- **Author** 오원창  
 
-- **Last Update**  
-  2025. 10. 20.  
+- **Last Update** 2025. 11. 30.  
 
-- **Status**  
-  Design  
+- **Status** Design
 
-- **Primary Actor**  
-  User 
+- **Primary Actor** User
 
-- **Preconditions**  
-  시스템에 여러 사용자의 기여도 데이터가 저장되어 있어야 한다.  
+- **Preconditions** 사용자가 로그인 상태여야 한다.  
 
-- **Trigger**  
-  사용자가 ‘기여도 랭킹 보기’ 메뉴를 클릭할 때  
+- **Trigger** 사용자가 할 일 입력창에 내용을 입력하고 ‘등록’ 버튼을 클릭할 때  
 
-- **Success Post Condition**  
-  전체 사용자 순위표와 자신의 순위가 화면에 표시된다.  
+- **Success Post Condition** 새로운 할 일이 DB에 저장되고, 할 일 목록의 최상단에 추가된다.  
 
-- **Failed Post Condition**  
-  랭킹 정보를 불러오지 못한다.  
+- **Failed Post Condition** 내용이 비어있거나 시스템 오류 시 등록되지 않는다.  
 
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
-| S | 사용자가 오픈소스 기여도 랭킹을 확인한다. |
-| 1 | 사용자가 ‘기여도 랭킹 보기’ 버튼을 클릭한다. |
-| 2 | 시스템이 모든 사용자 기여 데이터를 조회하고 점수를 기준으로 정렬한다. |
-| 3 | 사용자 화면에 순위, 닉네임, 점수가 표시된다. |
-| 4 | 사용자의 현재 순위를 강조하여 표시한다. |
-| 5 | Use case 종료. |
+| S | 사용자가 할 일을 등록한다. |
+| 1 | 이 Use case는 사용자가 내용을 입력하고 엔터 키 또는 등록 버튼을 누를 때 시작된다. |
+| 2 | 시스템은 입력된 내용을 받아 유효성을 검증(공백 여부 등)한다. |
+| 3 | 검증이 통과되면 `Todo` 데이터를 생성하여 DB에 저장한다. |
+| 4 | 저장된 할 일 정보를 화면 목록에 즉시 추가하여 표시한다. |
+| 5 | 이 Use case는 등록된 할 일이 화면에 나타나면 종료된다. |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
-| 2 | 2a. 서버 연결 실패 시 <br>…2a1. “랭킹 정보를 불러올 수 없습니다.” 메시지를 표시한다. |
+| 2 | 2a. 내용이 없는 경우 <br>…2a1. “할 일 내용을 입력해주세요.” 경고 메시지를 표시한다. |
 
 #### RELATED INFORMATION
-- **Performance**: ≤ 3 seconds  
-- **Frequency**: 사용자당 주 1회  
+- **Performance**: ≤ 1 second  
+- **Frequency**: 수시로 발생  
 - **Concurrency**: 제한 없음  
-- **Due Date**: 2025. 11. 03.
+- **Due Date**: 2025. 11. 30.
 
-### **Use case #46 : OSS 뉴스 목록 조회**
+
+### **Use case #42 : 할 일 목록 조회**
 #### GENERAL CHARACTERISTICS
-- **Summary**  
-  사용자가 최신 오픈소스 관련 뉴스 피드를 조회하는 기능  
+- **Summary** 사용자가 등록한 할 일 목록을 최신순으로 조회하는 기능 (무한 스크롤 지원)  
 
-- **Scope**  
-  깃라잡이 시스템  
+- **Scope** 깃라잡이  
 
-- **Level**  
-  User level  
+- **Level** User level  
 
-- **Author**  
-  오원창  
+- **Author** 오원창  
 
-- **Last Update**  
-  2025. 10. 20.  
+- **Last Update** 2025. 11. 30.  
 
-- **Status**  
-  Design 
+- **Status** Design
 
-- **Primary Actor**  
-  User
+- **Primary Actor** User
 
-- **Preconditions**  
-  시스템이 외부 OSS 뉴스 API 또는 내부 뉴스 DB와 연결되어 있어야 한다.  
+- **Preconditions** 사용자가 로그인 상태여야 한다.  
 
-- **Trigger**  
-  사용자가 ‘OSS 뉴스 보기’ 메뉴를 클릭할 때  
+- **Trigger** 사용자가 메인 화면 또는 할 일 관리 섹션에 진입할 때  
 
-- **Success Post Condition**  
-  최신 뉴스 목록이 화면에 제목, 출처, 발행일과 함께 표시된다.  
+- **Success Post Condition** 사용자의 할 일 목록이 최신순으로 슬라이스(Slice) 형태로 로드되어 표시된다.  
 
-- **Failed Post Condition**  
-  뉴스 목록을 불러오지 못한다.  
+- **Failed Post Condition** 시스템 오류로 목록을 불러오지 못한다.  
 
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
-| S | 사용자가 오픈소스 뉴스를 조회한다. |
-| 1 | 사용자가 ‘OSS 뉴스 보기’ 버튼을 클릭한다. |
-| 2 | 시스템이 외부 뉴스 API를 호출하여 최신 데이터를 받아온다. |
-| 3 | 받아온 뉴스 정보를 목록 형태로 가공한다. |
-| 4 | 사용자 화면에 뉴스 제목, 출처, 발행일, 링크를 표시한다. |
-| 5 | Use case 종료. |
+| S | 사용자가 할 일 목록을 확인한다. |
+| 1 | 이 Use case는 할 일 관리 화면이 로드될 때 시작된다. |
+| 2 | 시스템은 사용자의 ID로 등록된 할 일을 생성일 역순(최신순)으로 조회한다. |
+| 3 | 페이징 처리가 적용된 목록 데이터를 사용자에게 반환한다. |
+| 4 | 사용자가 스크롤을 내리면 다음 페이지의 데이터를 추가로 로드한다. |
+| 5 | 이 Use case는 데이터 로딩이 완료되면 종료된다. |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
-| 2 | 2a. API 호출 실패 시 <br>…2a1. “뉴스를 불러올 수 없습니다.” 메시지를 표시한다. |
-| 3 | 3a. 뉴스 데이터가 비어 있을 경우 <br>…3a1. “표시할 뉴스가 없습니다.” 메시지를 표시한다. |
+| 2 | 2a. 등록된 할 일이 없는 경우 <br>…2a1. “등록된 할 일이 없습니다.” 메시지를 표시한다. |
 
 #### RELATED INFORMATION
-- **Performance**: ≤ 2 seconds  
-- **Frequency**: 사용자당 하루 1회  
+- **Performance**: ≤ 1 second  
+- **Frequency**: 매우 빈번함  
 - **Concurrency**: 제한 없음  
-- **Due Date**: 2025. 11. 03.
+- **Due Date**: 2025. 11. 30.
 
-### **Use case #47 : OSS 뉴스 페이지로 이동**
+
+### **Use case #43 : 할 일 체크 토글**
 #### GENERAL CHARACTERISTICS
-- **Summary**  
-  사용자가 선택한 뉴스 항목의 원문 페이지로 이동하는 기능  
+- **Summary** 사용자가 등록된 할 일의 완료 여부(Check/Uncheck)를 변경하는 기능  
 
-- **Scope**  
-  깃라잡이 시스템  
+- **Scope** 깃라잡이  
 
-- **Level**  
-  User level  
+- **Level** User level  
 
-- **Author**  
-  오원창  
+- **Author** 오원창  
 
-- **Last Update**  
-  2025. 10. 20.  
+- **Last Update** 2025. 11. 30.  
 
-- **Status**  
-  Design  
+- **Status** Design
 
-- **Primary Actor**  
-  User  
+- **Primary Actor** User
 
-- **Preconditions**  
-  사용자가 뉴스 목록을 조회한 상태여야 한다.  
+- **Preconditions** 할 일 목록이 조회되어 있어야 하며, 본인이 작성한 할 일이어야 한다.  
 
-- **Trigger**  
-  사용자가 뉴스 항목을 클릭했을 때  
+- **Trigger** 사용자가 할 일 항목의 체크박스를 클릭할 때  
 
-- **Success Post Condition**  
-  선택한 뉴스의 외부 링크로 브라우저 새 탭이 열리고 원문 페이지로 이동한다.  
+- **Success Post Condition** DB에서 해당 할 일의 `isChecked` 상태가 반전되고 화면에 반영된다.  
 
-- **Failed Post Condition**  
-  링크 오류로 인해 뉴스 페이지 이동에 실패한다.  
+- **Failed Post Condition** 본인 소유가 아니거나 삭제된 항목일 경우 변경되지 않는다.  
 
 #### MAIN SUCCESS SCENARIO
 | Step | Action |
 |------|--------|
-| S | 사용자가 선택한 뉴스의 원문 페이지로 이동한다. |
-| 1 | 뉴스 목록 화면에서 이동할 뉴스 항목을 클릭한다. |
-| 2 | 시스템이 해당 뉴스의 URL을 확인한다. |
-| 3 | 브라우저 새 탭에서 해당 링크를 연다. |
-| 4 | 뉴스 원문 페이지가 정상적으로 표시된다. |
-| 5 | Use case 종료. |
+| S | 사용자가 할 일을 완료 처리한다. |
+| 1 | 이 Use case는 사용자가 할 일의 체크박스를 클릭할 때 시작된다. |
+| 2 | 시스템은 요청된 할 일의 소유자가 현재 사용자인지 검증한다. |
+| 3 | 검증이 통과되면 해당 할 일의 완료 상태를 토글(True <-> False)하여 DB에 저장한다. |
+| 4 | 변경된 상태가 화면 UI(취소선 등)에 반영된다. |
+| 5 | 이 Use case는 UI 업데이트가 완료되면 종료된다. |
 
 #### EXTENSION SCENARIOS
 | Step | Branching Action |
 |------|------------------|
-| 3 | 3a. 링크가 유효하지 않거나 만료된 경우 <br>…3a1. “잘못된 링크입니다.” 메시지를 표시한다. |
-| 3 | 3b. 외부 페이지 연결이 차단된 경우 <br>…3b1. “페이지를 불러올 수 없습니다.” 메시지를 표시한다. |
+| 2 | 2a. 소유자가 아닌 경우 <br>…2a1. “권한이 없습니다.” 오류를 반환하고 변경을 거부한다. |
 
 #### RELATED INFORMATION
-- **Performance**: ≤ 2 seconds  
-- **Frequency**: 사용자당 하루 1–2회  
+- **Performance**: < 500ms  
+- **Frequency**: 빈번함  
+- **Concurrency**: Optimistic Locking 고려 가능 (현재는 단순 Update)  
+- **Due Date**: 2025. 11. 30.
+
+
+### **Use case #44 : 할 일 일괄 삭제**
+#### GENERAL CHARACTERISTICS
+- **Summary** 사용자가 선택한(주로 완료된) 여러 개의 할 일을 한 번에 삭제하는 기능  
+
+- **Scope** 깃라잡이  
+
+- **Level** User level  
+
+- **Author** 오원창  
+
+- **Last Update** 2025. 11. 30.  
+
+- **Status** Design
+
+- **Primary Actor** User
+
+- **Preconditions** 삭제할 할 일 항목들이 선택되어 있어야 한다.  
+
+- **Trigger** 사용자가 완료된 항목들을 선택하고 ‘일괄 삭제’ 버튼을 클릭할 때  
+
+- **Success Post Condition** 요청된 할 일들이 DB에서 삭제되고 목록에서 사라진다.  
+
+- **Failed Post Condition** 시스템 오류 또는 권한 문제로 삭제에 실패한다.  
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|------|--------|
+| S | 사용자가 완료된 할 일들을 정리한다. |
+| 1 | 이 Use case는 사용자가 ‘선택 삭제’ 또는 ‘일괄 삭제’ 버튼을 누를 때 시작된다. |
+| 2 | 시스템은 요청된 할 일 ID 목록을 받아, 실제 사용자가 소유한 항목인지 필터링한다. |
+| 3 | 본인 소유로 확인된 할 일들을 DB에서 일괄 삭제(Batch Delete)한다. |
+| 4 | 삭제된 항목들을 화면 목록에서 제거한다. |
+| 5 | 이 Use case는 목록 갱신이 완료되면 종료된다. |
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action |
+|------|------------------|
+| 2 | 2a. 삭제할 대상이 없는 경우 <br>…2a1. 별도의 동작 없이 종료한다. |
+
+#### RELATED INFORMATION
+- **Performance**: ≤ 1 second  
+- **Frequency**: 가끔 발생  
 - **Concurrency**: 제한 없음  
-- **Due Date**: 2025. 11. 03.
+- **Due Date**: 2025. 11. 07.
 
 ---
 
