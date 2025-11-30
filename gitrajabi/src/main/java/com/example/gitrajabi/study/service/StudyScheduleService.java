@@ -1,7 +1,5 @@
 package com.example.gitrajabi.study.service;
 
-
-
 import com.example.gitrajabi.study.dto.ScheduleListResponse;
 import com.example.gitrajabi.study.dto.StudyScheduleCreateRequest;
 import com.example.gitrajabi.study.entity.ScheduleParticipate;
@@ -13,6 +11,7 @@ import com.example.gitrajabi.study.repository.ScheduleParticipateRepository;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
 import com.example.gitrajabi.study.repository.StudyScheduleRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,20 +28,19 @@ public class StudyScheduleService {
     private final StudyScheduleRepository studyScheduleRepository;
     private final ScheduleParticipateRepository scheduleParticipantRepository;
 
+
+    /** 스터디 일정 생성 */
     @Transactional
     public Long createSchedule(Long studyId, Long userId, StudyScheduleCreateRequest request) {
 
-        // 스터디 조회
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
 
-        // 현재 유저가 스터디장인지 확인
+        // 스터디장 여부 확인
         if (!study.getLeader().getUserId().equals(userId)) {
             throw new IllegalArgumentException("스터디장만 일정을 생성할 수 있습니다.");
         }
 
-
-        // 일정 생성
         StudySchedule schedule = StudySchedule.builder()
                 .study(study)
                 .comment(request.getComment())
@@ -52,36 +50,36 @@ public class StudyScheduleService {
                 .deletedAt(null)
                 .build();
 
-
-
         StudySchedule saved = studyScheduleRepository.save(schedule);
 
-        // 스터디장을 자동 참석 등록
+        // 스터디장은 일정 자동 참여 처리
         ScheduleParticipate leaderParticipate = ScheduleParticipate.builder()
                 .schedule(saved)
                 .user(study.getLeader())
                 .build();
 
-
         scheduleParticipantRepository.save(leaderParticipate);
 
         return saved.getScheduleId();
     }
+
+
+    /** 일정 참여 */
     @Transactional
     public void participate(Long studyId, Long scheduleId, Long userId) {
 
-        // 스터디 가입 여부 + 승인 여부 확인
+        // 가입 및 승인 여부 확인
         StudyMember member = studyMemberRepository
-                .findByStudy_StudyIdAndUser_Id(studyId, userId)
+                .findByStudy_StudyIdAndUser_UserId(studyId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("스터디에 가입된 유저가 아닙니다."));
 
         if (member.getJoinStatus() != JoinStatus.APPROVED) {
             throw new IllegalArgumentException("승인된 스터디원만 참여할 수 있습니다.");
         }
 
-        // 중복 참여 방지
+        // 중복 참여 여부
         boolean alreadyJoin = scheduleParticipantRepository
-                .existsBySchedule_ScheduleIdAndUser_Id(scheduleId, userId);
+                .existsBySchedule_ScheduleIdAndUser_UserId(scheduleId, userId);
 
         if (alreadyJoin) {
             throw new IllegalArgumentException("이미 해당 일정에 참여한 유저입니다.");
@@ -91,7 +89,7 @@ public class StudyScheduleService {
         StudySchedule schedule = studyScheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 일정이 존재하지 않습니다."));
 
-        // 참여 등록
+        // 참여 저장
         ScheduleParticipate participate = ScheduleParticipate.builder()
                 .schedule(schedule)
                 .user(member.getUser())
@@ -101,25 +99,24 @@ public class StudyScheduleService {
     }
 
 
+    /** 일정 목록 조회 */
     @Transactional
     public List<ScheduleListResponse> getScheduleList(Long studyId, Long userId) {
 
-        // 해당 스터디의 전체 멤버 수
+        // 승인된 멤버 수
         int totalMembers = studyMemberRepository.countByStudy_StudyIdAndJoinStatus(studyId, JoinStatus.APPROVED);
 
-        // 스터디 스케줄 전체 조회
+        // 스터디의 모든 스케줄 조회
         List<StudySchedule> schedules = studyScheduleRepository.findByStudy_StudyId(studyId);
 
-        // 각 스케줄별 참여 여부 + 참여자 수 조회
+        // 각 스케줄별 참여 상태 조회
         return schedules.stream().map(schedule -> {
 
-            // 참여 인원 수
             int participateCount =
                     scheduleParticipantRepository.countBySchedule_ScheduleId(schedule.getScheduleId());
 
-            // 이 유저가 참여했는지 여부
             boolean participated =
-                    scheduleParticipantRepository.existsBySchedule_ScheduleIdAndUser_Id(
+                    scheduleParticipantRepository.existsBySchedule_ScheduleIdAndUser_UserId(
                             schedule.getScheduleId(), userId);
 
             return ScheduleListResponse.builder()
