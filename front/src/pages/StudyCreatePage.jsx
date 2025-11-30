@@ -42,10 +42,10 @@ const StudyCreatePage = () => {
                                 <input 
                                     className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary placeholder-text-light-secondary" 
                                     id="study-title" 
-                                    name="title" 
+                                    name="studyName" 
                                     placeholder="ex) 실전! React & Next.js 포트폴리오 스터디"
                                     type="text"
-                                    value={formData.title}
+                                    value={formData.studyName}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -81,10 +81,10 @@ const StudyCreatePage = () => {
                                             <input 
                                                 className="h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-background-light dark:bg-background-dark" 
                                                 id={`cat-${category}`} 
-                                                name="category" 
+                                                name="studyCategory" // OK
                                                 type="radio"
                                                 value={category}
-                                                checked={formData.category === category}
+                                                checked={formData.studyCategory === category} 
                                                 onChange={handleChange}
                                             />
                                             <label className="ml-2 block text-sm text-text-light-primary dark:text-text-dark-primary cursor-pointer" htmlFor={`cat-${category}`}>{category}</label>
@@ -101,10 +101,10 @@ const StudyCreatePage = () => {
                                 <textarea 
                                     className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary placeholder-text-light-secondary" 
                                     id="study-description" 
-                                    name="description" 
+                                    name="studyDescription" 
                                     placeholder="스터디의 목표, 진행 방식, 기간 등을 자세히 설명해주세요." 
                                     rows="8"
-                                    value={formData.description}
+                                    value={formData.studyDescription}
                                     onChange={handleChange}
                                 />
                             </div>

@@ -1,20 +1,22 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import MaterialSymbol from '../ui/MaterialSymbol';
 import { userData } from '../../data/mypagedata'; // Mock Data import
+import { getContribution } from '../../services/userApi';
 
 //뱃지함수
 const getBadgeRank = (status) => {
-    if (status === 3) {
+    if (status === "GOLD") {
         return {
             name: "GOLD",
             colorClass: "text-yellow-500 border-yellow-500 bg-yellow-500/10", 
         };
-    } else if(status === 2) {
+    } else if(status === "SILVER") {
         return {
             name: "SILVER",
             colorClass: "text-gray-400 border-gray-400 bg-gray-400/10", 
         };
-    } else if(status === 1){
+    } else if(status === "BRONZE"){
         return {
             name: "BRONZE",
             colorClass: "text-yellow-700 border-yellow-700 bg-yellow-700/10", 
@@ -28,6 +30,41 @@ const getBadgeRank = (status) => {
 };
 
 const ProfileSummary = () => {
+
+    const [userData, setUserData] = useState({
+        commits: 0,
+        prs: 0,
+        issues: 0,
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchUserContribution = async () => {
+            setLoading(true);
+            try {
+                // 이전에 구현한 인증 헤더 포함된 API 호출
+                const data = await getContribution(); 
+                
+                // 🔑 백엔드 응답 데이터(data)를 userData 상태에 저장
+                setUserData({
+                    commits: data.commitCount || 0,
+                    prs: data.prCount || 0,
+                    issues: data.issueCount || 0,
+                    // 백엔드 키 이름이 'commits', 'prs', 'issues'와 다를 경우 여기에 매핑해줍니다.
+                });
+                setError(null);
+            } catch (err) {
+                console.error("기여도 데이터 로드 오류:", err);
+                setError("기여도 정보를 불러오는 데 실패했습니다. 로그인을 확인해주세요.");
+                setUserData({ commits: 'N/A', prs: 'N/A', issues: 'N/A' });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserContribution();
+    }, []);
     const badge = getBadgeRank(userData.badgeStatus);
     return (
         // 시안: lg:col-span-1 클래스 적용
@@ -38,7 +75,7 @@ const ProfileSummary = () => {
                     <MaterialSymbol name="code" className="text-4xl text-white" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{userData.nickname}</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">nickname</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">닉네임</p>
                     
                 </div>

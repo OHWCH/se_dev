@@ -12,8 +12,8 @@ const STUDY_API_URL = '/api/studies'; // 백엔드 스터디 생성 엔드포인
  */
 
 export async function getStudyList() {
-    /*try {
-        const response = await axios.get(`${API_BASE_URL}/api/studies`);
+    try {
+        const response = await axios.get(`http://localhost:8080/studies`);
         return response.data;
     } catch (error) {
         console.error("스터디 목록 조회 실패:", error);
@@ -29,7 +29,7 @@ export async function getStudyList() {
         } else {
             throw new Error("요청 설정 중 오류 발생.");
         }
-    }*/
+    }
 
         // MOCK 데이터 임시로 
         return mockStudies;
@@ -38,14 +38,15 @@ export async function getStudyList() {
 
 export async function createStudy(studyData) {
     // 백엔드 연동 후
-    /*try {
-        const res = await axios.post(STUDY_API_URL, newStudy);
+    try {
+        const res = await axios.post(`http://localhost:8080/studies`, studyData);
     } catch (e) {
-        consol.log(e.response); 
-    }*/
+        console.log(e.response);
+
+    }
     
     // Mock 데이터 처리 (임시)
-    return new Promise(resolve => {
+    /*return new Promise(resolve => {
         setTimeout(() => {
             // 1. 새 스터디 객체 생성
             const newStudy = {  
@@ -61,7 +62,11 @@ export async function createStudy(studyData) {
             // 3. 삽입된 객체 반환
             resolve(newStudy);
         }, 500); // 0.5초 지연
-    });
+    });*/
+}
+
+export async function deleteStudy(studyId) {
+    //스터디 삭제 미구현
 }
 
 export async function joinStudy(studyId) {  //가입신청
@@ -102,13 +107,12 @@ export async function getStudyMember(studyId) { //스터디 멤버조회
     }
 }
 
-export async function putStudyDetail(studyId, studyData) { //스터디 상세정보
-    /*try {
-        const res = await axios.put(`http://localhost:8080/studies/${studyId}`, newStudy);
+export async function putStudyDetail(studyId, studyData) { //스터디 상세정보 수정
+    try {
+        const res = await axios.put(`http://localhost:8080/studies/${studyId}`, studyData);
     } catch (e) {
-        consol.log(e.res); 
-    }*/
-   console.log('수정완료');
+        console.log(e.res); 
+    }
 }
 
 export async function approveApplicant(studyId, applicantionId) {
@@ -149,5 +153,32 @@ export async function getMyStudy() {
         return response.data;
     } catch (e) {
         console.log(e.response);
+    }
+}
+
+export async function getStudySchedule(studyId) {
+    try {
+        const response = await axios.get(`http://localhost:8080/studies/${studyId}/schedules`)
+        return response.data;
+    } catch (e) {
+        console.log(e.response)
+    }
+}
+
+export async function createStudySchedule(studyId, scheduleData) {
+    try {
+        const res = await axios.post(
+            `http://localhost:8080/studies/${studyId}/schedules`,
+            scheduleData,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            }
+        );
+        return res.data;
+    } catch (e) {
+        console.error("일정 생성 실패:", e.response ? e.response.data : e);
+        throw new Error("일정 생성에 실패했습니다.");
     }
 }

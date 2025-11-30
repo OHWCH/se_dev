@@ -1,24 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { patchStudyForm } from '../hooks/useStudyForm';
 import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 import { mockStudyDetail, mockApplications, mockCategories } from '../data/studyData';
 import { Link } from 'react-router-dom';
-import { getStudyDetail, getStudyMember, approveApplicant, rejectApplicant, deleteMember } from '../services/studyApi';
+import { getStudyDetail, getStudyMember, approveApplicant, rejectApplicant, deleteMember, createStudySchedule } from '../services/studyApi';
 
 // ---------------------------------------------------------------------
 // 탭 컴포넌트 1: 스터디 정보 수정 폼
 // ---------------------------------------------------------------------
-const StudyInfoTab = ({ study }) => {
-    // 이전 스터디 생성 페이지의 폼을 재활용합니다.
-    const mockTags = ["React", "Next.js", "Frontend"];
+const mapToUpdatePayload = (detailData) => {
+    // 🚨 detailData가 undefined일 경우, 이 함수 자체가 호출되지 않도록 메인 컴포넌트에서 보호합니다.
+    const { studyInfo } = detailData;
+    
+    return {
+        studyName: studyInfo.studyName,
+        studyDescription: studyInfo.studyDescription,
+        studyCategory: studyInfo.studyCategory,
+        maxMembers: String(studyInfo.maxMemberCount), // 🌟 폼 필드에 맞게 문자열로 변환하여 전달
+    };
+};
+
+const StudyInfoTab = ({ study, studyId }) => {
+
+    const initialDataForHook = useMemo(() => ({
+        studyInfo: study // study prop은 부모에서 이미 안정화됨 (newPayload)
+    }), [study]);
+
     const { 
             formData, 
             handleChange, 
             handleSubmit, 
             isSubmitting 
-        } = patchStudyForm(study); 
+        } = patchStudyForm(initialDataForHook, studyId);
+
+        const handleDeleteStudy = async () => {
+        if (window.confirm('🚨 정말로 스터디를 삭제하시겠습니까? 삭제된 스터디는 복구할 수 없습니다.')) {
+            try {
+                // deleteStudy API 호출
+                await deleteStudy(studyId); 
+                alert(`스터디가 성공적으로 삭제되었습니다.`);
+                
+                // 삭제 후 메인 페이지 또는 마이 스터디 목록 페이지로 이동
+                navigate('/my-studies'); 
+                
+            } catch (error) {
+                console.error("스터디 삭제 실패:", error);
+                alert(`스터디 삭제에 실패했습니다. (${error.message || '서버 오류'})`);
+            }
+        }
+    };
 
     return (
         <form 
@@ -33,9 +65,9 @@ const StudyInfoTab = ({ study }) => {
                     <input 
                         className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary" 
                         id="study-title" 
-                        name="title" 
+                        name="studyName" 
                         type="text"
-                        value={formData.title}
+                        value={formData.studyName}
                         onChange={handleChange}
                     />
                 </div>
@@ -49,19 +81,20 @@ const StudyInfoTab = ({ study }) => {
                 <fieldset>
                     <legend className="text-base font-medium text-text-light-secondary dark:text-text-dark-secondary">스터디 카테고리</legend>
                     <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-4">
-                        {mockCategories.filter(c => c !== '전체').map(category => (
+                        {mockCategories.filter(c => c).map(category => ( 
                             <div key={category} className="flex items-center">
                                 <input 
                                     className="h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-background-light dark:bg-background-dark" 
                                     id={`cat-${category}`} 
-                                    name="category" 
+                                    name="studyCategory" // OK
                                     type="radio"
-                                    value={formData.category}
-                                    onChange={handleChange}
+                                    value={category}
+                                    checked={formData.studyCategory === category} 
+                                    onChange={handleChange}                                    
                                 />
                                 <label className="ml-2 block text-sm text-text-light-primary dark:text-text-dark-primary cursor-pointer" htmlFor={`cat-${category}`}>{category}</label>
                             </div>
-                        ))}
+                        ))}                                    
                     </div>
                 </fieldset>
             </div>
@@ -73,21 +106,36 @@ const StudyInfoTab = ({ study }) => {
                     <textarea 
                         className="block w-full rounded-md border-border-light dark:border-border-dark shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary" 
                         id="study-description" 
-                        name="description" 
+                        name="studyDescription" 
                         rows="8"
-                        value={formData.description}
+                        value={formData.studyDescription}
                         onChange={handleChange}
                     />
                 </div>
             </div>
 
             {/* 저장 버튼 */}
-            <div className="flex justify-end pt-4">
-                <button 
-                    type="submit" 
-                    className="bg-primary text-white px-6 py-2 rounded-md text-sm font-semibold shadow-sm hover:opacity-90 transition-colors"
+            <div className="flex justify-end space-x-4 mt-8">
+                <button
+                    type="button" // 폼 제출을 막기 위해 type="button" 설정
+                    onClick={handleDeleteStudy} // 🌟 삭제 핸들러 연결
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                 >
-                    정보 수정
+                    <MaterialSymbol icon="delete" className="mr-2" />
+                    스터디 삭제
+                </button>
+                <button
+                    type="submit"
+                    onClick={handleSubmit} // 기존 정보 수정 핸들러 연결
+                    disabled={isSubmitting}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-focus transition-colors disabled:opacity-50"
+                >
+                    {isSubmitting ? '수정 중...' : (
+                        <>
+                            <MaterialSymbol icon="edit" className="mr-2" />
+                            정보 수정
+                        </>
+                    )}
                 </button>
             </div>
         </form>
@@ -110,7 +158,7 @@ const MemberManageTab = ({ members, studyId }) => {
                                 <MaterialSymbol name="person" className="text-slate-500 dark:text-slate-400 text-lg" style={{ fontSize: '1.25rem' }} />
                             </div>
                             <span className={`font-medium text-sm ${isLeader ? 'text-primary' : 'text-text-light-primary dark:text-text-dark-primary'}`}>
-                                {member.name}
+                                {member.nickname}
                             </span>
                             {isLeader && <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-bold">LEADER</span>}
                         </div>
@@ -162,36 +210,224 @@ const ApplicationManageTab = ({ applications, studyId }) => {
     );
 };
 
+const ScheduleCreateTab = ({ studyId }) => {
+    // 폼 초기 상태: 시작 시간과 종료 시간은 현재 시간을 기준으로 초기화
+    const now = new Date();
+    // UTC 기준이 아닌 로컬 시간 문자열로 변환 (YYYY-MM-DDTHH:MM)
+    const formatLocalDateTime = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    const initialScheduleData = {
+        comment: '',
+        startedAt: formatLocalDateTime(now),
+        // 2시간 뒤로 초기 설정 (예시)
+        endAt: formatLocalDateTime(new Date(now.getTime() + 2 * 60 * 60 * 1000)),
+    };
+
+    const [scheduleData, setScheduleData] = useState(initialScheduleData);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setScheduleData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const validate = (data) => {
+        if (!data.comment.trim()) return '일정 코멘트를 입력해주세요.';
+        if (new Date(data.startedAt) >= new Date(data.endAt)) return '종료 시간은 시작 시간보다 늦어야 합니다.';
+        return null;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        const validationError = validate(scheduleData);
+        if (validationError) {
+            alert(validationError);
+            return;
+        }
+
+        setIsSubmitting(true);
+        
+        // 백엔드가 요구하는 ISO 8601 형식으로 변환 (초, 밀리초, Z 포함)
+        const payload = {
+            comment: scheduleData.comment,
+            // 🚨 ISO 문자열 변환: new Date(localString).toISOString()
+            startedAt: new Date(scheduleData.startedAt).toISOString(),
+            endAt: new Date(scheduleData.endAt).toISOString(),
+        };
+
+        try {
+            await createStudySchedule(studyId, payload);
+            alert(`일정 '${scheduleData.comment}'이(가) 성공적으로 생성되었습니다.`);
+            
+            // 폼 초기화
+            setScheduleData(initialScheduleData); 
+            
+        } catch (error) {
+            alert(`일정 생성에 실패했습니다: ${error.message}`);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+                <label htmlFor="comment" className="block text-sm font-medium text-text-light-primary dark:text-text-dark-primary">
+                    일정 제목/코멘트
+                </label>
+                <input
+                    type="text"
+                    id="comment"
+                    name="comment"
+                    value={scheduleData.comment}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full rounded-md border-border-light dark:border-border-dark bg-surface-light-field dark:bg-surface-dark-field text-text-light-primary dark:text-text-dark-primary shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                    placeholder="예: 백엔드 API 연동 회의"
+                />
+            </div>
+
+            <div className="flex space-x-4">
+                <div className="w-1/2">
+                    <label htmlFor="startedAt" className="block text-sm font-medium text-text-light-primary dark:text-text-dark-primary">
+                        시작 시간
+                    </label>
+                    <input
+                        type="datetime-local"
+                        id="startedAt"
+                        name="startedAt"
+                        value={scheduleData.startedAt}
+                        onChange={handleChange}
+                        required
+                        className="mt-1 block w-full rounded-md border-border-light dark:border-border-dark bg-surface-light-field dark:bg-surface-dark-field text-text-light-primary dark:text-text-dark-primary shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                    />
+                </div>
+                <div className="w-1/2">
+                    <label htmlFor="endAt" className="block text-sm font-medium text-text-light-primary dark:text-text-dark-primary">
+                        종료 시간
+                    </label>
+                    <input
+                        type="datetime-local"
+                        id="endAt"
+                        name="endAt"
+                        value={scheduleData.endAt}
+                        onChange={handleChange}
+                        required
+                        className="mt-1 block w-full rounded-md border-border-light dark:border-border-dark bg-surface-light-field dark:bg-surface-dark-field text-text-light-primary dark:text-text-dark-primary shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                    />
+                </div>
+            </div>
+
+            <div className="pt-5">
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-focus transition-colors disabled:opacity-50"
+                >
+                    {isSubmitting ? '일정 생성 중...' : (
+                        <>
+                            <MaterialSymbol icon="schedule" className="mr-2" />
+                            일정 생성하기
+                        </>
+                    )}
+                </button>
+            </div>
+        </form>
+    );
+};
+
 // ---------------------------------------------------------------------
 // 메인 컴포넌트
 // ---------------------------------------------------------------------
 const StudyManagePage = () => {
     const { id } = useParams();
-    const foundStudyDetail = mockStudyDetail.find(detail => detail.id === parseInt(id));
-    //const foundStudyDetail = getStudyDetail(id);
-    //const foundStudyMembers = getStudyMember(id);
-    
-        // 🌟 2. 해당 ID의 스터디가 없을 경우 처리 (예외 처리)
-        if (!foundStudyDetail) {
-            return (
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-red-500">
-                        존재하지 않는 스터디: 스터디 ID {id}를 찾을 수 없습니다.
-                    </h1>
-                </main>
-            );
-        }
+    const [foundStudyDetail, setFoundStudyDetail] = useState(null);
+    const [foundStudyMembers, setFoundStudyMembers] = useState(null);
 
     const tabs = [
-        { name: '스터디 정보 수정', component: <StudyInfoTab study={foundStudyDetail} /> },
-        { name: '구성원 관리', component: <MemberManageTab members={foundStudyDetail.members} studyId={id} /> },
-        //{ name: '구성원 관리', component: <MemberManageTab members={foundStudyMembers} studyId={id} /> },     백엔드 연동시 교체
-        { name: '참여 신청 관리', component: <ApplicationManageTab applications={mockApplications} studyId={id}/> },
-        //{ name: '참여 신청 관리', component: <ApplicationManageTab applications={foundStudyDetail.applicants} studyId={id} /> },   //백엔드 연동 시 이걸로 교체
+        // 이 tabs 배열을 정의하는 코드는 데이터 로딩 상태와 관계 없이 미리 정의 가능합니다.
+        // 다만, StudyInfoTab 내에서 foundStudyDetail이 null일 때의 처리가 필요할 수 있습니다.
+        // 여기서는 데이터 로딩이 완료된 후에만 탭 내용을 렌더링하도록 처리하겠습니다.
     ];
     
-    // 기본 탭을 '스터디 정보 수정'으로 설정
-    const [activeTab, setActiveTab] = useState(tabs[0].name);
+    const [activeTab, setActiveTab] = useState("스터디 정보 수정");
+
+    useEffect(() => {
+        const fetchStudyData = async () => {
+            try {
+                // 🌟 [DEBUG] 호출 시작 로그
+                console.log("---------------- API 호출 시작 ----------------");
+                console.log("요청 ID:", id);
+                
+                // API 호출
+                const detailData = await getStudyDetail(id);
+                const memberData = await getStudyMember(id);
+
+                // 🌟 [DEBUG] 성공 로그 및 데이터 구조 확인
+                console.log("API 호출 성공. 상세 데이터 (detailData):", detailData);
+                console.log("API 호출 성공. 멤버 데이터 (memberData):", memberData);
+
+                // 상태 업데이트
+                setFoundStudyDetail(detailData);
+                setFoundStudyMembers(memberData);
+                
+                // 🌟 [DEBUG] 상태 업데이트 완료 로그
+                console.log("---------------- API 호출 완료 ----------------");
+
+            } catch (error) {
+                // 🌟 [DEBUG] 실패 로그
+                console.error("API 호출 중 치명적인 오류 발생:", error);
+                // 추가로 사용자에게 알림 띄우기
+                alert("스터디 정보를 불러오는 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
+            }
+        };
+        
+        fetchStudyData();
+    }, [id]);
+    
+
+    const newPayload = useMemo(() => {
+        // 이미 로딩 체크가 if문으로 보호하고 있지만, useMemo 내에서도 안전하게 처리
+        if (!foundStudyDetail || !foundStudyDetail.studyInfo) {
+            return null;
+        }
+        return mapToUpdatePayload(foundStudyDetail);
+    }, [foundStudyDetail]);
+
+
+    const actualTabs = useMemo(() => {
+        if (!newPayload || !foundStudyMembers) {
+            return []; // 데이터 로딩 중일 경우 빈 배열 반환
+        }
+        return [
+            { name: '스터디 정보 수정', component: <StudyInfoTab study={newPayload} studyId = {id} /> },
+            { name: '구성원 관리', component: <MemberManageTab members={foundStudyMembers} studyId={id} /> },
+            { name: '참여 신청 관리', component: <ApplicationManageTab applications={mockApplications} studyId={id}/> },
+            
+            // 🌟 새 탭 추가
+            { name: '스터디 일정 생성', component: <ScheduleCreateTab studyId={id} /> }, 
+        ];
+    }, [newPayload, foundStudyMembers, id]);
+
+    if (!foundStudyDetail || !foundStudyDetail.studyInfo || !foundStudyMembers) { 
+        // ... (로딩 화면 렌더링) ...
+        return (
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="text-xl font-bold tracking-tight text-text-light-primary dark:text-text-dark-primary">
+                    스터디 정보를 불러오는 중입니다...
+                </div>
+            </main>
+        );
+    }
+    
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark font-display antialiased">
@@ -201,7 +437,7 @@ const StudyManagePage = () => {
                 {/* 헤더 영역 */}
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold tracking-tight text-text-light-primary dark:text-text-dark-primary">
-                        {foundStudyDetail.title} 관리
+                        {foundStudyDetail.studyInfo.studyName} 관리
                     </h1>
                     <Link to={`/study/${id}`} className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                         스터디 메인으로 돌아가기 &rarr;
@@ -213,7 +449,7 @@ const StudyManagePage = () => {
                     
                     {/* 탭 네비게이션 */}
                     <nav className="flex space-x-4 border-b border-border-light dark:border-border-dark mb-6">
-                        {tabs.map((tab) => (
+                        {actualTabs.map((tab) => (
                             <button
                                 key={tab.name}
                                 onClick={() => setActiveTab(tab.name)}
@@ -230,7 +466,7 @@ const StudyManagePage = () => {
 
                     {/* 탭 콘텐츠 */}
                     <div className="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-lg shadow-xl border border-border-light dark:border-border-dark">
-                        {tabs.find(tab => tab.name === activeTab)?.component}
+                        {actualTabs.find(tab => tab.name === activeTab)?.component}
                     </div>
                 </div>
             </main>
