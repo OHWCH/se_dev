@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()   // 로그인/회원가입은 모두 허용
                         .requestMatchers("/api/github/**").permitAll() // OAuth 콜백 허용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // ADMIN만 접근
+                        .requestMatchers("/studies/**").permitAll() // 테스트 용
                         .anyRequest().authenticated()  // 그 외 모든 요청은 인증 필요
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
