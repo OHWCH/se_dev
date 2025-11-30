@@ -3,7 +3,7 @@ package com.example.gitrajabi.study.entity;
 
 
 import com.example.gitrajabi.study.erum.StudyCategory;
-import com.example.gitrajabi.user_login.domain.user.entity.User;
+import com.example.gitrajabi.user.domain.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +25,7 @@ public class Study {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leader_id", nullable = false)
-    private User leader;
+    private UserEntity leader;
 
     @Column(nullable = false, length = 100)
     private String name;

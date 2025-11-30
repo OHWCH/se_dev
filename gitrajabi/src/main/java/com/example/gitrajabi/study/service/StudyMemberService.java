@@ -10,8 +10,9 @@ import com.example.gitrajabi.study.erum.JoinStatus;
 import com.example.gitrajabi.study.erum.StudyRole;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
-import com.example.gitrajabi.user_login.domain.user.entity.User;
-import com.example.gitrajabi.user_login.domain.user.repository.UserRepository;
+
+import com.example.gitrajabi.user.domain.entity.UserEntity;
+import com.example.gitrajabi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class StudyMemberService {
     public void applyToStudy(Long studyId, Long userId) {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디입니다."));
-        User user = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         boolean exists = studyMemberRepository
                 .existsByStudy_StudyIdAndUser_Id(studyId, userId);
@@ -59,11 +60,12 @@ public class StudyMemberService {
 
         return applicants.stream()
                 .map(member -> StudyApplicantResponse.builder()
-                        .userId(member.getUser().getId())
+                        .userId(member.getUser().getUserId())
                         .githubId(member.getUser().getGithubId())
-                        .joinStatus(member.getJoinStatus()) // APPLIED
-                        .build())
-                .toList();
+                        .joinStatus(member.getJoinStatus())
+                        .build()
+                ).toList();
+
     }
 
     // 가입 승인
@@ -74,7 +76,7 @@ public class StudyMemberService {
                 .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
 
 
-        User user = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
 
         StudyMember member = studyMemberRepository
@@ -111,13 +113,13 @@ public class StudyMemberService {
 
         return members.stream()
                 .map(m -> StudyMemberResponse.builder()
-                        .userId(m.getUser().getId())
+                        .userId(m.getUser().getUserId())
                         .githubId(m.getUser().getGithubId())
                         .joinStatus(m.getJoinStatus())
                         .studyRole(m.getStudyRole().name())
                         .build()
-                )
-                .toList();
+                ).toList();
+
     }
 
 
@@ -159,10 +161,11 @@ public class StudyMemberService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
 
-        //  요청자가 스터디장인지 검증
-        if (!study.getLeader().getId().equals(leaderId)) {
+        // 요청자가 스터디장인지 검증
+        if (!study.getLeader().getUserId().equals(leaderId)) {
             throw new IllegalArgumentException("스터디장만 멤버 강퇴를 수행할 수 있습니다.");
         }
+
 
         //  강퇴 대상 멤버 조회
         StudyMember target = studyMemberRepository

@@ -37,9 +37,10 @@ public class StudyScheduleService {
                 .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
 
         // 현재 유저가 스터디장인지 확인
-        if (!study.getLeader().getId().equals(userId)) {
+        if (!study.getLeader().getUserId().equals(userId)) {
             throw new IllegalArgumentException("스터디장만 일정을 생성할 수 있습니다.");
         }
+
 
         // 일정 생성
         StudySchedule schedule = StudySchedule.builder()

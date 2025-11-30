@@ -1,7 +1,8 @@
 package com.example.gitrajabi.study.entity;
 
 
-import com.example.gitrajabi.user_login.domain.user.entity.User;
+
+import com.example.gitrajabi.user.domain.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class ScheduleParticipate {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserEntity user;
 
 
 }

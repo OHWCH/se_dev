@@ -9,8 +9,8 @@ import com.example.gitrajabi.study.erum.JoinStatus;
 import com.example.gitrajabi.study.erum.StudyRole;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
-import com.example.gitrajabi.user_login.domain.user.entity.User;
-import com.example.gitrajabi.user_login.domain.user.repository.UserRepository;
+import com.example.gitrajabi.user.domain.entity.UserEntity;
+import com.example.gitrajabi.user.domain.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class StudyService {
     public Long createStudy(StudyCreateDto request, Long leaderId) {
 
         // 리더 유저 조회
-        User leader = userRepository.findById(leaderId)
+        UserEntity leader = userRepository.findById(leaderId)
                 .orElseThrow(() -> new IllegalArgumentException("리더 유저가 존재하지 않습니다."));
 
         LocalDateTime now = LocalDateTime.now();
@@ -173,7 +173,8 @@ public class StudyService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디입니다."));
 
         //  현재 로그인 유저가 스터디장인지 검증
-        if (!study.getLeader().getId().equals(userId)) {
+        if (!study.getLeader().getUserId().equals(userId)) {
+
             throw new IllegalArgumentException("스터디장만 스터디 정보를 수정할 수 있습니다.");
         }
 
