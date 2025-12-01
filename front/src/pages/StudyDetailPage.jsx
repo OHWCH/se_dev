@@ -4,7 +4,7 @@ import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 // mockStudyDetail는 더 이상 사용하지 않음
 import { Link } from 'react-router-dom';
-import { getStudyDetail, getStudyMember, getStudySchedule } from '../services/studyApi'; // API 함수는 비동기 함수로 가정
+import { getStudyDetail, getStudyMember, getStudySchedule, getStudyMain } from '../services/studyApi'; // API 함수는 비동기 함수로 가정
 
 
 const formatTime = (isoString) => {
@@ -132,7 +132,7 @@ const MemberItem = ({ member }) => {
                 <MaterialSymbol name="person" className="text-slate-500 dark:text-slate-400 text-lg" style={{ fontSize: '1.25rem' }} />
             </div>
             <span className={`font-medium text-sm ${isLeader ? 'text-primary' : 'text-text-light-primary dark:text-text-dark-primary'}`}>
-                {member.nickname} {/* 🌟 nickname 사용 */}
+                {member.githubId} {/* 🌟 nickname 사용 */}
             </span>
             {isLeader && <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-bold">LEADER</span>}
         </div>
@@ -144,83 +144,72 @@ const StudyDetailPage = () => {
     const { id } = useParams(); // 라우팅 파라미터에서 ID를 가져옵니다.
 
     // 🌟 상태 정의
-    const [studyData, setStudyData] = useState(null);
-    const [membersData, setMembersData] = useState([]);
-    const [studyScheduleData, setStudyScheduleData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [study, setStudy] = useState(null);
+    const [membersData, setMembersData] = useState([]); // 멤버 데이터 배열로 가정
+    const [loading, setLoading] = useState(true); // 로딩 상태
+    const [error, setError] = useState(false);
+    
     
     // 🌟 데이터 패칭 및 가공 로직
     useEffect(() => {
         const fetchStudyData = async () => {
-            setIsLoading(true);
-            setError(null);
+            setLoading(true);
+            setError(false);
             
             try {
                 // 1. API 호출 (비동기 처리)
-                const detailResponse = await getStudyDetail(id);
-                const membersResponse = await getStudyMember(id);
-                const scheduleResponse = await getStudySchedule(id);
+                const [mainData, scheduleData] = await Promise.all([
+                    getStudyMain(id), 
+                    getStudySchedule(id), // 일정 정보는 여전히 필요
+                ]);
 
-                if (!detailResponse || !detailResponse.studyInfo) {
-                    setError("스터디 상세 정보를 불러오지 못했습니다.");
-                    setIsLoading(false);
-                    return;
+                if (!mainData) {
+                    throw new Error("스터디 상세 정보를 불러오지 못했습니다.");
                 }
                 
-                // 2. 데이터 가공 (스터디 정보)
-                const studyInfo = detailResponse.studyInfo;
-                const approvedMembers = membersResponse.filter(m => m.joinStatus === "APPROVED");
-                const leader = approvedMembers.find(m => m.studyRole === "LEADER");
-
-                const processedStudy = {
-                    id: studyInfo.studyId,
-                    title: studyInfo.studyName,
-                    category: studyInfo.studyCategory,
-                    description: studyInfo.studyDescription,
-                    maxMembers: studyInfo.maxMemberCount,
-                    // 리더 정보 추출
-                    leaderNickname: leader ? leader.nickname : '미정',
-                    currentMembers: approvedMembers.length,
-                    // 🌟 임시 데이터: 백엔드에서 주지 않는다면 crashing 방지용
-                    upcomingTasks: scheduleResponse
+                const formattedData = {
+                    ...mainData, 
+                    title: mainData.studyName,
+                    description: mainData.studyDescription,
+                    id: mainData.studyId, 
+                    
+                    // 리더 닉네임 찾기 (mainData.members 사용)
+                    leaderNickname: mainData.members.find(m => m.studyRole === "LEADER")?.nickname || '리더 정보 없음', 
+                    
+                    // schedules를 upcomingTasks로 포맷
+                    upcomingTasks: (scheduleData || [])
+                        .map(s => ({ 
+                            ...s,
+                            participated: s.participated || false, 
+                            participateCount: s.participateCount || 0, 
+                        }))
+                        .sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt)),
                 };
 
-                setStudyData(processedStudy);
-                setMembersData(membersResponse); // 멤버 데이터는 joinStatus와 role을 가진 원본을 저장
+                setStudy(formattedData);
+                setMembersData(mainData.members || []); // 🚨 getStudyMain의 members 필드 사용
+                setLoading(false);
                 
-            } catch (err) {
-                console.error("API 호출 오류:", err);
-                setError("데이터를 불러오는 중 오류가 발생했습니다.");
-            } finally {
-                setIsLoading(false);
+            } catch (error) {
+                console.error("스터디 상세 정보 로드 오류:", error);
+                
+                // 🚨 5. catch 블록 내에서 detailResponse 같은 정의되지 않은 변수 제거
+                
+                setError(true);
+                setLoading(false);
             }
         };
 
         fetchStudyData();
     }, [id]);
 
-    if (isLoading) {
-        return (
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-text-light-secondary dark:text-text-dark-secondary">
-                <Header />
-                <p className="py-20">스터디 정보를 불러오는 중...</p>
-            </main>
-        );
+    if (loading) {
+        return <div className="p-8 text-center">스터디 정보를 불러오는 중입니다...</div>;
     }
     
-    if (error || !studyData) {
-        return (
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <Header />
-                <h1 className="text-3xl font-bold tracking-tight text-red-500">
-                    오류: {error || `스터디 ID ${id}를 찾을 수 없습니다.`}
-                </h1>
-            </main>
-        );
+    if (error || !study) {
+        return <div className="p-8 text-center text-red-500">스터디 정보를 불러오는데 실패했습니다.</div>;
     }
-
-    const study = studyData; // JSX에서 사용하기 쉽게 별칭 지정
     
     // ----------------------------------------------------
     // 🌟 JSX 렌더링
@@ -263,7 +252,7 @@ const StudyDetailPage = () => {
                                 </p>
                                 <p className="flex items-center text-text-light-secondary dark:text-text-dark-secondary mt-1">
                                     <MaterialSymbol name="star" className="mr-2 text-base" />
-                                    리더: {study.leaderNickname} {/* 🌟 studyData.leaderNickname 사용 */}
+                                    리더: {study.leaderGithubId}
                                 </p>
                             </div>
                         </div>

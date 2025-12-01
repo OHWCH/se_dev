@@ -3,6 +3,7 @@ import Header from '../components/ui/Header';
 import SearchBar from '../components/ui/SearchBar';
 import IssueList from '../components/lists/IssueList';
 import Pagination from '../components/ui/Pagination';
+import { getMyProfile } from '../services/userApi';
 
 // ====================================================================
 // Mock Data (실제 데이터는 API 통신 등으로 대체됩니다)
@@ -32,6 +33,8 @@ const mockPaginationLinks = [
 // ====================================================================
 
 const Homepage = () => {
+
+    const myProfile = getMyProfile();
     return (
         // 전역 스타일링: 배경색(light/dark), 폰트(display), 기본 글자색 설정
         <div className="min-h-screen bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200 antialiased">
