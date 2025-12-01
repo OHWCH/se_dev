@@ -4546,8 +4546,6 @@ classDiagram
 | Operations | list(int page,int size,String keyword,List<String> tags,boolean recentFirst)<br>뉴스 목록 조회 | List<News> | Public |
 |  | goTo(String newsId)<br>뉴스 상세 원문으로 이동할 URL 반환 | String | Public |
 
-
-
 ---
 ## 4. Sequence diagram
 ## 유저
@@ -4603,7 +4601,6 @@ sequenceDiagram
     AC-->>FE: 200 OK (AuthTokens)
     FE-->>U: 토큰 저장(localStorage 등) 후 첫 로그인 완료 화면
 
-    end
 
 ```
 
