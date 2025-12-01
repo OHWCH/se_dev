@@ -1,15 +1,16 @@
 package com.example.gitrajabi.board.service;
-
+import com.example.gitrajabi.board.domain.Comment;
 import com.example.gitrajabi.board.domain.Post;
 import com.example.gitrajabi.board.dto.CommentResponse;
 import com.example.gitrajabi.board.dto.PostDetailResponse; // 🌟 임포트
+import com.example.gitrajabi.board.repository.CommentRepository;
 import com.example.gitrajabi.board.repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -18,9 +19,10 @@ import java.util.NoSuchElementException;
 public class PostQueryService {
 
     private final PostRepository postRepository;
-
-    public PostQueryService(PostRepository postRepository) {
+    private final CommentRepository commentRepository;
+    public PostQueryService(PostRepository postRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
 
     // Use Case #17: 게시글 목록 조회
@@ -42,11 +44,11 @@ public class PostQueryService {
                 .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다. postId=" + postId));
 
         post.incrementViewCount(); // 조회수 증가
-
+        List<Comment> comments = commentRepository.findByPostId(postId);
         // 2. 댓글 목록 로드 및 DTO 변환
-        List<CommentResponse> commentResponses = post.getComments().stream()
-                .map(CommentResponse::from)
-                .toList();
+        List<CommentResponse> commentResponses = comments.stream()
+                .map(CommentResponse::from) // 💡 CommentResponse::from 메서드가 엔티티를 DTO로 변환한다고 가정
+                .collect(Collectors.toList());
 
         // 3. PostDetailResponse 생성 및 반환
         return PostDetailResponse.from(post, commentResponses);

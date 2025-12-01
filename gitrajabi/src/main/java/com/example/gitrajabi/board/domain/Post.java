@@ -1,6 +1,5 @@
 package com.example.gitrajabi.board.domain;
 
-import com.example.gitrajabi.user_login.domain.user.entity.User; // 🌟 UserEntity 임포트
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,8 +11,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList; // 🌟 임포트
-import java.util.List; // 🌟 임포트
+// import com.example.gitrajabi.user.domain.entity.UserEntity; // (사용되지 않음)
+// import java.util.ArrayList; // (사용되지 않음)
+// import java.util.List; // (사용되지 않음)
 
 @Entity
 @Getter
@@ -26,15 +26,15 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
-    // private Long userId; // 기존 필드 유지 (FK로 사용)
+    // ⭐️ user_id 칼럼을 직접 매핑 (ID-Only 방식)
+    @Column(name = "user_id")
     private Long userId;
 
+    /*
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User author; // 🌟 추가: 작성자 엔티티 매핑
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>(); // 🌟 추가: 댓글 목록 매핑
+    private UserEntity author;
+    */ // ❌ 연관 관계 매핑 제거 (ID-Only 방식 채택)
 
     private String title;
     @Lob
@@ -63,7 +63,7 @@ public class Post {
     }
 
     // Use Case #18: 상세 조회 시 조회수 증가
-    public void incrementViewCount() { // ✅ 이 메서드를 Post 엔티티에 추가합니다.
+    public void incrementViewCount() {
         this.viewCount++;
     }
 

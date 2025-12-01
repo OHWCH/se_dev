@@ -4,7 +4,7 @@ import com.example.gitrajabi.board.domain.Comment;
 import com.example.gitrajabi.board.dto.CommentCreationRequest;
 import com.example.gitrajabi.board.dto.CommentResponse;
 import com.example.gitrajabi.board.service.CommentManagementService;
-import com.example.gitrajabi.user_login.common.security.SecurityUtil; // ✅ SecurityUtil import 추가
+import com.example.gitrajabi.user.security.SecurityUtil; // ✅ SecurityUtil import 추가
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 // import org.springframework.security.core.annotation.AuthenticationPrincipal; // ❌ 제거

@@ -1,6 +1,6 @@
 package com.example.gitrajabi.board.domain;
 
-import com.example.gitrajabi.user_login.domain.user.entity.User; // 🌟 UserEntity 임포트
+import com.example.gitrajabi.user.domain.entity.UserEntity; // 🌟 UserEntity 임포트
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import com.example.gitrajabi.board.domain.Post;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,19 +23,20 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
+    @Column(name = "post_id")
+     private Long postId; // 기존 필드 유지 (FK로 사용)
+    //private Long postId;
+    @Column(name = "user_id")
+     private Long userId; // 기존 필드 유지 (FK로 사용)
+    // Long userId;
 
-    // private Long postId; // 기존 필드 유지 (FK로 사용)
-    private Long postId;
-    // private Long userId; // 기존 필드 유지 (FK로 사용)
-    private Long userId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", insertable = false, updatable = false)
     private Post post; // 🌟 추가: 게시글 엔티티 매핑
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User author; // 🌟 추가: 작성자 엔티티 매핑
+    private UserEntity user;*/ // 🌟 추가: 작성자 엔티티 매핑
 
     private String content;
 
@@ -61,6 +62,6 @@ public class Comment {
 
     // 편의 메서드: CommentResponse 생성을 위해 postId를 반환합니다.
     public Long getPostId() {
-        return this.post.getPostId();
+        return this.postId; // ⭐️ 직접 ID 필드를 반환하도록 수정
     }
 }
