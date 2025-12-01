@@ -149,27 +149,29 @@ const MemberManageTab = ({ members, studyId }) => {
     return (
         <div className="space-y-4 mt-6">
             {members.map((member, index) => {
-                const isLeader = member.role === 'leader';
+                const isLeader = member.studyRole === 'LEADER';
+                const isApproved = member.joinStatus === 'APPROVED'
                 return (
-                    // Study Detail 페이지에서 사용한 MemberItem을 관리 기능에 맞게 수정
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-border-light dark:border-border-dark">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                <MaterialSymbol name="person" className="text-slate-500 dark:text-slate-400 text-lg" style={{ fontSize: '1.25rem' }} />
+                    isApproved && (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-border-light dark:border-border-dark">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                    <MaterialSymbol name="person" className="text-slate-500 dark:text-slate-400 text-lg" style={{ fontSize: '1.25rem' }} />
+                                </div>
+                                <span className={`font-medium text-sm ${isLeader ? 'text-primary' : 'text-text-light-primary dark:text-text-dark-primary'}`}>
+                                    {member.githubId}
+                                </span>
+                                {isLeader && <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-bold">LEADER</span>}
                             </div>
-                            <span className={`font-medium text-sm ${isLeader ? 'text-primary' : 'text-text-light-primary dark:text-text-dark-primary'}`}>
-                                {member.nickname}
-                            </span>
-                            {isLeader && <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-bold">LEADER</span>}
+                            
+                            {/* 리더가 아닐 때만 추방 버튼 표시 */}
+                            {!isLeader && (
+                                <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" onClick={() => deleteMember(studyId, member.name)}>
+                                    추방
+                                </button>
+                            )}
                         </div>
-                        
-                        {/* 리더가 아닐 때만 추방 버튼 표시 */}
-                        {!isLeader && (
-                            <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" onClick={() => deleteMember(studyId, member.name)}>
-                                추방
-                            </button>
-                        )}
-                    </div>
+                    )
                 );
             })}
         </div>
@@ -187,19 +189,19 @@ const ApplicationManageTab = ({ applications, studyId }) => {
             ) : (
                 <ul className="divide-y divide-border-light dark:divide-border-dark bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
                     {applications.map(app => (
-                        <li key={app.id} className="px-6 py-4">
+                        <li key={app.userId} className="px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
                                     <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-full">
                                         <MaterialSymbol name="person" className="text-gray-500 dark:text-gray-400 text-lg" style={{ fontSize: '1.25rem' }} />
                                     </div>
-                                    <p className="text-sm font-medium text-text-light-primary dark:text-text-dark-primary">{app.applicant}</p>
-                                    <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary ml-4">{app.date} 신청</p>
+                                    <p className="text-sm font-medium text-text-light-primary dark:text-text-dark-primary">{app.githubId}</p>
+                                    <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary ml-4">상태:{app.joinStatus}</p>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     {/* 수락/거절 버튼 */}
-                                    <button className="px-2.5 py-1 text-xs font-semibold text-primary border border-primary rounded-md hover:bg-primary/10 transition-colors" type="button" onClick={() => approveApplicant(studyId, app.id)}>수락</button>
-                                    <button className="px-2.5 py-1 text-xs font-semibold text-text-light-secondary dark:text-text-dark-secondary border border-border-light dark:border-border-dark rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" type="button" onClick={() => rejectApplicant(studyId, app.id)}>거절</button>
+                                    <button className="px-2.5 py-1 text-xs font-semibold text-primary border border-primary rounded-md hover:bg-primary/10 transition-colors" type="button" onClick={() => approveApplicant(studyId, app.userId)}>수락</button>
+                                    <button className="px-2.5 py-1 text-xs font-semibold text-text-light-secondary dark:text-text-dark-secondary border border-border-light dark:border-border-dark rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" type="button" onClick={() => rejectApplicant(studyId, app.userId)}>거절</button>
                                 </div>
                             </div>
                         </li>
@@ -228,6 +230,7 @@ const ScheduleCreateTab = ({ studyId }) => {
         startedAt: formatLocalDateTime(now),
         // 2시간 뒤로 초기 설정 (예시)
         endAt: formatLocalDateTime(new Date(now.getTime() + 2 * 60 * 60 * 1000)),
+        capacity: 2,
     };
 
     const [scheduleData, setScheduleData] = useState(initialScheduleData);
@@ -235,7 +238,10 @@ const ScheduleCreateTab = ({ studyId }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setScheduleData(prev => ({ ...prev, [name]: value }));
+        setScheduleData(prev => ({
+        ...prev,
+        [name]: name === 'capacity' ? Number(value) : value
+        }));
     };
 
     const validate = (data) => {
@@ -265,13 +271,11 @@ const ScheduleCreateTab = ({ studyId }) => {
 
         try {
             await createStudySchedule(studyId, payload);
-            alert(`일정 '${scheduleData.comment}'이(가) 성공적으로 생성되었습니다.`);
-            
-            // 폼 초기화
+        
             setScheduleData(initialScheduleData); 
             
         } catch (error) {
-            alert(`일정 생성에 실패했습니다: ${error.message}`);
+            throw error;
         } finally {
             setIsSubmitting(false);
         }
@@ -324,6 +328,21 @@ const ScheduleCreateTab = ({ studyId }) => {
                         className="mt-1 block w-full rounded-md border-border-light dark:border-border-dark bg-surface-light-field dark:bg-surface-dark-field text-text-light-primary dark:text-text-dark-primary shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                     />
                 </div>
+            </div>
+            <div className="mb-4">
+                <label htmlFor="scheduleCapacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    참여 가능 인원수 (Capacity)
+                </label>
+                <input
+                    type="number" // 🌟 숫자 입력만 허용
+                    id="scheduleCapacity"
+                    name="capacity"
+                    value={scheduleData.capacity}
+                    onChange={handleChange}
+                    min="2" // 최소값 0 설정 (필요 시 1로 변경 가능)
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    placeholder="예: 5"
+                />
             </div>
 
             <div className="pt-5">
@@ -410,7 +429,7 @@ const StudyManagePage = () => {
         return [
             { name: '스터디 정보 수정', component: <StudyInfoTab study={newPayload} studyId = {id} /> },
             { name: '구성원 관리', component: <MemberManageTab members={foundStudyMembers} studyId={id} /> },
-            { name: '참여 신청 관리', component: <ApplicationManageTab applications={mockApplications} studyId={id}/> },
+            { name: '참여 신청 관리', component: <ApplicationManageTab applications={foundStudyDetail.applicants} studyId={id}/> },
             
             // 🌟 새 탭 추가
             { name: '스터디 일정 생성', component: <ScheduleCreateTab studyId={id} /> }, 
