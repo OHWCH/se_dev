@@ -35,6 +35,7 @@ const ProfileSummary = () => {
         commits: 0,
         prs: 0,
         issues: 0,
+        badgeStatus: "Unknown",
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -48,10 +49,11 @@ const ProfileSummary = () => {
                 
                 // 🔑 백엔드 응답 데이터(data)를 userData 상태에 저장
                 setUserData({
-                    commits: data.stats.commitCount || 0,
-                    prs: data.stats.prCount || 0,
-                    issues: data.stats.issueCount || 0,
+                    commits: data.stats.commit_count || 0,
+                    prs: data.stats.pr_count || 0,
+                    issues: data.stats.issue_count || 0,
                     // 백엔드 키 이름이 'commits', 'prs', 'issues'와 다를 경우 여기에 매핑해줍니다.
+                    badgeStatus: data.badge || "Unknown"
                 });
                 setError(null);
             } catch (err) {
