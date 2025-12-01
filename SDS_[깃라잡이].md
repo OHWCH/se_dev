@@ -4551,373 +4551,329 @@ classDiagram
 ---
 ## 4. Sequence diagram
 ## 유저
-### 1. 회원가입
+### 1. GitHub OAuth 회원가입
 
 ```mermaid
 sequenceDiagram
-    actor U as User(클라이언트)
+    autonumber
+    participant U as User(브라우저)
+    participant FE as Frontend(SPA)
     participant AC as AuthController
+    participant GAS as GithubAuthService
+    participant GH as GitHub OAuth
+    participant GAPI as GitHub API
     participant AS as AuthService
     participant UR as UserRepository
-    participant UE as UserEntity
-    participant JP as JwtTokenProvider
+    participant JTP as JwtTokenProvider
 
-    U->>AC: POST /api/auth/login<br/>UserLoginDto(email, password)
-    AC->>AS: login(dto)
+    U->>FE: "GitHub로 로그인" 버튼 클릭
+    FE->>AC: GET /api/auth/github/authorize-url
+    AC->>GAS: buildAuthorizeUrl()
+    GAS-->>AC: authorizeUrl
+    AC-->>FE: 200 OK (authorizeUrl)
+    FE-->>U: GitHub 로그인 페이지로 리다이렉트
 
-    AS->>UR: findByEmail(dto.email)
-    UR-->>AS: Optional<UserEntity>
+    U->>GH: GitHub 로그인 및 권한 허용
+    GH-->>AC: GET /api/auth/github/callback?code&state
+    AC->>GAS: loginWithGithub(GithubAuthDto{code,state})
 
-    alt 사용자 존재 && !user.isDeleted()
-        AS->>AS: passwordEncoder.matches(dto.password, user.password)
+    alt dto.accessToken 없음
+        GAS->>GAS: exchangeCodeForAccessToken(code)
+        GAS->>GH: POST /login/oauth/access_token
+        GH-->>GAS: access_token
+    end
 
-        alt 비밀번호 일치
-            AS->>JP: generateAccessToken(user.id, user.role)
-            JP-->>AS: accessToken
+    GAS->>GAPI: GET /user (Authorization: Bearer access_token)
+    GAPI-->>GAS: { login, ... }
 
-            AS->>JP: generateRefreshToken(user.id)
-            JP-->>AS: refreshToken
+    GAS->>UR: findByGithubId(login)
+    UR-->>GAS: Optional.empty (최초 로그인)
 
-            AS-->>AC: AuthTokens(accessToken, refreshToken)
-            AC-->>U: 200 OK + AuthTokens(JSON)
-        else 비밀번호 불일치
-            AS-->>AC: 인증 실패 예외
-            AC-->>U: 401 Unauthorized + "이메일 또는 비밀번호가 올바르지 않습니다."
-        end
-    else 사용자 없음 또는 삭제 상태
-        AS-->>AC: 인증 실패 예외
-        AC-->>U: 401/404 + "사용자를 찾을 수 없습니다."
+    GAS->>GAS: createUserFromGithubLogin(login)
+    GAS->>UR: save(UserEntity)
+    UR-->>GAS: saved UserEntity
+
+    GAS->>AS: issueTokensForUser(user)
+    AS->>JTP: generateAccessToken(user.userId, role)
+    JTP-->>AS: accessToken
+    AS->>JTP: generateRefreshToken(user.userId)
+    JTP-->>AS: refreshToken
+    AS-->>GAS: AuthTokens
+    GAS-->>AC: AuthTokens
+    AC-->>FE: 200 OK (AuthTokens)
+    FE-->>U: 토큰 저장(localStorage 등) 후 첫 로그인 완료 화면
+
     end
 
 ```
 
-사용자가 웹에서 회원가입 페이지에 접속하면, 이메일과 비밀번호, 닉네임, 자기소개를 입력한 뒤 “회원가입” 버튼을 누른다. 이때 클라이언트는 사용자가 입력한 값들을 UserRegisterDto 형태의 JSON으로 만들어 POST /api/auth/register 요청을 서버로 보낸다. 이 요청을 받는 것은 AuthController이고, 컨트롤러는 HTTP 요청 본문을 DTO로 매핑한 뒤 실질적인 비즈니스 로직을 담당하는 AuthService.register(dto)를 호출한다.
+사용자가 웹 서비스에서 “GitHub로 로그인” 버튼을 클릭하면, 프론트엔드는 먼저 백엔드의 GET /api/auth/github/authorize-url 엔드포인트를 호출해 GitHub 인증 페이지로 이동할 수 있는 authorize URL을 요청한다. AuthController는 내부적으로 GithubAuthService.buildAuthorizeUrl()을 호출하여 GitHub OAuth 인증 URL을 생성해 프론트엔드에 전달한다. 프론트엔드는 해당 URL로 리다이렉트시켜 사용자를 GitHub 로그인 화면으로 보내고, 사용자는 GitHub 계정으로 로그인 및 권한 허용을 진행한다.
 
-AuthService 내부에서는 먼저 중복 가입을 막기 위해 UserRepository.existsByEmail(dto.getEmail())를 호출하여 동일한 이메일이 이미 DB에 존재하는지 확인한다. 만약 이미 가입된 이메일이라면 예외를 던져 컨트롤러를 통해 “이미 사용 중인 이메일입니다.”와 같은 에러 응답을 돌려보내고, 회원가입 절차는 여기서 종료된다. 중복이 아니라면, 서비스는 비밀번호를 평문 그대로 저장하지 않고 PasswordEncoder(BCrypt)를 사용하여 해시값으로 암호화한다. 그런 다음 이메일, 암호화된 비밀번호, 닉네임, bio, 기본 권한(Role.USER) 등을 포함하여 UserEntity를 생성한 후, 이를 UserRepository.save(user)를 통해 Supabase PostgreSQL의 users 테이블에 저장한다.
+GitHub 로그인에 성공하면 GitHub는 등록된 redirect URI로 code와 state를 포함하여 백엔드로 콜백 요청을 보낸다. 이때 AuthController.githubCallback()이 호출되며, 컨트롤러는 전달받은 code/state 값을 GithubAuthDto에 담아 GithubAuthService.loginWithGithub()에 넘긴다.
 
-저장이 성공하면, 서비스는 방금 저장된 엔티티를 기반으로 UserResponseDto.from(user)를 호출하여 클라이언트에 전달할 응답 DTO를 만든다. 이 DTO에는 ID, 이메일, 닉네임, 권한, 생성일 등 사용자 정보가 담긴다. AuthController는 이 DTO를 응답 본문에 담고 HTTP 상태 코드는 201 Created로 설정하여 클라이언트에게 반환한다. 클라이언트는 응답을 받은 뒤 “회원가입이 완료되었습니다.” 같은 메시지를 띄우고, 사용자를 로그인 페이지나 메인 화면으로 이동시키는 식으로 마무리한다. 이 단계에서는 JWT 토큰은 발급되지 않고, 실제 로그인은 별도의 로그인 흐름에서 처리된다는 점이 특징이다.
+GithubAuthService는 우선 DTO에 accessToken이 없는 경우 GitHub 토큰 발급 엔드포인트(https://github.com/login/oauth/access_token)에 client_id, client_secret, code, redirect_uri를 담아 POST 요청을 보내 액세스토큰을 받아온다. 이어서 이 액세스 토큰을 이용하여 GitHub API의 /user 엔드포인트를 호출해 사용자의 GitHub 프로필 정보를 조회하고, 이 중 login 값을 가져와 서비스에서 사용하는 github_id로 활용한다.
 
-### 2. 로그인(이메일/비밀번호)
+그 다음 UserRepository.findByGithubId()를 호출하여 해당 github_id가 이미 존재하는지 조회한다. 최초 로그인이라면 해당 값이 없기 때문에, GithubAuthService는 createUserFromGithubLogin()을 호출하여 새로운 UserEntity를 생성한다. 이때 관리자 여부는 기본적으로 false이며, commit/issue/pr 통계는 모두 0으로 초기화되고 created_at 값이 현재 시각으로 설정된다. 생성된 엔티티는 DB에 저장된다.
+
+사용자 엔터티가 준비되면, GithubAuthService는 AuthService.issueTokensForUser()를 호출해 Access Token과 Refresh Token을 발급받는다. AuthService는 JWT 생성기 JwtTokenProvider를 사용하여, userId와 역할(is_admin 여부)을 포함한 Access Token과 Refresh Token을 각각 생성한다. 생성된 토큰 세트(AuthTokens)는 다시 컨트롤러를 통해 프론트엔드로 반환되며, 프론트는 이 토큰을 저장하여 최초 회원가입 및 로그인 과정을 마친다.
+
+### 2. 로그인 (GitHub OAuth 재로그인)
 ```mermaid
 sequenceDiagram
-    actor U as User(클라이언트)
+    autonumber
+    participant U as User(브라우저)
+    participant FE as Frontend(SPA)
     participant AC as AuthController
+    participant GAS as GithubAuthService
+    participant GH as GitHub OAuth
+    participant GAPI as GitHub API
     participant AS as AuthService
     participant UR as UserRepository
-    participant UE as UserEntity
-    participant JP as JwtTokenProvider
+    participant JTP as JwtTokenProvider
 
-    U->>AC: POST /api/auth/login<br/>UserLoginDto(email, password)
-    AC->>AS: login(dto)
+    U->>FE: "GitHub로 로그인" 버튼 클릭
+    FE->>AC: GET /api/auth/github/authorize-url
+    AC->>GAS: buildAuthorizeUrl()
+    GAS-->>AC: authorizeUrl
+    AC-->>FE: 200 OK (authorizeUrl)
+    FE-->>U: GitHub 로그인 페이지로 리다이렉트
 
-    AS->>UR: findByEmail(dto.email)
-    UR-->>AS: Optional<UserEntity>
+    U->>GH: GitHub 로그인/권한 허용
+    GH-->>AC: GET /api/auth/github/callback?code&state
+    AC->>GAS: loginWithGithub(GithubAuthDto{code,state})
 
-    alt 사용자 존재 && !user.isDeleted()
-        AS->>AS: passwordEncoder.matches(dto.password, user.password)
-
-        alt 비밀번호 일치
-            AS->>JP: generateAccessToken(user.id, user.role)
-            JP-->>AS: accessToken
-
-            AS->>JP: generateRefreshToken(user.id)
-            JP-->>AS: refreshToken
-
-            AS-->>AC: AuthTokens(accessToken, refreshToken)
-            AC-->>U: 200 OK + AuthTokens(JSON)
-        else 비밀번호 불일치
-            AS-->>AC: 인증 실패 예외
-            AC-->>U: 401 Unauthorized + "이메일 또는 비밀번호가 올바르지 않습니다."
-        end
-    else 사용자 없음 또는 삭제 상태
-        AS-->>AC: 인증 실패 예외
-        AC-->>U: 401/404 + "사용자를 찾을 수 없습니다."
+    alt dto.accessToken 없음
+        GAS->>GAS: exchangeCodeForAccessToken(code)
+        GAS->>GH: POST /login/oauth/access_token
+        GH-->>GAS: access_token
     end
 
+    GAS->>GAPI: GET /user (Authorization: Bearer access_token)
+    GAPI-->>GAS: { login, ... }
 
-```
+    GAS->>UR: findByGithubId(login)
+    UR-->>GAS: 기존 UserEntity (이미 가입)
 
-사용자가 이미 가입된 계정으로 로그인하려고 할 때는 로그인 화면에서 이메일과 비밀번호를 입력하고 “로그인” 버튼을 클릭한다. 그러면 클라이언트는 이메일과 비밀번호를 담은 UserLoginDto JSON을 POST /api/auth/login 엔드포인트로 전송한다. 이 요청을 받은 AuthController는 DTO로 매핑된 로그인 정보를 들고 AuthService.login(dto)를 호출한다.
-
-AuthService는 먼저 UserRepository.findByEmail(dto.getEmail())을 호출하여 해당 이메일을 가진 사용자가 DB에 존재하는지 확인한다. 사용자가 없으면 “등록되지 않은 이메일입니다.” 또는 “이메일 또는 비밀번호가 올바르지 않습니다.”와 같은 메시지를 담은 인증 실패 예외를 발생시키고, 컨트롤러가 이를 받아 401 Unauthorized 응답을 반환한다. 사용자가 존재한다면, 다음으로 PasswordEncoder.matches(dto.getPassword(), user.getPassword())를 호출하여 사용자가 입력한 비밀번호와 DB에 저장된 해시된 비밀번호가 실제로 일치하는지 확인한다. 이때 계정이 소프트 삭제 상태(deletedAt이 설정된 상태)라면, 비밀번호가 맞더라도 로그인 자체를 거부하는 로직을 둘 수 있다.
-
-비밀번호 검증까지 성공하면, 이제 JwtTokenProvider가 등장한다. 서비스는 jwtTokenProvider.generateAccessToken(user.getId(), user.getRole().name())을 호출하여 사용자 ID와 권한 정보를 담은 Access Token을 생성하고, 이어서 jwtTokenProvider.generateRefreshToken(user.getId())로 Refresh Token을 생성한다. 두 토큰은 AuthTokens라는 DTO로 묶여서 AuthService에서 반환되고, AuthController는 이를 200 OK 상태와 함께 클라이언트로 보낸다. 클라이언트는 받은 Access Token과 Refresh Token을 LocalStorage나 쿠키와 같은 적절한 저장소에 보관하고, 이후 보호된 API를 호출할 때 Access Token을 Authorization: Bearer ... 형태로 헤더에 실어 인증에 사용한다.
-
-
-### 3. GitHub 로그인(OAuth)
-### 3-1. GitHub 로그인 URL 요청
-```mermaid
-sequenceDiagram
-    actor U as User(클라이언트)
-    participant GC as GithubAuthController
-    participant GS as GithubAuthService
-
-    U->>GC: GET /api/github/authorize-url
-    GC->>GS: buildAuthorizeUrl()
-    GS-->>GC: authorizeUrl(GitHub OAuth URL)
-    GC-->>U: 200 OK + authorizeUrl
-    U->>U: 브라우저를 GitHub 로그인 페이지로 리다이렉트
-
-```
-### GitHub 콜백 & 로그인 처리
-```mermaid
-sequenceDiagram
-    actor U as User(브라우저)
-    participant GC as GithubAuthController
-    participant GS as GithubAuthService
-    participant GH as GitHub OAuth Server
-    participant UR as UserRepository
-    participant UE as UserEntity
-    participant JP as JwtTokenProvider
-
-    U->>GH: GitHub 로그인 & 권한 허용
-    GH-->>U: redirect to /api/github/callback?code=...&state=...
-    U->>GC: GET /api/github/callback?code=...&state=...
-
-    GC->>GS: loginWithGithub(GithubAuthDto)
-
-    GS->>GS: exchangeCodeForAccessToken(code)
-    GS->>GH: POST /login/oauth/access_token
-    GH-->>GS: access_token
-
-    GS->>GS: fetchGithubProfile(access_token)
-    GS->>GH: GET /user (GitHub API)
-    GH-->>GS: GithubProfileDto(githubId, email, name, avatarUrl, bio)
-
-    GS->>UR: findByGithubId(profile.githubId)
-    UR-->>GS: Optional<UserEntity>
-
-    alt 기존 사용자 존재
-        GS->>GS: user = existingUser
-    else 신규 사용자
-        GS->>UE: new UserEntity from GithubProfile
-        GS->>UR: save(userEntity)
-        UR-->>GS: savedUserEntity
-    end
-
-    GS->>JP: generateAccessToken(user.id, user.role)
-    JP-->>GS: accessToken
-    GS->>JP: generateRefreshToken(user.id)
-    JP-->>GS: refreshToken
-
-    GS-->>GC: AuthTokens(accessToken, refreshToken)
-    GC-->>U: 200 OK + AuthTokens(JSON)
-    U->>U: 토큰 저장 후 메인/마이페이지로 이동
+    GAS->>AS: issueTokensForUser(user)
+    AS->>JTP: generateAccessToken(user.userId, role)
+    JTP-->>AS: accessToken
+    AS->>JTP: generateRefreshToken(user.userId)
+    JTP-->>AS: refreshToken
+    AS-->>GAS: AuthTokens
+    GAS-->>AC: AuthTokens
+    AC-->>FE: 200 OK (AuthTokens)
+    FE-->>U: 토큰 갱신 후 로그인 완료 화면
 
 
 ```
-GitHub 로그인의 과정은 크게 두 단계로 나뉜다. 첫 번째는 “GitHub 로그인 URL을 받아오는 단계”이고, 두 번째는 “GitHub에서 콜백으로 전달한 코드로 실제 로그인을 처리하는 단계”이다. 사용자가 화면에서 “GitHub로 로그인” 버튼을 클릭하면, 클라이언트는 먼저 GET /api/github/authorize-url 요청을 보낸다. 이 요청은 GithubAuthController.getAuthorizeUrl()로 들어가고, 컨트롤러는 내부적으로 GithubAuthService.buildAuthorizeUrl()을 호출한다. 서비스는 GitHub에서 발급받은 clientId, redirectUri, 필요한 scope, 그리고 CSRF 방지를 위한 state 값을 조합하여 GitHub OAuth 인증 페이지의 URL을 동적으로 생성한 뒤 컨트롤러로 반환한다. 컨트롤러는 이 URL을 그대로 응답에 실어 보내고, 클라이언트는 사용자를 해당 GitHub 로그인 페이지로 리다이렉트한다.
 
-사용자가 GitHub 로그인과 권한 동의를 모두 완료하면, GitHub는 프로젝트에 설정된 redirect-uri로 code와 state를 포함해 리다이렉트 요청을 보낸다. 이 요청은 GET /api/github/callback?code=...&state=... 형태로 서버의 GithubAuthController.callback()에 도착한다. 컨트롤러는 전달받은 code와 state 값을 GithubAuthDto에 담아 GithubAuthService.loginWithGithub(dto)를 호출한다. 서비스는 먼저 exchangeCodeForAccessToken(code)를 통해 GitHub 토큰 엔드포인트에 HTTP 요청을 보내 Authorization Code를 Access Token으로 교환한다. 이 Access Token을 이용해 fetchGithubProfile(accessToken)에서 GitHub API(/user 등)를 호출하여 GitHub 사용자 프로필 정보를 받아온다. 이때 얻는 정보에는 githubId, email, 이름, 아바타 URL, bio 등이 포함된다.
+재로그인 흐름은 회원가입과 거의 동일하게 시작된다. 사용자는 “GitHub로 로그인” 버튼을 클릭하고, 프론트엔드는 백엔드에서 authorize URL을 받아 GitHub 인증 페이지로 이동시킨다. GitHub에서 code/state를 전달하며 콜백 요청을 보내면, 백엔드는 code를 accessToken으로 교환하여 GitHub 계정 정보를 다시 읽어온다.
 
-그 다음, 서비스는 UserRepository.findByGithubId(profile.getGithubId())를 호출해서 이 GitHub 계정이 이미 기존 사용자와 연동되어 있는지 확인한다. 이미 연동된 사용자가 있다면 그 엔티티를 그대로 사용하고, 없다면 GitHub 프로필 정보를 기반으로 새로운 UserEntity를 생성해서 save()를 통해 DB에 저장한다. 이렇게 로그인에 사용할 UserEntity가 준비되면, 로그인 흐름과 마찬가지로 JwtTokenProvider를 이용해 Access Token과 Refresh Token을 생성하고, 이를 AuthTokens로 포장하여 컨트롤러로 반환한다. 컨트롤러는 200 OK와 함께 이 토큰을 클라이언트에 전송하고, 클라이언트는 토큰을 저장한 뒤 메인 페이지나 마이페이지 등으로 사용자를 이동시켜 GitHub 계정 기반으로 로그인된 상태를 유지하게 된다.
+가장 큰 차이는 이 시점 이후이다. GithubAuthService.loginWithGithub()은 GitHub에서 넘어온 login 값을 기준으로 UserRepository.findByGithubId()를 조회하고, 이번에는 DB에 이미 저장된 기존 사용자 엔터티가 존재하므로 새롭게 생성하지 않는다. 이후 기존 사용자 정보로 AuthService.issueTokensForUser()를 호출해 JWT 토큰 세트를 새로 발급받는다. 프론트는 새로운 Access Token과 Refresh Token을 저장하여 로그인 상태가 갱신된다.
 
+즉, 재로그인 과정에서는 회원가입이 발생하지 않고, 이미 등록된 사용자의 인증만 수행하는 방식으로 작동한다.
 
-
-### 4. 내 프로필 조회
+### 3. 내 프로필 조회
 ```mermaid
 sequenceDiagram
-    actor U as User(클라이언트)
-    participant F as JwtAuthenticationFilter
-    participant JP as JwtTokenProvider
+    autonumber
+    participant U as User(브라우저)
+    participant FE as Frontend(SPA)
+    participant JF as JwtAuthenticationFilter
     participant UC as UserController
     participant US as UserService
+    participant SU as SecurityUtil
     participant UR as UserRepository
-    participant UE as UserEntity
 
-    U->>F: GET /api/users/me<br/>Header: Authorization: Bearer accessToken
+    U->>FE: 내 프로필 화면 진입
+    FE->>UC: GET /api/users/me\nAuthorization: Bearer accessToken
 
-    F->>JP: validateToken(accessToken)
-    JP-->>F: boolean(valid/invalid)
+    %% 필터 체인에서 JWT 인증
+    FE->>JF: (실제 요청은 필터를 먼저 통과)
+    JF->>JF: resolveToken(request)
+    JF->>JF: validateToken(token)
+    JF->>JF: getAuthentication(token)
+    JF->>SU: (내부적으로 principal(userId) 설정)\nSecurityContextHolder.getContext().setAuthentication(...)
+    JF-->>UC: 필터 통과 후 Controller 호출
 
-    alt 토큰 유효
-        F->>JP: getUserIdFromToken(accessToken)
-        JP-->>F: userId
-        F->>UC: 요청을 전달 (SecurityContext에 인증 정보 세팅)
+    UC->>US: getMyProfile()
+    US->>SU: getCurrentUserId()
+    SU-->>US: userId
 
-        UC->>US: getProfile(userId)
-        US->>UR: findById(userId)
-        UR-->>US: Optional<UserEntity>
+    US->>UR: findById(userId)
+    UR-->>US: UserEntity
 
-        alt 사용자 존재 && !user.isDeleted()
-            US->>US: UserResponseDto.from(user)
-            US-->>UC: UserResponseDto
-            UC-->>U: 200 OK + UserResponseDto(JSON)
-        else 사용자 없음/삭제
-            US-->>UC: 예외 발생
-            UC-->>U: 404/400 + "사용자 정보를 찾을 수 없습니다."
-        end
-    else 토큰 무효/만료
-        F-->>U: 401 Unauthorized + "인증이 필요합니다."
-    end
+    US->>US: UserResponseDto.from(user)
+    US-->>UC: UserResponseDto
+    UC-->>FE: 200 OK (UserResponseDto)
+    FE-->>U: 내 프로필 정보 화면 렌더링
 
 
 ```
 
-로그인한 사용자가 마이페이지에서 자신의 프로필 정보를 확인하려고 할 때, 클라이언트는 먼저 저장해 둔 Access Token을 Authorization: Bearer {token} 형태의 헤더에 포함하여 GET /api/users/me 요청을 보낸다. 이 요청은 Spring Security 필터 체인을 거치면서 JwtAuthenticationFilter에 의해 가로채진다. 필터는 헤더에서 JWT를 추출한 뒤 JwtTokenProvider.validateToken(token)을 사용해 이 토큰의 서명과 만료 여부를 검증한다. 토큰이 유효하지 않으면, 필터는 JwtAuthenticationEntryPoint를 호출하여 401 Unauthorized 응답을 반환하고, 이후 컨트롤러까지 요청이 도달하지 않도록 막는다.
+사용자가 “내 프로필” 화면에 접근할 때 프론트엔드는 저장된 Access Token을 Authorization 헤더에 담아 GET /api/users/me 요청을 보낸다. 이 요청은 컨트롤러에 도달하기 전에 먼저 JwtAuthenticationFilter를 통과한다. 필터는 요청 헤더에서 Bearer 토큰을 추출하고, JwtTokenProvider.validateToken()을 통해 토큰의 유효성을 검증한다. 유효한 토큰이면, 토큰에서 추출한 userId를 기반으로 Authentication 객체를 생성하여 SecurityContextHolder에 저장한다.
 
-토큰이 유효하다면, 필터는 다시 JwtTokenProvider.getUserIdFromToken(token)을 호출하여 토큰 내부에 저장된 사용자 ID를 추출한다. 추출된 userId는 Authentication 객체에 포함되어 SecurityContext에 저장되고, 이후 애플리케이션 계층에서 현재 로그인한 사용자의 정보를 획득하는 기준이 된다. 필터를 통과한 요청은 이제 UserController.getMyProfile()에 도달한다. 컨트롤러는 SecurityContext나 주입된 인증 객체에서 userId를 확인한 후, UserService.getProfile(userId)를 호출하여 실제 사용자 정보를 가져오도록 한다.
-
-UserService는 UserRepository.findById(userId)를 사용해 DB에서 해당 ID를 가진 UserEntity를 조회한다. 사용자가 존재하고 삭제 상태가 아니라면, 서비스는 이 엔티티를 UserResponseDto.from(user)로 변환해 프로필용 DTO를 생성한다. DTO에는 이메일, 닉네임, GitHub 연동 여부, 프로필 이미지 URL, bio, 권한, 가입일 등의 정보가 담긴다. 이 DTO는 컨트롤러로 반환되고, 컨트롤러는 이를 이용해 200 OK와 함께 JSON 응답을 클라이언트로 보낸다. 클라이언트는 이 데이터를 화면에 렌더링하여 사용자가 자신의 정보를 확인할 수 있게 한다.
+필터 통과 후 UserController.getMyProfile()이 호출되며, 내부적으로 UserService.getMyProfile()을 실행한다. UserService는 SecurityUtil.getCurrentUserId()를 호출해 현재 SecurityContext에 저장된 userId를 가져온 뒤, 해당 userId로 DB에서 UserEntity를 조회한다. 조회된 엔터티는 UserResponseDto.from() 메서드를 통해 응답용 DTO로 변환되며, 사용자에게 프로필 정보(깃허브 통계 포함)를 전달한다.
 
 
-### 5. 내 프로필 수정
+### 4. 내 프로필 수정
 ```mermaid
 sequenceDiagram
-    actor U as User(클라이언트)
-    participant F as JwtAuthenticationFilter
-    participant JP as JwtTokenProvider
+    autonumber
+    participant U as User(브라우저)
+    participant FE as Frontend(SPA)
+    participant JF as JwtAuthenticationFilter
     participant UC as UserController
     participant US as UserService
+    participant SU as SecurityUtil
     participant UR as UserRepository
-    participant UE as UserEntity
-    participant DB as DB(PostgreSQL)
 
-    U->>F: PUT /api/users/me<br/>Header: Authorization + UserUpdateDto
-    F->>JP: validateToken(accessToken)
-    JP-->>F: boolean
+    U->>FE: 닉네임/프로필 이미지/소개 수정 후 저장 클릭
+    FE->>UC: PUT /api/users/me\nAuthorization: Bearer accessToken\nBody: UserUpdateDto
 
-    alt 토큰 유효
-        F->>JP: getUserIdFromToken(accessToken)
-        JP-->>F: userId
-        F->>UC: 요청 전달
+    %% JWT 필터 인증
+    FE->>JF: (요청은 필터를 통과)
+    JF->>JF: resolveToken(request)
+    JF->>JF: validateToken(token)
+    JF->>JF: getAuthentication(token)
+    JF->>SU: SecurityContext에 principal(userId) 저장
+    JF-->>UC: Controller로 제어 이동
 
-        UC->>US: updateProfile(userId, dto)
-        US->>UR: findById(userId)
-        UR-->>US: Optional<UserEntity>
+    UC->>US: updateMyProfile(UserUpdateDto)
+    US->>SU: getCurrentUserId()
+    SU-->>US: userId
 
-        alt 사용자 존재
-            US->>UE: user.updateProfile(dto.nickname, dto.profileImg, dto.bio)
-            US->>DB: 트랜잭션 커밋(JPA dirty checking)
-            DB-->>US: 업데이트 완료
-            US-->>UC: void
-            UC-->>U: 204 No Content (또는 200 OK)
-        else 사용자 없음
-            US-->>UC: 예외 발생
-            UC-->>U: 404 Not Found
-        end
-    else 토큰 무효/만료
-        F-->>U: 401 Unauthorized
-    end
+    US->>UR: findById(userId)
+    UR-->>US: UserEntity
+
+    US->>US: user.updateProfile(nickname, profileImg, bio)\n(예상 도메인 메서드)
+    US->>UR: save(user) (Optional: JPA flush)
+    UR-->>US: updated UserEntity
+
+    US-->>UC: (void or UserResponseDto)
+    UC-->>FE: 200 OK
+    FE-->>U: 수정된 프로필 화면으로 반영
+
 
 ```
 
-프로필 수정은 조회와 마찬가지로 JWT 기반 인증 위에서 동작하지만, DB에 저장된 UserEntity의 필드가 실제로 변경된다는 점이 다르다. 사용자가 프로필 수정 화면에서 새로운 닉네임, 프로필 이미지 URL, 자기소개 텍스트를 입력하고 “저장” 버튼을 클릭하면, 클라이언트는 이 정보를 UserUpdateDto로 묶어 Access Token과 함께 PUT /api/users/me 요청을 보낸다. 요청은 다시 JwtAuthenticationFilter를 통과하면서 토큰 검증과 userId 추출이 수행되고, 토큰이 유효할 경우 해당 userId가 인증 정보로 설정된 상태로 컨트롤러에 전달된다.
+사용자가 닉네임, 프로필 이미지, 자기소개 등의 정보를 수정한 뒤 “저장” 버튼을 누르면, 프론트엔드는 수정 내용을 담은 UserUpdateDto를 포함하여 Authorization 헤더와 함께 PUT 혹은 PATCH /api/users/me 요청을 보낸다. 이 요청 역시 JWT 인증 필터를 먼저 통과하며, 검증된 userId가 SecurityContext에 기록된다.
 
-UserController.updateMyProfile()는 현재 로그인한 사용자의 userId와 전달받은 UserUpdateDto를 이용해 UserService.updateProfile(userId, dto)를 호출한다. 서비스는 우선 UserRepository.findById(userId)를 호출하여 실제 DB에 저장된 사용자를 가져온다. 만약 사용자가 존재하지 않으면 예외를 발생시키고, 컨트롤러를 통해 404 Not Found 응답을 반환한다. 사용자가 존재한다면, 서비스는 엔티티의 비즈니스 메서드인 user.updateProfile(dto.getNickname(), dto.getProfileImg(), dto.getBio())를 호출하여 해당 필드들을 변경한다. 구현 방식에 따라, DTO에 null 값이 들어온 필드는 무시하고 기존 값을 유지하는 방식도 가능하다.
+컨트롤러에서 UserService.updateMyProfile()이 실행되면, 서비스는 SecurityUtil.getCurrentUserId()로 현재 로그인한 사용자 id를 획득하고 DB에서 사용자 엔터티를 조회한다. 조회한 엔터티에 대해 제공된 UserUpdateDto 값을 사용해 변경된 필드를 적용한 뒤, JPA가 변경 감지를 통해 자동으로 DB에 업데이트한다. 작업이 완료되면 성공 응답을 반환하고 프론트엔드는 수정된 값을 UI에 반영한다.
 
-이 수정 작업은 트랜잭션 안에서 이루어지며, 메서드가 끝나고 트랜잭션이 커밋될 때 JPA의 dirty checking 메커니즘에 의해 변경된 필드들만 자동으로 UPDATE 쿼리로 반영된다. 별도의 save() 호출이 없더라도, 영속 상태 엔티티에 대해 필드를 변경하는 것만으로 DB 업데이트가 수행된다. 수정이 완료되면 UserService는 별도의 반환값 없이 종료되고, UserController는 보통 204 No Content 또는 단순 200 OK 응답을 클라이언트에게 보낸다. 클라이언트는 응답을 받은 뒤 “프로필이 수정되었습니다.” 같은 메시지를 띄우고, 서버에서 다시 가져온 최신 프로필 정보를 화면에 보여주거나 현재 화면의 상태를 즉시 갱신한다.
-
-
-### 6. 계정 탈퇴( 소프트 삭제)
+### 5. 계정 탈퇴( 소프트 삭제)
 ```mermaid
 sequenceDiagram
-    actor U as User(클라이언트)
-    participant F as JwtAuthenticationFilter
-    participant JP as JwtTokenProvider
+    autonumber
+    participant U as User(브라우저)
+    participant FE as Frontend(SPA)
+    participant JF as JwtAuthenticationFilter
     participant UC as UserController
     participant US as UserService
+    participant SU as SecurityUtil
     participant UR as UserRepository
-    participant UE as UserEntity
-    participant DB as DB(PostgreSQL)
 
-    U->>F: DELETE /api/users/me<br/>Header: Authorization: Bearer accessToken
-    F->>JP: validateToken(accessToken)
-    JP-->>F: boolean
+    U->>FE: "계정 탈퇴" 버튼 클릭
+    FE->>UC: DELETE /api/users/me\nAuthorization: Bearer accessToken
 
-    alt 토큰 유효
-        F->>JP: getUserIdFromToken(accessToken)
-        JP-->>F: userId
-        F->>UC: 요청 전달
+    %% JWT 필터 인증
+    FE->>JF: (요청은 필터를 통과)
+    JF->>JF: resolveToken(request)
+    JF->>JF: validateToken(token)
+    JF->>JF: getAuthentication(token)
+    JF->>SU: SecurityContext에 principal(userId) 저장
+    JF-->>UC: Controller 호출
 
-        UC->>US: deleteAccount(userId)
-        US->>UR: findById(userId)
-        UR-->>US: Optional<UserEntity>
+    UC->>US: deleteMyAccount()
+    US->>SU: getCurrentUserId()
+    SU-->>US: userId
 
-        alt 사용자 존재
-            US->>UE: user.softDelete()<br/>(deletedAt = now())
-            US->>DB: 트랜잭션 커밋
-            DB-->>US: 업데이트 완료
-            US-->>UC: void
-            UC-->>U: 204 No Content + "계정 탈퇴 완료"
-        else 사용자 없음
-            US-->>UC: 예외
-            UC-->>U: 404 Not Found
-        end
-    else 토큰 무효/만료
-        F-->>U: 401 Unauthorized
-    end
+    US->>UR: findById(userId)
+    UR-->>US: UserEntity
+
+    US->>US: user.softDelete()\n(deletedAt = now)
+    US-->>UC: (void)
+    UC-->>FE: 204 No Content
+    FE-->>U: 탈퇴 완료 안내 및 로그인 화면으로 이동
 
 ```
-계정 탈퇴는 실제로 DB에서 사용자를 삭제하지 않고, deletedAt 필드만 채워서 “비활성화된 계정”으로 만드는 소프트 삭제 방식으로 처리된다. 사용자가 설정 화면에서 “계정 탈퇴” 버튼을 클릭하고 최종 확인을 마치면, 클라이언트는 Access Token을 담은 DELETE /api/users/me 요청을 서버로 보낸다. 이 요청 역시 JWT 인증 필터를 거쳐 토큰 검증과 userId 추출이 이뤄진 뒤 UserController.deleteMyAccount()에 도달한다.
+사용자가 “계정 탈퇴” 기능을 선택하면, 프론트엔드는 Authorization 헤더와 함께 DELETE /api/users/me 요청을 보낸다. 이 요청도 먼저 JWT 인증 필터를 통과해 userId를 SecurityContext에 설정하고, 이후 UserController.deleteMyAccount()가 호출된다.
 
-컨트롤러는 현재 로그인한 사용자의 userId를 이용해 UserService.deleteAccount(userId)를 호출한다. UserService는 UserRepository.findById(userId)로 DB에서 해당 사용자를 검색하고, 사용자가 존재하지 않으면 예외를 발생시켜 404 응답을 반환하도록 한다. 사용자가 존재하고 아직 삭제되지 않은 정상 계정이라면, 서비스는 엔티티의 softDelete() 메서드를 호출한다. 이 메서드는 내부적으로 deletedAt 필드를 현재 시각으로 설정하여 “이 계정은 탈퇴했다”라는 상태 정보를 남긴다. 실제 DELETE 쿼리가 실행되는 것이 아니라 UPDATE로 deletedAt만 채우는 형태이기 때문에, 향후 필요 시 데이터 복구나 통계 분석에 활용할 수 있다.
+서비스 계층에서는 먼저 현재 로그인 중인 사용자를 조회한다. 이후 UserEntity의 softDelete() 메서드를 호출하여 deletedAt 필드를 현재 시각으로 설정한다. 이 방식은 실제로 데이터를 삭제하지 않고 계정이 비활성 상태임을 표시하는 소프트 삭제 방식이며, 탈퇴한 계정은 이후 로그인 시 “탈퇴한 계정입니다.” 예외를 발생시키도록 구현되어 있다. 컨트롤러는 204 No Content 응답을 보내 탈퇴 처리가 완료된다.
 
-트랜잭션이 커밋되면 변경된 deletedAt 값이 DB에 반영된다. 이후 로그인 로직에서 user.isDeleted() 같은 메서드를 통해 deletedAt이 null인지 여부를 검사함으로써, 탈퇴 처리된 계정으로는 다시 로그인하지 못하게 막을 수 있다. 서비스 호출이 문제 없이 끝나면 UserController는 204 No Content 또는 200 OK 응답을 클라이언트에 보내고, 클라이언트는 이 응답을 받은 후 저장되어 있던 JWT 토큰들을 삭제한 뒤 로그인 페이지나 메인 화면으로 사용자를 이동시킨다. 결과적으로 사용자는 더 이상 서비스의 인증된 기능들을 사용할 수 없는 상태가 된다.
-
-### 7. 토큰 재발급
+### 6. 로그아웃
 ```mermaid
 sequenceDiagram
-    actor U as User(클라이언트)
+    autonumber
+    participant U as User(브라우저)
+    participant FE as Frontend(SPA)
     participant AC as AuthController
     participant AS as AuthService
-    participant JP as JwtTokenProvider
 
-    U->>AC: POST /api/auth/refresh?refreshToken=...
+    U->>FE: "로그아웃" 버튼 클릭
+    FE->>AC: POST /api/auth/logout\nBody: { userId (선택) }
+
+    AC->>AS: logout(userId)
+    AS->>AS: (현재 구현에서는 아무 작업도 하지 않음)\n// 추후 RefreshToken 저장소 도입 시 삭제 가능
+    AS-->>AC: (void)
+
+    AC-->>FE: 204 No Content
+
+    FE->>FE: localStorage/쿠키에서 accessToken, refreshToken 삭제
+    FE-->>U: 로그인 페이지로 이동 (실질적 로그아웃 완료)
+
+
+
+```
+로그아웃은 JWT 기반 stateless 방식이기 때문에, 별도의 서버 측 세션을 관리하지 않는다. 사용자가 로그아웃을 누르면 프론트엔드는 POST /api/auth/logout 요청을 보낼 수 있으나, 현재 구조에서는 서버가 수행해야 할 작업은 없다. 컨트롤러는 AuthService.logout()을 호출하지만 실제 구현은 비어 있으며, 추후 필요 시 Refresh Token 블랙리스트 또는 저장소를 도입했을 때 로그아웃 처리 로직이 추가될 수 있다.
+
+실제 로그아웃의 핵심은 프론트엔드 측이 localStorage 또는 쿠키에서 Access Token과 Refresh Token을 삭제하는 것이다. 토큰이 삭제되면 다시 API 요청을 보낼 경우 필터에서 인증 실패가 발생하므로 로그인 상태는 종료된다.
+
+### 7. 토큰 재발급 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User(브라우저)
+    participant FE as Frontend(SPA)
+    participant AC as AuthController
+    participant AS as AuthService
+    participant JTP as JwtTokenProvider
+    participant UR as UserRepository
+
+    U->>FE: "토큰 만료" 발생 → 자동 재발급 로직 동작
+    FE->>AC: POST /api/auth/refresh\nBody: { "refreshToken": "..." }
+
     AC->>AS: refresh(refreshToken)
 
-    AS->>JP: validateToken(refreshToken)
-    JP-->>AS: boolean(valid/invalid)
+    AS->>JTP: validateToken(refreshToken)
+    JTP-->>AS: true or 예외
 
-    alt 토큰 유효
-        AS->>JP: getUserIdFromToken(refreshToken)
-        JP-->>AS: userId
+    AS->>JTP: getUserIdFromToken(refreshToken)
+    JTP-->>AS: userId
 
-        AS->>JP: generateAccessToken(userId, role)
-        JP-->>AS: newAccessToken
+    AS->>UR: findById(userId)
+    UR-->>AS: UserEntity
 
-        AS->>JP: generateRefreshToken(userId) (옵션)
-        JP-->>AS: newRefreshToken
+    AS->>AS: if user.isDeleted() → 예외\n"탈퇴한 계정입니다."
 
-        AS-->>AC: AuthTokens(newAccessToken, newRefreshToken)
-        AC-->>U: 200 OK + AuthTokens(JSON)
-    else 토큰 무효/만료
-        AS-->>AC: 예외 발생
-        AC-->>U: 401 Unauthorized + "세션이 만료되었습니다. 다시 로그인하세요."
-    end
+    AS->>AS: role = user.isAdmin() ? "ADMIN" : "USER"
 
+    AS->>JTP: generateAccessToken(user.userId, role)
+    JTP-->>AS: newAccessToken
+    AS->>JTP: generateRefreshToken(user.userId)
+    JTP-->>AS: newRefreshToken
 
-```
-Access Token은 상대적으로 짧은 유효 기간을 가지기 때문에, 사용자가 서비스를 오래 이용하다 보면 토큰이 만료될 수 있다. 이때 매번 로그인 화면으로 보내지 않고, 백그라운드에서 Refresh Token을 사용해 새로운 Access Token을 발급받는 과정이 토큰 재발급 흐름이다. 클라이언트가 보호된 API를 호출했다가 401 Unauthorized 응답을 받아 Access Token 만료를 감지하면, 클라이언트는 자신이 보관하고 있는 Refresh Token을 읽어와 POST /api/auth/refresh?refreshToken=... 요청을 서버로 보낸다. 이 요청은 AuthController.refresh(String refreshToken)에서 수신되고, AuthService.refresh(refreshToken)으로 위임된다.
-
-AuthService는 우선 jwtTokenProvider.validateToken(refreshToken)을 호출하여 전달받은 Refresh Token이 서명 검증과 만료 시간 기준으로 유효한지 확인한다. 유효하지 않을 경우, 서비스는 예외를 던지고 컨트롤러는 401 Unauthorized 응답과 함께 “세션이 만료되었습니다. 다시 로그인해 주세요.” 같은 메시지를 클라이언트에 전달한다. Refresh Token이 유효하다면, 이어서 jwtTokenProvider.getUserIdFromToken(refreshToken)을 호출해 토큰에 들어있는 userId를 추출한다. 이 userId를 바탕으로 generateAccessToken(userId, role)을 호출하여 새로운 Access Token을 발급한다. 구현에 따라 Refresh Token도 함께 새로 발급할 수 있으며, 이 경우 generateRefreshToken(userId)를 추가로 호출한다.
-
-새로 발급된 Access Token과 (옵션으로) Refresh Token은 다시 AuthTokens 객체에 담겨 컨트롤러로 반환된다. AuthController는 이를 200 OK 상태와 함께 JSON으로 클라이언트에 보낸다. 클라이언트는 기존에 저장되어 있던 Access Token을 새 토큰으로 교체하고, 필요할 경우 Refresh Token도 함께 갱신한다. 그 후 직전에 실패했던 API 요청을 새로운 Access Token으로 다시 시도하여, 사용자가 추가 로그인 절차 없이도 서비스를 계속 이용할 수 있도록 한다. 이렇게 해서 토큰 재발급 흐름은 사용자의 편의성과 보안성을 동시에 만족시키는 중요한 구성 요소로 작동하게 된다.
-
-
-### 8. 로그아웃 
-```mermaid
-sequenceDiagram
-    actor U as User(클라이언트)
-    participant AC as AuthController
-    participant AS as AuthService
-
-    U->>AC: POST /api/auth/logout/{userId}
-    AC->>AS: logout(userId)
-
-    AS->>AS: (필요 시) 로그 기록/추가 처리<br/>현재 구현에선 별도 상태 저장 없음
-    AS-->>AC: void
-    AC-->>U: 204 No Content
-
-    U->>U: LocalStorage/쿠키에 저장된 JWT 삭제<br/>→ 로그인 화면/메인 화면으로 이동
-
+    AS-->>AC: AuthTokens(newAccessToken, newRefreshToken)
+    AC-->>FE: 200 OK (AuthTokens)
+    FE-->>U: 새 토큰으로 재요청 처리(사용자는 무중단으로 계속 이용)
 
 
 ```
-로그아웃은 기본적으로 “서버에게 이 사용자의 세션을 종료하겠다고 알린 뒤, 클라이언트 쪽에서 토큰을 삭제하는 행위”로 구성된다. 사용자가 화면에서 “로그아웃” 버튼을 클릭하면, 클라이언트는 현재 로그인된 사용자 ID를 포함하거나 또는 JWT에서 추출한 userId를 이용해 POST /api/auth/logout/{userId} 요청을 보낸다. 이 요청은 AuthController.logout(Long userId)로 들어가고, 컨트롤러는 내부적으로 AuthService.logout(userId)를 호출한다.
+Access Token이 만료되면 프론트엔드는 자동 또는 수동으로 저장된 Refresh Token을 사용해 POST /api/auth/refresh 요청을 보낸다. 요청 본문에는 { "refreshToken": "..." } 형식으로 전달된다.
 
-현재 구현에서는 서버 측에 Refresh Token을 별도로 저장해두는 저장소나 블랙리스트가 없기 때문에, AuthService.logout() 내부에서는 특별한 상태 변경을 수행하지 않거나, 단순히 로그를 남기는 수준으로 처리될 수 있다. 중요한 동작은 오히려 클라이언트 쪽에서 일어난다. AuthService 호출이 정상적으로 끝나면, AuthController는 204 No Content 또는 200 OK를 응답으로 반환한다. 클라이언트는 이 응답을 받는 즉시 LocalStorage나 쿠키에 저장된 Access Token과 Refresh Token을 삭제하여 더 이상 인증된 요청을 보낼 수 없도록 만든다. 이후 보호된 API를 호출하면 JWT가 없거나 무효하기 때문에 401 Unauthorized 응답을 받게 되고, 자연스럽게 로그인 페이지로 유도된다. 이로써 사용자는 애플리케이션에서 완전히 로그아웃된 상태가 된다.
+컨트롤러에서 AuthService.refresh(refreshToken)이 호출되면, 서비스는 우선 JwtTokenProvider.validateToken(refreshToken)으로 토큰이 유효한지 검사한다. 유효하지 않다면 오류를 반환한다. 유효하다면 getUserIdFromToken(refreshToken)을 통해 userId를 추출하고, 해당 userId로 DB에서 사용자 엔터티를 조회한다. 탈퇴된 계정이면 예외를 던진다.
 
+정상 사용자라면 기존과 동일한 방식으로 Access Token과 Refresh Token을 새로 발급한다. 즉, userId와 역할 정보를 기반으로 JWT를 새롭게 생성하고 AuthTokens 형태로 반환한다. 프론트는 새 토큰을 저장한 후, 방금 실패했던 API 요청을 다시 보내어 무중단으로 서비스를 이용할 수 있게 된다.
 ## 스터디디
 ### 스터디 생성
 
