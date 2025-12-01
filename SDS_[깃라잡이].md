@@ -166,7 +166,7 @@ GitHub OAuth 회원가입 과정은 JWT 발급까지 포함된 단일 프로세�
   1. 사용자는 GitHub 계정을 보유하고 있으며 GitHub 인증에 정상적으로 접근할 수 있어야 한다.
   2. 서버는 GitHub OAuth App(Client ID / Client Secret)과 연결된 상태여야 한다.
   3. 백엔드는 다음 엔드포인트를 제공한다.
-   -GET /api/auth/github/login : GitHub 인증 요청
+   - GET /api/auth/github/login : GitHub 인증 요청
    - GET /api/auth/github/callback : GitHub Access Token & user info 처리
   4. Supabase PostgreSQL DB 연결이 정상이어야 한다.
 
