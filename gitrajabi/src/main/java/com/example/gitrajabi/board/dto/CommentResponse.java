@@ -10,7 +10,6 @@ public record CommentResponse(
         Long postId,
         String content,
         Long userId, // 작성자 ID
-        // String userName, // ❌ 제거: 주석 처리된 부분 포함
         LocalDateTime createdAt
 ) {
     public static CommentResponse from(Comment comment) {
@@ -19,7 +18,6 @@ public record CommentResponse(
                 comment.getPostId(),
                 comment.getContent(),
                 comment.getUserId(),
-                // "임시 사용자 이름", // ❌ 제거: 임시 사용자 이름 필드 제거
                 comment.getCreatedAt()
         );
     }
