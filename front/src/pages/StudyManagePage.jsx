@@ -230,7 +230,6 @@ const ScheduleCreateTab = ({ studyId }) => {
         startedAt: formatLocalDateTime(now),
         // 2시간 뒤로 초기 설정 (예시)
         endAt: formatLocalDateTime(new Date(now.getTime() + 2 * 60 * 60 * 1000)),
-        capacity: 2,
     };
 
     const [scheduleData, setScheduleData] = useState(initialScheduleData);
@@ -238,10 +237,11 @@ const ScheduleCreateTab = ({ studyId }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setScheduleData(prev => ({
-        ...prev,
-        [name]: name === 'capacity' ? Number(value) : value
-        }));
+            setScheduleData(prev => ({
+                ...prev,
+                // 🌟 FIX: name 속성을 키로 사용하여 value를 업데이트합니다.
+                [name]: value, 
+            }));
     };
 
     const validate = (data) => {
@@ -329,21 +329,7 @@ const ScheduleCreateTab = ({ studyId }) => {
                     />
                 </div>
             </div>
-            <div className="mb-4">
-                <label htmlFor="scheduleCapacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    참여 가능 인원수 (Capacity)
-                </label>
-                <input
-                    type="number" // 🌟 숫자 입력만 허용
-                    id="scheduleCapacity"
-                    name="capacity"
-                    value={scheduleData.capacity}
-                    onChange={handleChange}
-                    min="2" // 최소값 0 설정 (필요 시 1로 변경 가능)
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="예: 5"
-                />
-            </div>
+            
 
             <div className="pt-5">
                 <button

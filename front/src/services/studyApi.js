@@ -13,30 +13,19 @@ const STUDY_API_URL = 'http://localhost:8080/studies'; // 백엔드 스터디 �
  * @returns {Promise<object>} - 생성된 스터디 객체 (서버 응답)
  */
 
-export async function getStudyList() {
+export async function getStudyList(page = 0) { 
     try {
-        const response = await axios.get(`${STUDY_API_URL}`, {
+        const response = await axios.get(`${STUDY_API_URL}?page=${page}`, { 
             headers: {
-                // Authorization 헤더에 토큰을 "Bearer " 형식으로 추가
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
             }
         });
-        console.log(JSON.stringify(response.data, null, 2));
-        return response.data;
+        
+        // 응답 데이터는 스터디 목록 배열 (content: [...])
+        return response.data; 
     } catch (error) {
         console.error("스터디 목록 조회 실패:", error);
-
-        // 에러 응답이 있다면 (예: 404, 500)
-        if (error.response) {
-            console.error("서버 응답 데이터:", error.response.data);
-            throw new Error(`목록 조회 서버 오류: ${error.response.status}`);
-        } 
-        // 네트워크 에러라면
-        else if (error.request) {
-            throw new Error("네트워크 연결 오류 또는 서버 응답 없음.");
-        } else {
-            throw new Error("요청 설정 중 오류 발생.");
-        }
+        throw error;
     }
 }
 
@@ -288,13 +277,13 @@ export async function deleteMember(studyId, memberId) {
         showToast.error("멤버 내보내기 실패");
         throw e;
     }
-   console.log(`${studyId}에서 ${memberId}삭제`)
 }
 
 
 export async function getStudySchedule(studyId) {
     try {
         const response = await axios.get(`${STUDY_API_URL}/${studyId}/schedules`)
+        console.log(JSON.stringify(response.data, null, 2));
         return response.data;
     } catch (e) {
         console.log(e.response)
@@ -304,6 +293,7 @@ export async function getStudySchedule(studyId) {
 }
 
 export async function createStudySchedule(studyId, scheduleData) {
+    
     try {
         const res = await axios.post(
             `${STUDY_API_URL}/${studyId}/schedules`,
@@ -324,9 +314,9 @@ export async function createStudySchedule(studyId, scheduleData) {
     }
 }
 
-export async function joinStudySchedule(studyId, scheduleId) {  
+export async function joinStudySchedule(studyId, scheduleId, scheduleData) {  
     try{
-        const res = await axios.post(`${STUDY_API_URL}/${studyId}/schedules/${scheduleId}/participate`, {}, {
+        const res = await axios.post(`${STUDY_API_URL}/${studyId}/schedules/${scheduleId}/participate`, { scheduleData }, {
             headers: {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },

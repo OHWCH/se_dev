@@ -4,7 +4,7 @@ import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 // mockStudyDetail는 더 이상 사용하지 않음
 import { Link } from 'react-router-dom';
-import { getStudyDetail, getStudyMember, getStudySchedule, getStudyMain } from '../services/studyApi'; // API 함수는 비동기 함수로 가정
+import { getStudyDetail, getStudyMember, getStudySchedule, getStudyMain, joinStudySchedule } from '../services/studyApi'; // API 함수는 비동기 함수로 가정
 
 
 const formatTime = (isoString) => {
@@ -44,7 +44,7 @@ const TaskItem = ({ task, studyId }) => {
                 alert(`'${task.comment}' 일정 참가를 취소했습니다.`);
             } else {
                 // 참가
-                await joinSchedule(studyId, task.scheduleId); // 🚨 API 호출
+                await joinStudySchedule(studyId, task.scheduleId, task); // 🚨 API 호출
                 setIsParticipated(true);
                 setCurrentCount(prev => prev + 1);
                 alert(`'${task.comment}' 일정에 참가했습니다.`);

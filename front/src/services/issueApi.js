@@ -1,17 +1,32 @@
 import axios from "axios";
 
-export async function getIssueList() {
+const ISSUE_API_URL = 'http://localhost:8080/api/issues'; // API URL 확인
+
+export async function getGoodFirstIssues(keyword = '') {
+    const accessToken = localStorage.getItem("accessToken");
+    
+    // 🚨 Access Token이 없으면 요청을 보내지 않거나, 에러를 발생시킵니다.
+    if (!accessToken) {
+        throw new Error("로그인이 필요합니다 (Access Token 누락).");
+    }
+
     try {
-        const res = await axios.get(`${STUDY_API_URL}/${studyId}/main`, {
+        const response = await axios.get(`${ISSUE_API_URL}/good-first?keyword=${keyword}`, {
             headers: {
-                // 🌟 Authorization 헤더에 토큰을 "Bearer " 형식으로 추가
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
-                
+                // 🌟 FIX: Authorization 헤더에 토큰을 'Bearer ' 형식으로 추가
+                Authorization: `Bearer ${accessToken}`
             }
         });
-        console.log(JSON.stringify(res.data, null, 2));
-        return res.data;
-    } catch (e) {
-        throw e;
+
+        console.log(JSON.stringify(response.data, null, 2));
+        return response.data;
+
+    } catch (error) {
+        console.error("Good First Issue 조회 실패:", error);
+        if (error.response) {
+            console.error("서버 응답 데이터:", error.response.data);
+            throw new Error(`이슈 조회 서버 오류: ${error.response.status}`);
+        }
+        throw error;
     }
 }

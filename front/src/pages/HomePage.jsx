@@ -1,58 +1,87 @@
-import React from 'react';
+import { React, useState, useCallback, useEffect } from 'react';
 import Header from '../components/ui/Header';
 import SearchBar from '../components/ui/SearchBar';
-import IssueList from '../components/lists/IssueList';
-import Pagination from '../components/ui/Pagination';
-import { getMyProfile } from '../services/userApi';
-
-// ====================================================================
-// Mock Data (실제 데이터는 API 통신 등으로 대체됩니다)
-// ====================================================================
-
-const mockIssues = [
-    { title: "Fix: Navbar alignment issue on mobile", author: "@janesmith", href: "#" },
-    { title: "Update documentation for API endpoints", author: "@alexdev", href: "#" },
-    { title: "Add unit tests for the user model", author: "@chrisw", href: "#" },
-    { title: "Feature: Implement dark mode toggle", author: "@frontendguru", href: "#" },
-    { title: "Refactor authentication service", author: "@backendwiz", href: "#" },
-    { title: "Bug: User profile picture not updating", author: "@johndoe", href: "#" },
-    { title: "Optimize database queries for dashboard", author: "@dbmaster", href: "#" },
-    { title: "Enhancement: Add search filters", author: "@ux-expert", href: "#" },
-];
-
-const mockPaginationLinks = [
-    { label: '1', href: '#', current: false },
-    { label: '2', href: '#', current: true },
-    { label: '3', 'href': '#', current: false },
-    { label: '...', 'href': '#', current: false, disabled: true },
-    { label: '8', 'href': '#', current: false },
-];
-
-// ====================================================================
-// Homepage Component
-// ====================================================================
+import IssueList from '../components/community/IssueList';
+import { getGoodFirstIssues } from '../services/issueApi';
 
 const Homepage = () => {
+    // 🌟 1. 이슈 목록 상태
+    const [issues, setIssues] = useState([]);
+    // 🌟 2. 로딩 상태
+    const [loading, setLoading] = useState(true);
+    // 🌟 3. 검색어 상태 (SearchBar와 공유)
+    const [keyword, setKeyword] = useState('');
+    // 🌟 4. 에러 상태
+    const [error, setError] = useState(null);
 
-    const myProfile = getMyProfile();
+    // 🌟 5. API 호출 로직 분리 및 useCallback으로 감싸기
+    const fetchIssues = useCallback(async (searchKeyword) => {
+        setLoading(true);
+        setError(null);
+        try {
+            // GET /api/issues/good-first?keyword={검색어} 호출
+            const fetchedIssues = await getGoodFirstIssues(searchKeyword);
+            setIssues(fetchedIssues);
+        } catch (err) {
+            console.error("이슈 목록 로드 실패:", err);
+            setError("이슈 목록을 불러오는 데 실패했습니다.");
+            setIssues([]);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // 6. 컴포넌트 마운트 시 초기 목록 로드 (keyword: '')
+    useEffect(() => {
+        fetchIssues('');
+    }, [fetchIssues]);
+
+
+    // 7. 검색 버튼 클릭 핸들러 (SearchBar에서 호출)
+    const handleSearch = () => {
+        fetchIssues(keyword); // 현재 입력된 keyword로 검색 실행
+    };
+
+    // 8. 검색어 변경 핸들러 (SearchBar에서 호출)
+    const handleKeywordChange = (e) => {
+        setKeyword(e.target.value);
+    };
+
+    // 9. 로딩/에러 표시
+    let content;
+    if (loading) {
+        content = <div className="text-center py-10">로딩 중...</div>;
+    } else if (error) {
+        content = <div className="text-center py-10 text-red-500">{error}</div>;
+    } else if (issues.length === 0) {
+        content = <div className="text-center py-10 text-gray-500 dark:text-gray-400">
+            검색 결과가 없습니다.
+        </div>;
+    } else {
+        content = (
+            <div className="space-y-12">
+                <IssueList 
+                    title="Good First Issue" 
+                    issues={issues} 
+                />
+            </div>
+        );
+    }
+    
     return (
-        // 전역 스타일링: 배경색(light/dark), 폰트(display), 기본 글자색 설정
         <div className="min-h-screen bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200 antialiased">
             <Header />
             
-            {/* Main Content Area: 최대 너비 7xl, 중앙 정렬 */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <SearchBar />
-                <div className="space-y-12">
-                    {/* 이슈 섹션 */}
-                    <IssueList 
-                        title="good-first-issue" 
-                        issues={mockIssues} 
-                    />
-                    
-                    {/* 페이지네이션 */}
-                    <Pagination links={mockPaginationLinks} />
-                </div>
+                {/* 🌟 SearchBar에 keyword, setKeyword, handleSearch 전달 */}
+                <SearchBar 
+                    keyword={keyword}
+                    onKeywordChange={handleKeywordChange}
+                    onSearch={handleSearch}
+                />
+                
+                {content}
+                
             </main>
         </div>
     );

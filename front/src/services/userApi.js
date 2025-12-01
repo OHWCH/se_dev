@@ -34,21 +34,18 @@ export async function getContribution() { //스터디 상세정보
     }
 }
 
-// 5. 투두리스트 - 조회 (무한 스크롤)
-// GET http://localhost:8080/api/todos?page=0&size=5
-// ====================================================================
-export async function getTodoList(page = 0, size = 5) { 
+export async function getTodoList(page = 0) { 
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
         throw new Error("Access Token is missing.");
     }
     try {
-        const response = await axios.get(`${BASE_URL}/todos?page=${page}&size=${size}`, {
+        const response = await axios.get(`${BASE_URL}/todos?page=0&size=50`, {
             headers: {
                  Authorization: `Bearer ${accessToken}`,
             }
         });
-        // 응답 데이터는 Slice 구조 { content: [...], last: true/false, ... }
+        console.log(JSON.stringify(response.data, null, 2));
         return response.data;
     } catch (e) {
         console.error("할 일 목록 조회 실패:", e.response ? e.response.data : e);
@@ -56,10 +53,6 @@ export async function getTodoList(page = 0, size = 5) {
     }
 }
 
-// ====================================================================
-// 4. 투두리스트 - 생성
-// POST http://localhost:8080/api/todos
-// ====================================================================
 export async function createTodo(content) {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
@@ -88,10 +81,6 @@ export async function createTodo(content) {
     }
 }
 
-// ====================================================================
-// 6. 투두리스트 - 체크 토글
-// PATCH http://localhost:8080/api/todos/{todoId}/check
-// ====================================================================
 export async function toggleTodoCheck(todoId) {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
@@ -115,10 +104,6 @@ export async function toggleTodoCheck(todoId) {
 }
 
 
-// ====================================================================
-// 7. 투두리스트 - 선택 삭제 (Batch Delete)
-// POST http://localhost:8080/api/todos/batch-delete
-// ====================================================================
 export async function batchDeleteTodos(todoIds) {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {

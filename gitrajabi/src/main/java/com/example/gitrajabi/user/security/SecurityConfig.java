@@ -86,6 +86,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/github/**").permitAll()
                         .requestMatchers("/studies/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/issues/good-first").permitAll()
+
                         // --- ✅ 게시판 조회 기능 허용 경로 추가 (GET 요청만 허용) ---
                         // GET /api/posts (목록 조회)
                         .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
