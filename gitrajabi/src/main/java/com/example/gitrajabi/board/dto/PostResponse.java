@@ -1,5 +1,7 @@
 package com.example.gitrajabi.board.dto;
 
+import org.springframework.http.ResponseEntity;
+
 import java.time.LocalDateTime;
 import com.example.gitrajabi.board.domain.Post;
 // Post 응답 시 사용 (UI 출력용)
@@ -10,20 +12,19 @@ public record PostResponse(
         Long userId, // 인증 시스템이 없으므로 ID를 노출합니다.
         // String userName, // ❌ 제거: 주석 처리된 부분 포함
         int viewCount,
-        int commentCount, // ✅ 추가: 댓글 개수 필드
+        // int commentCount, // 게시글 상세 조회에서 처리하거나 추후 연관 관계 매핑 시 추가
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    // ✅ 변경: 댓글 개수를 매개변수로 받도록 수정
-    public static PostResponse from(Post post, int commentCount) {
+    // ✅ Post 엔티티만 인자로 받도록 수정합니다. viewCount는 Post 엔티티에서 가져옵니다.
+    public static PostResponse from(Post post) {
         return new PostResponse(
                 post.getPostId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getUserId(),
                 // "임시 사용자 이름", // ❌ 제거: 임시 사용자 이름 필드 제거
-                post.getViewCount(),
-                commentCount, // ✅ 댓글 개수 주입
+                post.getViewCount(), // ✅ Post 엔티티에서 viewCount를 직접 가져옵니다.
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
