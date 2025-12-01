@@ -28,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String token = resolveToken(request);
+
         if (token != null && tokenProvider.validateToken(token)) {
             //토큰이 유효하면 Authentication 생성
             Authentication auth = tokenProvider.getAuthentication(token);

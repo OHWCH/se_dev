@@ -2,17 +2,16 @@ package com.example.gitrajabi.board.controller;
 
 import com.example.gitrajabi.board.domain.Post;
 import com.example.gitrajabi.board.dto.PostCreationRequest;
-import com.example.gitrajabi.board.dto.PostDetailResponse;
-import com.example.gitrajabi.board.dto.PostResponse; // ✅ PostResponse 임포트
+import com.example.gitrajabi.board.dto.PostDetailResponse; // 🌟 PostDetailResponse 임포트
+import com.example.gitrajabi.board.dto.PostResponse;
 import com.example.gitrajabi.board.dto.PostUpdateRequest;
 import com.example.gitrajabi.board.service.PostManagementService;
 import com.example.gitrajabi.board.service.PostQueryService;
-import com.example.gitrajabi.user.security.SecurityUtil; // ✅ SecurityUtil import 추가
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-// import org.springframework.security.core.annotation.AuthenticationPrincipal; // ❌ 제거
-// import org.springframework.security.oauth2.core.user.OAuth2User; // ❌ 제거
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,21 +31,24 @@ public class PostController {
 
     // Use Case #17: GET /api/posts - 게시글 목록 조회
     @GetMapping
-    // ✅ 변경: List<Post> -> List<PostResponse>
     public ResponseEntity<List<PostResponse>> getPostList(
-            @RequestParam(defaultValue = "createdAt") String type,
+            @RequestParam(defaultValue = "createdAt") String type, // 정렬 기준 (createdAt 또는 popular)
             @RequestParam(defaultValue = "0") int page
     ) {
+        // ❌ 오류 수정: Service의 반환 타입 변경에 맞춰 변수 타입도 List<PostResponse>로 변경
         List<PostResponse> postList = postQueryService.getPostList(type, page);
         return ResponseEntity.ok(postList);
     }
 
-    // Use Case #18: GET /api/posts/{postId} - 게시글 상세 조회 (댓글 포함)
+    // Use Case #18: GET /api/posts/{postId} - 게시글 상세 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId) {
+    public ResponseEntity<PostDetailResponse> getPostDetail(
+            @PathVariable Long postId
+    ) {
         try {
-            PostDetailResponse response = postQueryService.getPostDetailWithComments(postId);
-            return ResponseEntity.ok(response);
+            // ✅ Service에서 조회수 증가 로직을 포함하여 상세 정보 반환
+            PostDetailResponse postDetail = postQueryService.getPostDetailWithComments(postId);
+            return ResponseEntity.ok(postDetail);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
@@ -55,29 +57,28 @@ public class PostController {
     // Use Case #14: POST /api/posts - 게시글 작성 (인증 필요)
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
-            // @AuthenticationPrincipal OAuth2User oauthUser, // ❌ 제거
+            @AuthenticationPrincipal OAuth2User oauthUser,
             @RequestBody PostCreationRequest request
     ) {
-        Long currentUserId = SecurityUtil.getCurrentUserId(); // ✅ 변경: SecurityUtil 사용
+        // 사용자 ID를 가져오는 방식이 임시적으로 OAuth2User의 'id' 속성을 사용한다고 가정
+        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
 
         Post createdPost = postManagementService.createPost(currentUserId, request);
-        // ✅ PostResponse.from(Post, commentCount) 형식에 맞게 0을 전달 (새 게시글이므로 댓글 0개)
-        return ResponseEntity.status(HttpStatus.CREATED).body(PostResponse.from(createdPost, 0));
+        return ResponseEntity.status(HttpStatus.CREATED).body(PostResponse.from(createdPost));
     }
 
     // Use Case #15: PUT /api/posts/{postId} - 게시글 수정 (인증 필요)
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(
-            // @AuthenticationPrincipal OAuth2User oauthUser, // ❌ 제거
+            @AuthenticationPrincipal OAuth2User oauthUser,
             @PathVariable Long postId,
             @RequestBody PostUpdateRequest request
     ) {
-        Long currentUserId = SecurityUtil.getCurrentUserId(); // ✅ 변경: SecurityUtil 사용
+        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
 
         try {
             Post updatedPost = postManagementService.updatePost(currentUserId, postId, request);
-            // ✅ PostResponse.from(Post, commentCount) 형식에 맞게 0을 전달 (수정 시 댓글 개수는 변하지 않으므로 임시로 0 처리)
-            return ResponseEntity.ok(PostResponse.from(updatedPost, 0));
+            return ResponseEntity.ok(PostResponse.from(updatedPost));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (AccessDeniedException e) {
@@ -90,10 +91,10 @@ public class PostController {
     // Use Case #16: DELETE /api/posts/{postId} - 게시글 삭제 (인증 필요)
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
-            // @AuthenticationPrincipal OAuth2User oauthUser, // ❌ 제거
+            @AuthenticationPrincipal OAuth2User oauthUser,
             @PathVariable Long postId
     ) {
-        Long currentUserId = SecurityUtil.getCurrentUserId(); // ✅ 변경: SecurityUtil 사용
+        Long currentUserId = Long.valueOf(oauthUser.getAttribute("id").toString());
 
         try {
             postManagementService.deletePost(currentUserId, postId);

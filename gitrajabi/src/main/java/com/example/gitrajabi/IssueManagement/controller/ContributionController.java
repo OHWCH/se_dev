@@ -22,15 +22,15 @@ public class ContributionController {
      * 내 기여도 조회 (인증된 사용자 기준)
      */
     @GetMapping("/contributions")
-    public Mono<MyContributionResponseDto> getMyContributions() {
+    public MyContributionResponseDto getMyContributions() {
         // 1. SecurityContext에서 현재 로그인한 유저 ID 추출
         Long userId = SecurityUtil.getCurrentUserId();
 
         if (userId == null) {
-            return Mono.error(new IllegalStateException("로그인이 필요합니다."));
+            throw new IllegalStateException("로그인이 필요합니다.");
         }
 
         // 2. 서비스 호출 (GithubUsername은 서비스 내부에서 DB를 통해 조회하므로 파라미터에서 제거됨)
-        return contributionService.getMyContribution(userId);
+        return contributionService.getMyContribution(userId).block();
     }
 }
