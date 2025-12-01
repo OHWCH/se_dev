@@ -27,7 +27,7 @@ public class StudyService {
     private final StudyMemberService studyMemberService;
 
 
-    /** 스터디 생성 */
+    // 스터디 생성
     @Transactional
     public Long createStudy(StudyCreateDto request, Long leaderId) {
 
@@ -138,13 +138,19 @@ public class StudyService {
                 .maxMemberCount(study.getMaxMemberCount())
                 .build();
 
-        List<StudyApplicantResponse> applicants = studyMemberService.getApplicants(studyId);
+        List<StudyApplicantResponse> applicants =
+                studyMemberService.getApplicants(studyId);
+
+        List<StudyMemberResponse> members =
+                studyMemberService.getStudyMembers(studyId);  // 🔥 추가된 부분
 
         return StudyManageResponse.builder()
                 .studyInfo(info)
                 .applicants(applicants)
+                .members(members)    // 🔥 추가된 부분
                 .build();
     }
+
 
 
     /** 스터디 업데이트 */
