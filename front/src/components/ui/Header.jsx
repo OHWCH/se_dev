@@ -1,31 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import MaterialSymbol from './MaterialSymbol.jsx';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { supabase } from "../../supabaseClient.js";  
+import { Link, useLocation, useNavigate } from 'react-router-dom'; 
+import { useLogout } from '../../Auth/useAuth.js';
 
 const Header = () => {
+    const isAuthenticated = localStorage.getItem("accessToken");
     const location = useLocation();
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+    //const [user, setUser] = useState(null);
 
-    // 로그인 상태 실시간 감지
-    useEffect(() => {
-        // 초기 세션 확인
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-        });
-
-        // 실시간 변화 감지
-        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-        });
-
-        return () => listener.subscription.unsubscribe();
-    }, []);
-
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate("/");
+    const handleLogout = () => {
+        localStorage.removeItem("accessToken"); // 토큰 삭제
+        navigate("/logintest", { replace: true }); // 로그인 페이지로 이동
     };
 
     const getActiveLinkName = (pathname) => {
@@ -52,7 +38,7 @@ const Header = () => {
                 <div className="flex h-16 items-center justify-between">
                     <div className="flex items-center space-x-8">
                         <h1 className="text-xl font-bold text-primary cursor-pointer" onClick={() => navigate("/")}>
-                            Git-ra-jab-i
+                            깃라잡이
                         </h1>
                         <nav className="hidden md:flex items-center space-x-4">
                             <Link to="/" className={getLinkClass('home')}>Home</Link>
@@ -62,16 +48,14 @@ const Header = () => {
                         </nav>
                     </div>
 
-                    {/* 오른쪽 영역: 로그인 상태에 따라 다르게 표시 */}
                     <div className="flex items-center space-x-4">
-                        {user ? (
-                            // 로그인된 경우
+                        {isAuthenticated ? (
+                            // 🌟 로그인된 경우 (토큰 O)
                             <div className="flex items-center space-x-3">
-                                <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:block">
-                                    {user.user_metadata?.name || user.email?.split('@')[0]}
-                                </span>
+                                {/* 🌟 닉네임 표시 제거 (user 객체 사용 불가) */}
+                                
                                 <button
-                                    onClick={handleLogout}
+                                    onClick={handleLogout} // 로컬 토큰 삭제 함수 호출
                                     className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
                                 >
                                     로그아웃
@@ -81,10 +65,10 @@ const Header = () => {
                                 </Link>
                             </div>
                         ) : (
-                            // 로그인 안 된 경우
+                            // 🌟 로그인 안 된 경우 (토큰 X)
                             <div className="flex items-center space-x-3">
                                 <button
-                                    onClick={() => navigate("/login")}
+                                    onClick={() => navigate("/logintest")}
                                     className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition flex items-center gap-2 text-sm font-medium"
                                 >
                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

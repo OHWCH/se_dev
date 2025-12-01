@@ -66,9 +66,6 @@ export function useStudyForm(initialData = {}) {
         try {
             // API 호출
             await createStudy(payload); 
-
-            alert(`'${payload.title}' 스터디가 성공적으로 생성되었습니다.`);
-            
             // 성공 후 목록 페이지로 이동
             navigate('/studylist'); 
 
@@ -163,13 +160,10 @@ export function patchStudyForm(initialData = null, studyId) { // initialData 기
         try {
             // 실제 수정 API 호출
             await putStudyDetail(studyId, payload); 
-
-            alert(`'${formData.studyName}' 스터디가 성공적으로 수정되었습니다.`);
             navigate(`/study/${studyId}`); 
 
         } catch (error) {
             console.error("수정 오류:", error);
-            alert(`스터디 수정 중 오류가 발생했습니다: ${error.message}`);
         } finally {
             setIsSubmitting(false);
         }
