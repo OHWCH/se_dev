@@ -74,14 +74,13 @@
 
 
 ## 회원관리
-1. 회원가입 (이메일)
-2. 로그인 (이메일/비밀번호)
-3. GitHub 로그인 (OAuth)
-4. 내 프로필 조회
-5. 프로필 수정
-6. 소프트 삭제(계정 탈퇴)
-7. 로그아웃
-8. 토큰 재발급
+1. GitHub OAuth 회원가입
+2. 로그인 (GitHub OAuth 재로그인)
+3. 내 프로필 조회
+4. 프로필 수정
+5. 소프트 삭제(계정 탈퇴)
+6. 로그아웃
+7. 토큰 재발급
 
 ## 스터디 관리
 8. 스터디 생성
@@ -136,10 +135,14 @@
 ---
 ## 회원 관리
 
-### **Use case #1 : 회원가입**
+### **Use case #1 : GitHub OAuth 회원가입**
 #### GENERAL CHARACTERISTICS
 - **Summary**  
-  사용자가 이메일/비밀번호/닉네임/자기소개를 입력하여 새 계정을 생성하고, DB(users 테이블)에 저장한다. 회원가입 단계에서는 JWT를 발급하지 않고, 이후 로그인 Use Case를 통해 인증 토큰을 발급받는다.
+  사용자가 “GitHub 로그인” 버튼을 클릭하면 GitHub OAuth 인증을 수행하고,
+GitHub에서 전달받은 GitHub ID를 기반으로 자동으로 UserEntity를 생성한다.
+이미 존재하는 GitHub ID일 경우 회원가입을 수행하지 않고 바로 로그인 처리한다.
+GitHub OAuth 회원가입 과정은 JWT 발급까지 포함된 단일 프로세스이며,
+따로 “회원가입 후 로그인” 절차가 존재하지 않는다.
 
 - **Scope**  
   깃라잡이
@@ -160,50 +163,62 @@
   Non-member User (비회원 사용자)
 
 - **Preconditions**  
-  사용자는 아직 해당 이메일로 가입된 적이 없다.
-  서버는 Supabase PostgreSQL DB와 정상 연결되어 있다.
-  백엔드는 POST /api/auth/register 엔드포인트와 AuthService.register()를 통해 회원가입 로직을 제공한다.
+  1. 사용자는 GitHub 계정을 보유하고 있으며 GitHub 인증에 정상적으로 접근할 수 있어야 한다.
+  2. 서버는 GitHub OAuth App(Client ID / Client Secret)과 연결된 상태여야 한다.
+  3. 백엔드는 다음 엔드포인트를 제공한다.
+   -GET /api/auth/github/login : GitHub 인증 요청
+   - GET /api/auth/github/callback : GitHub Access Token & user info 처리
+  4. Supabase PostgreSQL DB 연결이 정상이어야 한다.
 
 - **Trigger**  
-  사용자가 "회원가입" 버튼을 클릭했을 때 프로세스가 시작된다.
+  사용자가 “GitHub 로그인” 버튼 클릭 → GitHub OAuth 흐름 시작.
 
 - **Success Post Condition**  
-  users 테이블에 새로운 UserEntity 레코드가 생성된다.
-  이메일은 고유값(unique)으로 저장된다.
-  비밀번호는 BCrypt로 암호화된 값으로 저장된다.
-  서버는 생성된 사용자 정보를 UserResponseDto 형태로 클라이언트에 반환한다.
+  1. GitHub에서 제공한 github_id로 새로운 UserEntity가 자동 생성됨.
+   - githubId: GitHub API에서 받은 고유 ID
+   - isAdmin = false
+   - createdAt = now
+   - deletedAt = null
+   - commitCount, issueCount, prCount = 0
+  2. 생성된 유저는 DB(users 테이블)에 저장된다.
+  3. 서버는 유저 정보 기반으로 JWT AccessToken + RefreshToken을 발급해 클라이언트에 반환한다.
+  4. 사용자는 로그인된 상태로 서비스 메인 페이지로 이동한다.
 
 - **Failed Post Condition**  
-  이메일 중복, 유효성 검증 실패, DB 오류 등으로 인해 레코드 생성이 되지 않는다.
-  오류 유형에 따라 재시도 버튼 또는 관리자 문의 안내가 제공된다.
-  JWT는 생성되지 않으며, 사용자는 로그인 페이지를 통해 별도의 로그인 절차를 다시 수행해야 한다.
-
+ 1.  GitHub Access Token이 정상 발급되지 않음 (“GitHub 액세스 토큰이 응답에 없습니다.” 오류 포함)
+  2.GitHub API 호출 실패
+  3. DB 저장 실패
+  4. OAuth redirect URL 오류
+   → UserEntity 생성 X / JWT 발급 X
+ 클라이언트는 GitHub 오류 팝업 또는 ‘다시 시도’ 안내 메시지를 표시한다.
 
 #### MAIN SUCCESS SCENARIO
-| Step | Action                                                                                         |
-| ---- | ---------------------------------------------------------------------------------------------- |
-| S    | 사용자가 회원가입 페이지에 접속한다.                                                                           |
-| 1    | 사용자가 이메일, 비밀번호, 닉네임, 자기소개(bio)를 입력한다.                                                          |
-| 2    | 사용자가 "회원가입" 버튼을 클릭한다.                                                                          |
-| 3    | 클라이언트는 입력값을 `UserRegisterDto` 형태의 JSON으로 변환하여 `POST /api/auth/register`로 전송한다.                 |
-| 4    | `AuthController.register()`는 요청을 수신하고 `AuthService.register(dto)`를 호출한다.                       |
-| 5    | 시스템은 `UserRepository.existsByEmail(dto.email)`을 통해 이메일 중복 여부를 검사한다.                            |
-| 6    | 중복이 없을 경우, 시스템은 `PasswordEncoder(BCrypt)`를 사용하여 비밀번호를 암호화한다.                                   |
-| 7    | 시스템은 암호화된 비밀번호와 입력 정보를 바탕으로 새로운 `UserEntity`를 생성하고 `UserRepository.save(user)`를 호출하여 DB에 저장한다. |
-| 8    | 시스템은 저장된 엔티티를 `UserResponseDto.from(user)`로 변환하여 응답 객체를 생성한다.                                  |
-| 9    | 서버는 `201 Created` 상태 코드와 함께 `UserResponseDto`를 클라이언트로 전송한다.                                    |
-| 10   | 클라이언트는 “회원가입이 완료되었습니다.” 메시지를 표시하고 로그인 페이지 또는 홈 화면으로 이동시킨다.                                     |
+| Step | Action                                                                                                |
+| ---- | ----------------------------------------------------------------------------------------------------- |
+| S    | 사용자가 “GitHub 로그인” 버튼을 클릭한다.                                                                           |
+| 1    | 클라이언트는 GitHub Authorization Endpoint로 리다이렉트한다.                                                        |
+| 2    | 사용자는 GitHub에서 로그인 및 권한 동의를 완료한다.                                                                      |
+| 3    | GitHub은 `authorization_code`를 서버의 `/callback` URL로 전달한다.                                              |
+| 4    | 서버의 `GithubAuthService`는 code를 이용해 GitHub Access Token을 요청한다.                                         |
+| 5    | GitHub Access Token 획득 성공 시, 서버는 GitHub User API를 호출한다.                                               |
+| 6    | GitHub API 응답에서 `github_id`(고유 식별자)를 추출한다.                                                            |
+| 7    | 서버는 DB에서 `githubId`가 존재하는지 조회한다.<br> - 존재하면 → 기존 계정으로 로그인 처리<br> - 존재하지 않으면 → 새로운 `UserEntity`를 생성한다. |
+| 8    | 생성된(or 조회된) UserEntity 정보를 기반으로 JWT AccessToken & RefreshToken을 생성한다.                                 |
+| 9    | 서버는 200 OK와 함께 JWT 및 사용자 정보를 클라이언트에 반환한다.                                                             |
+| 10   | 클라이언트는 로그인 성공 상태로 메인 화면 또는 대시보드로 이동한다.                                                                |
+
 
 
 
 #### EXTENSION SCENARIOS
-| Step | Branching Action                                                                                |
-| ---- | ----------------------------------------------------------------------------------------------- |
-| 1a   | 서버가 응답 불가 상태일 경우 “서버에 연결할 수 없습니다.” 메시지를 표시하고 재시도 버튼을 제공한다.                                      |
-| 5a   | 이미 존재하는 이메일일 경우, 시스템은 회원가입을 중단하고 “이미 사용 중인 이메일입니다.” 메시지를 반환한다.                                  |
-| 6a   | 비밀번호가 보안 정책(예: 최소 길이, 문자 조합 등)을 만족하지 않을 경우, 클라이언트는 “비밀번호 형식이 올바르지 않습니다.” 메시지를 표시하고 입력을 다시 요청한다. |
-| 7a   | DB 저장 과정에서 예외가 발생하면 시스템은 “회원가입 처리 중 문제가 발생했습니다.” 메시지를 반환하고, 클라이언트는 재시도 또는 문의 안내를 표시한다.          |
-| 9a   | 응답 파싱 과정에서 클라이언트 오류가 발생할 경우, “회원가입 응답 처리 중 오류가 발생했습니다.” 메시지를 표시하고 다시 시도할 수 있도록 한다.              |
+| Step | Branching Action                                                                           |
+| ---- | ------------------------------------------------------------------------------------------ |
+| 4a   | GitHub Access Token 응답에 `access_token`이 없으면 “GitHub 액세스 토큰이 응답에 없습니다.” 오류 반환(현재 네가 만난 오류). |
+| 5a   | GitHub API 서버 장애 또는 rate limit 초과 시 “GitHub 사용자 정보를 가져올 수 없습니다.” 오류 반환.                    |
+| 7a   | DB 조회 중 장애 발생 시 “계정 정보를 확인할 수 없습니다.” 메시지를 반환하고 OAuth 프로세스를 종료한다.                           |
+| 7b   | UserEntity 저장 실패 시 트랜잭션 롤백 후 “회원 생성 과정에서 오류가 발생했습니다.” 안내.                                  |
+| 8a   | JWT 생성 오류 시 클라이언트는 로그인 실패 메시지를 표시한다.                                                       |
+| 9a   | 응답 파싱 실패 시 클라이언트는 “로그인 처리 중 오류가 발생했습니다.” 메시지를 표시하고 다시 시도하도록 한다.                            |
 
 
 
@@ -216,11 +231,12 @@
 - **Concurrency**: 최대 500명 동시 가입 요청을 처리할 수 있도록 API 서버 및 DB connection pool을 설정한다.
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #2 : 로그인 (이메일/비밀번호)**
+### **Use case #2 : 로그인 (GitHub OAuth 재로그인)**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
-  사용자가 이메일과 비밀번호를 입력하여 로그인하며, 서버는 자격 증명을 검증한 뒤 JWT Access Token과 Refresh Token을 발급하여 클라이언트에 반환한다.
-
+  기존에 users 테이블에 등록된 GitHub 사용자가 다시 “GitHub 로그인”을 통해 접속하는 기능이다.
+서버는 GitHub OAuth를 통해 github_id를 확인하고, DB에서 해당 UserEntity를 조회한 뒤
+회원가입 과정 없이 곧바로 JWT Access/Refresh Token을 발급한다.
 - **Scope**  
   깃라잡이
 
@@ -237,52 +253,53 @@
   Design
 
 - **Primary Actor**  
-  Registered User (회원 사용자)
+  Registered User (기존 가입자, GitHub 계정 연동 사용자)
 
 - **Preconditions**  
-  사용자가 회원가입을 통해 users 테이블에 등록된 상태여야 한다.
-  계정이 소프트 삭제(deletedAt 설정) 상태가 아니어야 한다.
-  서버는 Supabase DB, JWT 설정이 정상 동작 중이어야 한다.
-
+  - 사용자의 github_id가 이미 users 테이블에 등록되어 있어야 한다.
+  - 서버는 GitHub OAuth App 및 Supabase PostgreSQL DB와 정상 연결 상태여야 한다.
+  - 백엔드는 다음 엔드포인트를 제공한다.
+     - GET /api/auth/github/login
+     - GET /api/auth/github/callback
+       
 - **Trigger**  
-  사용자가 "로그인" 버튼을 클릭했을 때 프로세스가 시작된다.
+  사용자가 "GitHub 로그인" 버튼을 클릭했을 때 프로세스가 시작된다.
   
 - **Success Post Condition**  
-  사용자의 이메일/비밀번호가 검증된다.
-  서버는 해당 사용자에 대한 JWT Access Token과 Refresh Token을 생성한다.
-  클라이언트는 발급된 토큰을 저장하고 이후 보호된 API 호출 시 Authorization 헤더에 포함하여 사용한다.
+ -  users 테이블에서 기존 UserEntity가 조회된다.
+ -  서버는 해당 유저 정보를 기반으로 JWT AccessToken 및 RefreshToken을 생성한다.
+ -  클라이언트는 로그인 상태가 되며, 메인 화면 혹은 대시보드로 이동한다.
   
 - **Failed Post Condition** 
-  인증 실패 시 토큰은 발급되지 않는다.
-  사용자에게 “이메일 또는 비밀번호가 올바르지 않습니다.” 등의 오류 메시지가 표시된다.
+   - GitHub OAuth 실패, GitHub Access Token 미수신, DB 조회 실패 등으로 인해 로그인에 실패한다.
+   - JWT는 발급되지 않는다.
+   - 클라이언트는 “로그인에 실패했습니다. 다시 시도해 주세요.” 등 안내 메시지를 표시한다.
 
   
 #### MAIN SUCCESS SCENARIO
 | Step | Action                                                                                              |
-| ---- | --------------------------------------------------------------------------------------------------- |
-| S    | 사용자가 로그인 페이지에 접속한다.                                                                                 |
-| 1    | 사용자가 이메일과 비밀번호를 입력한다.                                                                               |
-| 2    | 사용자가 “로그인” 버튼을 클릭한다.                                                                                |
-| 3    | 클라이언트는 입력값을 `UserLoginDto` 형태의 JSON으로 변환하여 `POST /api/auth/login`으로 전송한다.                           |
-| 4    | `AuthController.login()`이 요청을 수신하고 `AuthService.login(dto)`를 호출한다.                                  |
-| 5    | `AuthService`는 `UserRepository.findByEmail(dto.email)`을 통해 해당 이메일의 사용자를 조회한다.                       |
-| 6    | 사용자가 존재하고 삭제 상태가 아닐 경우, `PasswordEncoder.matches(dto.password, user.password)`로 비밀번호를 검증한다.         |
-| 7    | 비밀번호 검증에 성공하면, `JwtTokenProvider.generateAccessToken(user.id, user.role)`을 호출하여 Access Token을 생성한다. |
-| 8    | `JwtTokenProvider.generateRefreshToken(user.id)`를 호출하여 Refresh Token을 생성한다.                         |
-| 9    | 시스템은 Access Token과 Refresh Token을 포함한 `AuthTokens` 객체를 생성하고 서비스에서 반환한다.                             |
-| 10   | `AuthController`는 `200 OK` 상태 코드와 함께 `AuthTokens`를 JSON으로 클라이언트에 전송한다.                              |
-| 11   | 클라이언트는 수신한 JWT를 LocalStorage 또는 쿠키에 저장하고, 이후 보호된 페이지(마이페이지 등)로 이동한다.                                |
+| Step | Action                                                                   |
+| ---- | ------------------------------------------------------------------------ |
+| S    | 사용자가 “GitHub 로그인” 버튼을 클릭한다.                                              |
+| 1    | 클라이언트는 `GET /api/auth/github/login`으로 요청을 보내거나, GitHub 로그인 URL로 리다이렉트한다. |
+| 2    | 사용자는 GitHub 로그인 및 권한 동의를 완료한다.                                           |
+| 3    | GitHub은 `authorization_code`를 서버의 `/api/auth/github/callback`으로 전달한다.    |
+| 4    | `GithubAuthService`는 이 code로 GitHub Access Token을 요청한다.                  |
+| 5    | Access Token 획득 후, GitHub User API를 호출해 `github_id`를 가져온다.               |
+| 6    | 서버는 `UserRepository.findByGithubId(githubId)`로 기존 유저를 조회한다.              |
+| 7    | 유저가 존재하면, 해당 `UserEntity` 기반으로 JWT AccessToken 및 RefreshToken을 생성한다.     |
+| 8    | 서버는 200 OK와 함께 토큰 및 유저 정보를 클라이언트에 반환한다.                                  |
+| 9    | 클라이언트는 로그인 상태로 전환하고, 메인/대시보드 화면으로 이동시킨다.                                 |
 
 
 
 #### EXTENSION SCENARIOS
-| Step | Branching Action                                                                        |
-| ---- | --------------------------------------------------------------------------------------- |
-| 5a   | 해당 이메일을 가진 사용자가 존재하지 않을 경우, 시스템은 인증 실패 예외를 발생시키고 “등록되지 않은 이메일입니다.” 메시지를 반환한다.           |
-| 6a   | 비밀번호가 일치하지 않을 경우, 시스템은 인증 실패 예외를 발생시키고 “이메일 또는 비밀번호가 올바르지 않습니다.” 메시지를 반환한다.             |
-| 6b   | 사용자가 소프트 삭제 상태(`user.isDeleted() == true`)인 경우, 로그인 시도를 거부하고 “탈퇴 처리된 계정입니다.” 메시지를 반환한다. |
-| 7a   | JWT 생성 중 예외(설정 오류, Secret Key 문제 등)가 발생하면, 시스템은 “로그인 처리 중 오류가 발생했습니다.” 메시지를 반환한다.       |
-| 10a  | 클라이언트가 응답을 파싱할 수 없는 경우, “로그인 응답 처리 중 오류가 발생했습니다.” 메시지를 표시하고 재로그인을 유도한다.                 |
+| Step | Branching Action                                                                      |
+| ---- | ------------------------------------------------------------------------------------- |
+| 4a   | GitHub Access Token 응답에 토큰이 없을 경우, “GitHub 액세스 토큰이 응답에 없습니다.” 메시지를 반환하고 로그인 절차를 중단한다. |
+| 5a   | GitHub User API 호출 실패 시, “GitHub 사용자 정보를 가져올 수 없습니다.” 메시지를 반환한다.                      |
+| 6a   | `githubId`로 조회되는 사용자가 없을 경우, UC #1(회원가입 – GitHub OAuth 자동 생성) 플로우로 분기하여 신규 계정을 생성한다.  |
+| 7a   | JWT 생성 중 서버 내부 오류 발생 시, “로그인 처리 중 문제가 발생했습니다.” 메시지를 반환한다.                             |
 
 
 
@@ -299,96 +316,12 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #3 : GitHub 로그인(OAuth)**
+### **Use case #3 : 내 프로필 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
-  사용자가 GitHub OAuth를 통해 인증을 수행하면, 서버는 GitHub에서 사용자 정보를 받아오고, 해당 GitHub ID 기반으로 사용자를 생성 또는 조회한 뒤 JWT Access/Refresh Token을 발급하여 클라이언트에 반환한다.
-
-- **Scope**  
-  깃라잡이
-
-- **Level**  
-  User level
-  
-- **Author**  
-  박솔
-
-- **Last Update**  
-  2025. 10. 16
-
-- **Status**  
-  Design
-
-- **Primary Actor**  
-  Non-member / Registered User, GitHub OAuth Provider
-
-- **Preconditions**  
- GitHub OAuth App이 생성되어 있고, client-id, client-secret, redirect-uri가 서버 설정(application.yml)에 올바르게 등록되어 있다.
-서버는 외부 인터넷 및 GitHub API에 정상적으로 접근 가능해야 한다.
-
-- **Trigger**  
-  사용자가 “로그아웃” 버튼을 클릭했을 때 프로세스가 시작된다.
-  
-- **Success Post Condition**  
-  - GitHub에서 받은 githubId를 기반으로 기존 사용자라면 해당 계정으로 로그인 처리된다.
-  - 기존에 없는 GitHub ID라면 새 UserEntity가 생성된다(이메일/닉네임/프로필 이미지 등).
-  - 서버는 Access Token과 Refresh Token을 포함한 AuthTokens를 클라이언트에 반환한다.
-  
-- **Failed Post Condition** 
-  - GitHub 인증 실패, 토큰 교환 실패, 프로필 조회 실패 등의 경우 로그인이 완료되지 않는다.
-  - 사용자에게 “GitHub 로그인에 실패했습니다.” 등의 메시지가 표시된다.
-  
-#### MAIN SUCCESS SCENARIO
-| Step | Action                                                                                                                                   |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| S    | 사용자가 로그인 페이지에서 “GitHub로 로그인” 버튼을 클릭한다.                                                                                                   |
-| 1    | 클라이언트는 `GET /api/github/authorize-url`을 호출하여 GitHub 인증 URL을 요청한다.                                                                        |
-| 2    | `GithubAuthController.getAuthorizeUrl()`는 `GithubAuthService.buildAuthorizeUrl()`을 호출하여 GitHub OAuth URL을 생성하고 문자열로 반환한다.                |
-| 3    | 클라이언트는 응답받은 GitHub 로그인 URL로 사용자를 리다이렉트한다.                                                                                                |
-| 4    | 사용자는 GitHub 로그인 및 권한 동의를 완료한다.                                                                                                           |
-| 5    | GitHub는 설정된 `redirect-uri` (`/api/github/callback`)로 `code`와 `state`를 포함하여 서버에 리다이렉트한다.                                                  |
-| 6    | `GithubAuthController.callback(code, state)`가 요청을 수신하고, `GithubAuthService.loginWithGithub(dto)`를 호출한다.                                  |
-| 7    | `GithubAuthService`는 `exchangeCodeForAccessToken(code)`를 통해 GitHub 액세스 토큰을 발급받는다.                                                        |
-| 8    | `fetchGithubProfile(accessToken)`을 통해 GitHub 사용자 프로필(githubId, email, name, avatarUrl, bio 등)을 조회한다.                                     |
-| 9    | `UserRepository.findByGithubId(profile.githubId)`를 통해 기존 사용자인지 조회한다.                                                                     |
-| 10   | 기존 사용자가 없으면, 프로필 정보를 바탕으로 새로운 `UserEntity`를 생성하고 DB에 저장한다. (이메일이 없는 경우 dummy 이메일 생성 등 처리)                                                |
-| 11   | 로그인 대상 `UserEntity`에 대해 `JwtTokenProvider.generateAccessToken(user.id, user.role)` 및 `generateRefreshToken(user.id)`을 호출하여 JWT 토큰을 생성한다. |
-| 12   | `AuthTokens` 객체에 Access/Refresh Token을 담아 `GithubAuthService`에서 반환한다.                                                                    |
-| 13   | `GithubAuthController`는 `200 OK`와 함께 `AuthTokens`를 JSON으로 클라이언트에 전송한다.                                                                   |
-| 14   | 클라이언트는 Access/Refresh Token을 LocalStorage 또는 쿠키에 저장하고, 마이페이지/홈 화면 등으로 이동한다.                                                              |
-
-
-#### EXTENSION SCENARIOS
-| Step | Branching Action                                                                          |
-| ---- | ----------------------------------------------------------------------------------------- |
-| 1a   | 서버가 GitHub 인증 URL 생성에 실패하면 “GitHub 로그인 요청에 실패했습니다.” 메시지를 반환한다.                            |
-| 4a   | 사용자가 GitHub 로그인/권한 동의를 취소하면 GitHub가 콜백을 보내지 않으며, 클라이언트는 로그인 화면에 머무르게 된다.                  |
-| 7a   | `exchangeCodeForAccessToken` 호출 시 GitHub로부터 에러 응답을 받으면 “GitHub 토큰 발급에 실패했습니다.” 메시지를 반환한다. |
-| 8a   | GitHub 프로필 API 호출 중 네트워크 오류 또는 rate limit가 발생하면 “GitHub 사용자 정보를 가져오지 못했습니다.” 메시지를 표시한다.   |
-| 10a  | 새로운 사용자 생성 과정에서 DB 오류 발생 시, “GitHub 계정으로 회원 생성 중 오류가 발생했습니다.” 메시지를 반환한다.                  |
-| 11a  | JWT 생성 중 예외가 발생하면 “GitHub 로그인 처리 중 오류가 발생했습니다.” 메시지를 반환하고, 로그인은 완료되지 않는다.                 |
-
-  
-#### RELATED INFORMATION
-- **Performance**:
-  - GitHub OAuth 인증 전체 과정은 평균 3~5초 이내 처리되는 것을 목표로 한다.
-  - JWT 생성 및 DB 저장은 1초 이내 완료되어야 한다.
- 
-
-- **Frequency**:
-  - GitHub 계정을 사용하는 사용자는 매 로그인마다 해당 UC를 수행할 수 있다.
-  - 기존 이메일 계정과 GitHub 계정을 연동하는 확장 기능으로도 재사용될 수 있다.
-  
-- **Concurrency**:
-  - 다수의 사용자가 동시에 GitHub 로그인 요청을 보내더라도, GitHub rate limit과 서버 리소스를 고려한 적절한 스케일링이 필요하다.
-
-- **Due Date**: 2025. 11. 01 (예정)
-
-### **Use case #4 : 내 프로필 조회**
-#### GENERAL CHARACTERISTICS
-- **Summary**    
-  - 로그인한 사용자가 자신의 프로필 정보를 조회한다. 서버는 JWT를 통해 사용자 인증을 수행하고, DB에 저장된 사용자 정보를 UserResponseDto 형태로 반환한다.
-
+  - 로그인된 사용자가 자신의 프로필 정보를 조회하는 기능이다.
+DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회하고,
+응답 DTO를 통해 GitHub ID, 관리자 여부, 생성일, 통계 정보 등을 반환한다.
 - **Scope**  
   깃라잡이
 
@@ -408,41 +341,40 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
   Registered User (로그인된 사용자)
   
 - **Preconditions**  
-  - 사용자는 이메일/비밀번호 로그인 또는 GitHub 로그인을 통해 이미 인증을 완료한 상태이며, 유효한 JWT Access Token을 보유하고 있다.
-  - 백엔드에는 GET /api/users/me 엔드포인트와 UserController.getMyProfile(), UserService.getProfile() 로직이 구현되어 있다.
-  - users 테이블에 해당 사용자의 UserEntity가 존재한다.
+  - 사용자는 유효한 JWT AccessToken을 보유한 로그인 상태여야 한다.
+  - 서버는 토큰 검증 필터 혹은 Security 설정을 통해 인증된 사용자 정보를 조회할 수 있어야 한다.
+  - 백엔드는 GET /api/users/me와 같은 엔드포인트를 통해 현재 사용자 조회 기능을 제공한다.
   
 - **Trigger**  
-  사용자가 “마이페이지” 또는 “내 프로필” 화면으로 이동하려고 할 때 프로세스가 시작된다.
+  사용자가 “내 프로필” 버튼 또는 메뉴를 클릭했을 때.
   
 - **Success Post Condition**  
-  - 서버는 JWT로부터 사용자 정보를 확인한 뒤 해당 사용자의 프로필 정보를 성공적으로 조회한다.
-  - 클라이언트는 UserResponseDto를 기반으로 화면에 이메일, 닉네임, 프로필 이미지, 자기소개 등의 정보를 표시한다.
+  - DB에서 현재 사용자에 해당하는 UserEntity를 조회한다.
+  - 서버는 UserProfileResponseDto 같은 형태로 프로필 정보를 반환한다.
+  - 클라이언트는 프로필 화면에 유저 정보를 표시한다.
   
 - **Failed Post Condition** 
-  - 인증 실패 또는 사용자 정보 조회 실패 시, 프로필 정보는 화면에 표시되지 않는다.
-  - 사용자는 로그인 페이지로 이동하거나, 오류 메시지를 보고 재시도할 수 있다.
+  - 토큰이 유효하지 않거나 만료된 경우, 프로필 정보를 반환하지 못한다.
+  - 삭제(soft delete)된 사용자일 경우, 조회를 제한할 수 있다.
+  - 클라이언트는 로그인 재요청 또는 오류 메시지를 표시한다.
   
 #### MAIN SUCCESS SCENARIO
-| Step | Action                                                                                                         |
-| ---- | -------------------------------------------------------------------------------------------------------------- |
-| S    | 사용자가 웹/앱에서 “마이페이지” 또는 “내 프로필” 메뉴를 클릭한다.                                                                        |
-| 1    | 클라이언트는 저장해 둔 JWT Access Token을 `Authorization: Bearer {token}` 헤더에 포함하여 `GET /api/users/me` 요청을 전송한다.          |
-| 2    | `JwtAuthenticationFilter`가 요청 헤더에서 토큰을 추출하고, `JwtTokenProvider.validateToken()`으로 토큰 유효성을 검증한다.                |
-| 3    | 토큰이 유효한 경우, 필터는 토큰에서 userId 및 권한 정보를 추출하고 SecurityContext에 인증 정보를 설정한 뒤 컨트롤러로 요청을 전달한다.                        |
-| 4    | `UserController.getMyProfile()`는 SecurityContext 또는 요청에서 userId를 확인하고, `UserService.getProfile(userId)`를 호출한다. |
-| 5    | `UserService`는 `UserRepository.findById(userId)`를 통해 `UserEntity`를 조회한다.                                       |
-| 6    | 조회된 `UserEntity`를 `UserResponseDto.from(user)`로 변환하여 프로필 응답 객체를 생성한다.                                          |
-| 7    | `UserController`는 `200 OK` 상태 코드와 함께 `UserResponseDto`를 JSON 형태로 클라이언트에 반환한다.                                  |
-| 8    | 클라이언트는 응답을 파싱하여 이메일, 닉네임, 프로필 이미지, 자기소개, 권한, 가입일 등을 화면에 표시한다.                                                  |
+| Step | Action                                                                     |
+| ---- | -------------------------------------------------------------------------- |
+| S    | 사용자가 “내 프로필” 메뉴를 클릭한다.                                                     |
+| 1    | 클라이언트는 저장된 JWT AccessToken을 포함하여 `GET /api/users/me` 요청을 보낸다.              |
+| 2    | 서버는 인증 필터를 통해 토큰을 검증하고, 현재 사용자 ID(또는 githubId)를 확인한다.                      |
+| 3    | 서버는 `UserRepository.findById()` 또는 `findByGithubId()`로 `UserEntity`를 조회한다. |
+| 4    | 서버는 조회한 엔티티를 `UserProfileResponseDto`로 변환한다.                               |
+| 5    | 서버는 200 OK와 함께 프로필 정보를 응답한다.                                               |
+| 6    | 클라이언트는 수신한 정보(닉네임, GitHub ID, 통계 정보 등)를 화면에 렌더링한다.                         |
+
 
 #### EXTENSION SCENARIOS
-| Step | Branching Action                                                                                                            |
-| ---- | --------------------------------------------------------------------------------------------------------------------------- |
-| 2a   | JWT가 없거나 형식이 잘못된 경우, `JwtAuthenticationEntryPoint`에 의해 `401 Unauthorized` 응답이 반환되고, 클라이언트는 로그인 페이지로 이동시킨다.                  |
-| 2b   | JWT가 만료되었거나 서명이 올바르지 않은 경우에도 `401 Unauthorized` 응답을 반환하고 “로그인 정보가 만료되었습니다.” 메시지를 표시한다.                                      |
-| 5a   | `UserRepository.findById(userId)` 결과가 없을 경우, 서버는 `404 Not Found` 또는 적절한 에러 응답을 반환한다. 클라이언트는 “사용자 정보를 찾을 수 없습니다.” 메시지를 표시한다. |
-| 6a   | DTO 변환 과정에서 예외가 발생하면 서버는 “프로필 정보를 불러오는 중 오류가 발생했습니다.” 메시지와 함께 에러 응답을 반환한다.                                                  |
+| Step | Branching Action                                                         |
+| ---- | ------------------------------------------------------------------------ |
+| 2a   | 토큰이 누락되거나 만료된 경우, 서버는 401 Unauthorized를 반환한다. 클라이언트는 로그인 페이지로 이동시킨다.     |
+| 3a   | 해당 유저가 `deletedAt`이 설정된 소프트 삭제 상태일 경우, “탈퇴 처리된 계정입니다.” 메시지와 함께 접근을 차단한다. |
 
 
 #### RELATED INFORMATION
@@ -459,10 +391,12 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #5 : 내 프로필 수정**
+### **Use case #4 : 내 프로필 수정**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
-  - 로그인한 사용자가 자신의 닉네임, 프로필 이미지, 자기소개(bio)를 수정한다. 서버는 JWT를 통해 사용자 인증을 수행하고, DB의 UserEntity를 업데이트한다.
+  - 로그인된 사용자가 자신의 프로필 정보를 수정하는 기능이다.
+예를 들어 닉네임, 자기소개(bio), 프로필 이미지 등의 변경 요청을 서버에 전달하고,
+서버는 해당 UserEntity와 관련 부가 정보 테이블을 수정 후 최신 상태를 반환한다.
 
 - **Scope**  
   깃라잡이
@@ -486,43 +420,40 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
   GitHub
   
 - **Preconditions**  
-  - 사용자는 이미 로그인되어 있으며, 유효한 JWT Access Token을 보유하고 있다.
-  - 백엔드에는 PUT /api/users/me 엔드포인트와 UserController.updateMyProfile(), UserService.updateProfile() 로직이 구현되어 있다.
-  - UserUpdateDto는 nickname, profileImg, bio 필드를 포함하고 있고, 이메일/비밀번호는 이 Use Case에서 수정하지 않는다.
+  - 사용자가 유효한 JWT를 가지고 로그인된 상태여야 한다.
+  - 백엔드는 PATCH /api/users/me 또는 PUT /api/users/me 로 프로필 수정 API를 제공한다.
   
 - **Trigger**  
-  -사용자가 “프로필 수정” 화면에서 수정 내용을 입력하고 “저장” 버튼을 클릭하면 프로세스가 시작된다.
+  -사용자가 “프로필 수정” 버튼을 눌러 수정 폼을 제출할 때.
   
 - **Success Post Condition**  
-  - users 테이블의 해당 사용자 레코드가 새로운 닉네임, 프로필 이미지, 자기소개 값으로 업데이트된다.
-  - 이후 프로필 조회 시 수정된 정보가 반영되어 표시된다.
+  - DB에 저장된 유저의 프로필 관련 정보가 요청값으로 갱신된다.
+  - 서버는 갱신된 프로필 정보를 응답 DTO로 반환한다.
   
 - **Failed Post Condition** 
-  - 유효성 검증 실패 또는 DB 오류 발생 시 프로필 정보는 수정되지 않고 기존 값이 유지된다.
-  - 사용자에게 적절한 오류 메시지가 표시된다.
+  - 유효성 검증 실패, 권한 오류, DB 예외 발생 시 변경이 반영되지 않는다.
+  - 기존 프로필 정보는 그대로 유지된다.
   
 #### MAIN SUCCESS SCENARIO
-| Step | Action                                                                                                                      |
-| ---- | --------------------------------------------------------------------------------------------------------------------------- |
-| S    | 사용자가 “프로필 수정” 화면에 접속한다.                                                                                                     |
-| 1    | 사용자가 새로운 닉네임, 프로필 이미지 URL, 자기소개(bio)를 입력한다.                                                                                 |
-| 2    | 사용자가 “저장” 또는 “수정 완료” 버튼을 클릭한다.                                                                                              |
-| 3    | 클라이언트는 입력값을 `UserUpdateDto` 형태의 JSON으로 변환하고, JWT Access Token을 `Authorization` 헤더에 포함하여 `PUT /api/users/me` 요청을 전송한다.       |
-| 4    | `JwtAuthenticationFilter`가 토큰을 검증하고, 유효한 경우 SecurityContext에 인증 정보를 설정한 뒤 컨트롤러로 전달한다.                                       |
-| 5    | `UserController.updateMyProfile()`는 userId를 확인하고, `UserService.updateProfile(userId, dto)`를 호출한다.                           |
-| 6    | `UserService`는 `UserRepository.findById(userId)`를 통해 `UserEntity`를 조회한다.                                                    |
-| 7    | 조회된 `UserEntity`에 대해 `user.updateProfile(dto.nickname, dto.profileImg, dto.bio)`를 호출하여 엔티티의 프로필 정보를 변경한다. (null 값은 기존 값 유지) |
-| 8    | 트랜잭션이 커밋되면서 변경된 프로필 정보가 DB에 반영된다.                                                                                           |
-| 9    | 서버는 `204 No Content` 또는 `200 OK` 상태 코드로 응답한다.                                                                               |
-| 10   | 클라이언트는 “프로필이 성공적으로 수정되었습니다.” 메시지를 표시하고, 수정된 정보가 반영된 프로필 화면을 다시 보여준다.                                                        |
+| Step | Action                                                                      |
+| ---- | --------------------------------------------------------------------------- |
+| S    | 사용자가 “프로필 수정” 화면에서 닉네임/자기소개 등을 입력하고 “저장” 버튼을 누른다.                           |
+| 1    | 클라이언트는 수정된 값들을 `UserProfileUpdateDto` JSON 형태로 `PATCH /api/users/me`에 전송한다. |
+| 2    | 서버는 JWT를 검증해 현재 사용자 정보를 확인한다.                                               |
+| 3    | 서버는 `UserRepository.findById()`로 해당 `UserEntity`를 조회한다.                     |
+| 4    | 서버는 전달된 DTO의 값을 엔티티(또는 별도 Profile 엔티티)에 반영한다.                               |
+| 5    | 서버는 변경된 엔티티를 저장한다.                                                          |
+| 6    | 서버는 저장 결과를 `UserProfileResponseDto`로 만들어 반환한다.                              |
+| 7    | 클라이언트는 성공 메시지와 함께 최신 프로필 정보를 다시 표시한다.                                       |
+
 
 #### EXTENSION SCENARIOS
-| Step | Branching Action                                                                                    |
-| ---- | --------------------------------------------------------------------------------------------------- |
-| 3a   | JWT가 없거나 잘못된 형식일 경우, 인증 필터에서 `401 Unauthorized` 응답을 반환하고, 클라이언트는 로그인 페이지로 이동시킨다.                    |
-| 6a   | 해당 userId에 해당하는 사용자가 존재하지 않을 경우, `UserService`는 예외를 발생시키고 서버는 `404 Not Found` 응답을 반환한다.             |
-| 7a   | 입력값이 너무 길거나(닉네임 길이 제한, bio 최대 길이 초과 등) 시스템 유효성 규칙을 위반하면, 서버는 `400 Bad Request`와 함께 오류 메시지를 반환한다.    |
-| 8a   | DB 업데이트 중 예외가 발생하면, 서버는 “프로필 수정 중 오류가 발생했습니다.” 메시지를 가진 에러 응답을 반환하고, 클라이언트는 수정이 반영되지 않았음을 사용자에게 알린다. |
+| Step | Branching Action                                               |
+| ---- | -------------------------------------------------------------- |
+| 2a   | JWT가 유효하지 않으면 서버는 401 Unauthorized를 반환하고, 클라이언트는 로그인을 다시 요구한다. |
+| 4a   | 닉네임 길이 초과 등 유효성 검증 실패 시, 서버는 400 Bad Request와 오류 메시지를 반환한다.    |
+| 5a   | DB 저장 중 예외 발생 시, 서버는 “프로필 수정 중 오류가 발생했습니다.” 메시지를 반환한다.         |
+
 
 
 #### RELATED INFORMATION
@@ -539,10 +470,11 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #6 : 계정 탈퇴 (소프트 삭제)**
+### **Use case #5 : 계정 탈퇴 (소프트 삭제)**
 #### GENERAL CHARACTERISTICS
 - **Summary**   
-  - 로그인한 사용자가 자신의 계정을 탈퇴한다. 서버는 실제로 레코드를 삭제하지 않고, UserEntity.deletedAt 필드에 탈퇴 시각을 기록하는 소프트 삭제 방식을 사용한다.
+  - 사용자가 서비스 탈퇴를 요청할 경우, 실제 DB 레코드를 삭제하지 않고 UserEntity.deletedAt에 현재 시각을 기록하는 방식으로 소프트 삭제(비활성화) 처리한다.
+  - 소프트 삭제된 사용자는 더 이상 로그인 및 서비스 이용이 불가능하다.
 - **Scope**  
   깃라잡이
 
@@ -562,44 +494,39 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
   Registered User (로그인된 사용자)
 
 - **Preconditions**  
-  - 사용자는 이미 로그인되어 있으며 유효한 JWT Access Token을 보유하고 있다.
-  - 백엔드에는 DELETE /api/users/me 엔드포인트와 UserController.deleteMyAccount(), UserService.deleteAccount() 로직이 구현되어 있다.
-  - UserEntity에는 softDelete() 메서드와 deletedAt 필드가 존재한다.
+  - 사용자는 로그인된 상태여야 한다.
+  - 서버는 DELETE /api/users/me 또는 POST /api/users/me/deactivate 엔드포인트를 제공한다.
   
 - **Trigger**  
   - 사용자가 “계정 탈퇴” 버튼을 클릭하고, 탈퇴 여부를 최종 확인했을 때 프로세스가 시작된다.
   
 - **Success Post Condition**  
-   -  users 테이블의 해당 사용자 레코드에 deletedAt 값이 설정되어 소프트 삭제 상태로 전환된다.
-  - 이후 로그인 시도 및 일부 서비스 이용이 제한되도록 처리될 수 있다(로그인 Use Case에서 isDeleted 체크).
+  -  해당 사용자의 UserEntity.deletedAt가 현재 시각으로 설정된다.
+  - 이후 이 계정은 로그인 및 주요 기능 사용이 불가능하다.
   
 - **Failed Post Condition** 
-  - 예외 발생 시 deletedAt 필드는 변경되지 않고 기존 상태를 유지한다.
-  - 사용자 계정은 여전히 활성 상태로 남아있으며, 프로세스 실패 메시지가 표시된다.
+  - DB 예외 또는 권한 문제로 인해 deletedAt이 설정되지 않는다.
+  - 계정은 여전히 활성 상태로 남는다.
   
 #### MAIN SUCCESS SCENARIO
-| Step | Action                                                                                       |
-| ---- | -------------------------------------------------------------------------------------------- |
-| S    | 사용자가 설정/마이페이지 화면에서 “계정 탈퇴” 메뉴를 선택한다.                                                         |
-| 1    | 시스템은 “정말로 계정을 탈퇴하시겠습니까?”와 같은 확인 메시지를 표시한다.                                                   |
-| 2    | 사용자가 탈퇴 의사를 최종 확인하고 “예” 또는 “확인” 버튼을 클릭한다.                                                    |
-| 3    | 클라이언트는 JWT Access Token을 `Authorization` 헤더에 포함하여 `DELETE /api/users/me` 요청을 전송한다.           |
-| 4    | `JwtAuthenticationFilter`가 토큰을 검증하고, 유효한 경우 SecurityContext에 인증 정보를 설정한 뒤 컨트롤러로 요청을 전달한다.    |
-| 5    | `UserController.deleteMyAccount()`는 userId를 확인하고, `UserService.deleteAccount(userId)`를 호출한다. |
-| 6    | `UserService`는 `UserRepository.findById(userId)`를 통해 `UserEntity`를 조회한다.                     |
-| 7    | 조회된 사용자 엔티티에 대해 `user.softDelete()`를 호출하여 `deletedAt` 필드에 현재 시각을 기록한다.                       |
-| 8    | 트랜잭션 커밋 시 변경된 `deletedAt` 값이 DB에 반영된다.                                                       |
-| 9    | 서버는 `204 No Content` 또는 `200 OK` 응답을 반환한다.                                                   |
-| 10   | 클라이언트는 “계정 탈퇴가 완료되었습니다.” 메시지를 표시하고, 로그인 페이지 또는 메인 화면으로 이동시킨다.                                |
+| Step | Action                                                      |
+| ---- | ----------------------------------------------------------- |
+| S    | 사용자가 “계정 탈퇴” 버튼을 클릭한다.                                      |
+| 1    | 클라이언트는 확인 다이얼로그(“정말 탈퇴하시겠습니까?”)를 표시하고, 사용자가 확인을 누른다.        |
+| 2    | 클라이언트는 JWT를 포함하여 `DELETE /api/users/me` 요청을 서버로 전송한다.       |
+| 3    | 서버는 JWT를 검증하고 현재 사용자 정보를 확인한다.                              |
+| 4    | 서버는 `UserRepository.findById()`로 `UserEntity`를 조회한다.        |
+| 5    | 서버는 `user.softDelete()`를 호출하여 `deletedAt`에 현재 시각을 기록한다.     |
+| 6    | 서버는 변경된 엔티티를 저장하고, 200 OK 또는 204 No Content를 반환한다.          |
+| 7    | 클라이언트는 “계정이 탈퇴 처리되었습니다.” 메시지를 표시하고, 로그인 화면 또는 랜딩 페이지로 이동한다. |
 
 
 #### EXTENSION SCENARIOS
-| Step | Branching Action                                                                                                                                  |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3a   | JWT가 없거나 잘못된 경우, 인증 필터가 `401 Unauthorized` 응답을 반환하고, 클라이언트는 로그인 페이지로 이동시킨다.                                                                       |
-| 6a   | 해당 userId에 해당하는 사용자 레코드가 존재하지 않을 경우, 서버는 `404 Not Found` 응답을 반환하고 “사용자 정보를 찾을 수 없습니다.” 메시지를 표시한다.                                                 |
-| 7a   | 이미 `deletedAt`가 설정된 계정(이미 탈퇴 처리된 계정)일 경우, 비즈니스 규칙에 따라 “이미 탈퇴된 계정입니다.” 메시지를 반환하거나 별도의 예외 처리를 수행한다(현재 코드는 소프트 삭제 메서드를 한 번 더 호출해도 동일 시각으로 덮어쓸 수 있음). |
-| 8a   | DB 업데이트 중 예외가 발생하면, 서버는 “계정 탈퇴 처리 중 오류가 발생했습니다.” 메시지와 함께 에러 응답을 반환하고, 계정 상태는 변경되지 않는다.                                                            |
+| Step | Branching Action                                                         |
+| ---- | ------------------------------------------------------------------------ |
+| 3a   | JWT가 만료되었거나 유효하지 않을 경우, 서버는 401을 반환하고 탈퇴 요청을 거부한다.                       |
+| 5a   | 이미 `deletedAt`이 설정된 계정이 다시 탈퇴를 시도한 경우, 서버는 “이미 탈퇴 처리된 계정입니다.” 메시지를 반환한다. |
+| 6a   | DB 예외 발생 시, “계정 탈퇴 처리 중 오류가 발생했습니다.” 메시지를 반환한다.                          |
 
 #### RELATED INFORMATION
 
@@ -616,10 +543,88 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
 
 - **Due Date**: 2025. 11. 01 (예정)
 
-### **Use case #8 : 토큰 재발급 (Refresh Token)**
+### **Use case #6 : 로그아웃**
+#### GENERAL CHARACTERISTICS
+- **Summary**   
+  - 현재 로그인된 사용자가 로그아웃을 수행하는 기능이다. 서버는 저장된 RefreshToken(예: DB/Redis)을 무효화하거나 삭제하고, 클라이언트는 로컬 스토리지/쿠키에 저장된 JWT를 제거한다.
+- **Scope**  
+  깃라잡이
+
+- **Level**  
+  User level  
+
+- **Author**  
+  박솔
+
+- **Last Update**  
+  2025. 10. 16
+
+- **Status**  
+  Design
+
+- **Primary Actor**  
+  Registered User (로그인된 사용자)
+
+- **Preconditions**  
+  - 사용자는 로그인된 상태여야 한다.
+  - 서버는 POST /api/auth/logout 엔드포인트를 제공한다.
+  
+- **Trigger**  
+  - 사용자가 “로그아웃” 버튼을 클릭했을 때.
+  
+- **Success Post Condition**  
+  -  서버에 저장된 해당 사용자의 RefreshToken 정보가 무효화/삭제된다.
+  - 클라이언트는 로컬에 저장된 AccessToken/RefreshToken을 제거한다.
+  - 사용자는 비로그인 상태로 전환된다.
+  
+- **Failed Post Condition** 
+  - 서버가 RefreshToken 정보를 찾지 못하거나, 내부 오류로 삭제하지 못하는 경우
+  → 클라이언트는 토큰을 제거하고 화면 상에서는 로그아웃 처리하되, 서버 측 세션/토큰 상태는 일부 남아 있을 수 있다.
+
+  
+#### MAIN SUCCESS SCENARIO
+| Step | Action                                                                |
+| ---- | --------------------------------------------------------------------- |
+| S    | 사용자가 “로그아웃” 버튼을 클릭한다.                                                 |
+| 1    | 클라이언트는 저장된 JWT(특히 RefreshToken)를 포함해 `POST /api/auth/logout` 요청을 보낸다. |
+| 2    | 서버는 토큰을 검증하고, 해당 사용자/RefreshToken을 식별한다.                              |
+| 3    | 서버는 DB/Redis 등에서 해당 RefreshToken 레코드를 삭제하거나 블랙리스트에 등록한다.              |
+| 4    | 서버는 200 OK 또는 204 No Content를 반환한다.                                   |
+| 5    | 클라이언트는 로컬/세션 스토리지 또는 쿠키에 저장된 AccessToken/RefreshToken을 삭제한다.          |
+| 6    | 클라이언트는 로그인 페이지 또는 메인 비로그인 화면으로 이동한다.                                  |
+
+
+
+#### EXTENSION SCENARIOS
+| Step | Branching Action                                                           |
+| ---- | -------------------------------------------------------------------------- |
+| 2a   | 토큰이 누락되었을 경우, 서버는 401을 반환할 수 있으며, 클라이언트는 일단 로컬 토큰을 삭제하고 로그인 화면으로 보낸다.      |
+| 3a   | 서버에 해당 RefreshToken 정보가 없는 경우(이미 로그아웃했거나 만료 등), 서버는 단순 성공 응답(멱등 처리)을 반환한다. |
+
+
+#### RELATED INFORMATION
+
+- **Performance**:
+  - 로그아웃 요청은 서버에서 수행하는 작업(RefreshToken 삭제, 블랙리스트 등록 등)이 단순하므로
+평균 1초 이내에 응답하는 것을 목표로 한다.
+  - 네트워크 상태가 정상일 경우, 대부분의 요청은 500ms 이내 처리될 수 있어야 한다.
+
+- **Frequency**: 
+  - 일반 사용자는 세션 종료 시 1회 로그아웃을 수행하는 것이 일반적이다.
+  - 브라우저/클라이언트에 토큰이 저장되는 구조이므로, 자주 접속하는 사용자 기준 하루 1~3회 정도 로그아웃이 발생할 수 있다.
+  - 자동 로그아웃(토큰 만료)은 이 Use case에 포함하지 않고, 별도의 만료/재발급 정책으로 관리한다.
+
+- **Concurrency**:
+  - 로그아웃은 주로 피크 시간대(업무/스터디 종료 시각 등)에 몰릴 수 있으므로, 최소 수백 명(예: 500명 이상)이 동시에 로그아웃 요청을 보내도 DB/Redis의 토큰 삭제/무효화 처리에 병목이 생기지 않도록 설계해야 한다.
+  - 특히 RefreshToken 저장소(예: Redis)의 쓰기 처리량(write throughput) 을 고려해 connection pool, timeout, 재시도 정책을 적절히 설정한다.
+
+- **Due Date**: 2025. 11. 01 (예정)
+
+
+### **Use case #7 : 토큰 재발급 (Refresh Token)**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
-  로그인 상태에서 Access Token이 만료되었을 때, 클라이언트가 보유중인 유효한 Refresh Token을 서버에 전송하여 새로운 Access Token (및 필요 시 새로운 Refresh Token)을 재발급받는 과정이다. 서버는 Refresh Token의 유효성을 검증하고, 토큰에 포함된 userId를 기반으로 새로운 JWT를 생성한다.
+  로그인 상태에서 Access Token이 만료되었을 때, 클라이언트가 보유중인 유효한 Refresh Token을 서버에 전송하여 새로운 Access Token (및 필요 시 새로운 Refresh Token)을 재발급받는 과정이다. 서버는 Refresh Token의 유효성을 검증하고 새로운 JWT를 생성한다.
 
 - **Scope**  
   깃라잡이
@@ -640,48 +645,40 @@ JWT 생성은 평균 100ms 이내를 목표로 한다.
   Registered User (로그인된 사용자)
 
 - **Preconditions**  
-  - 사용자는 이전에 로그인(이메일/비밀번호 또는 GitHub 로그인)을 통해 이미 Access/Refresh Token을 발급받은 상태이다.
-  - 클라이언트는 Refresh Token을 안전한 저장소(예: HttpOnly 쿠키 / 안전한 Storage)에 보관하고 있다.
-  - 백엔드에는 POST /api/auth/refresh 엔드포인트와 AuthController.refresh(String refreshToken), AuthService.refresh(String refreshToken) 로직이 구현되어 있다.
-  - 서버는 Refresh Token을 검증할 수 있는 JwtTokenProvider.validateToken() 및 getUserIdFromToken() 기능을 제공한다.
-  - 별도의 Refresh Token 저장소/블랙리스트는 아직 구현되어 있지 않으며, 토큰 자체의 서명/만료만으로 유효성을 판단한다.
+  - 사용자는 만료된 AccessToken과 유효한 RefreshToken을 보유하고 있어야 한다.
+  - 백엔드는 POST /api/auth/refresh 엔드포인트를 제공한다.
+  - 서버는 RefreshToken을 DB/Redis에 저장 및 검증할 수 있어야 한다.
   
 - **Trigger**  
-  클라이언트가 API 호출 중 Access Token 만료(401 Unauthorized 등)를 감지하고, 내부 로직에 의해 토큰 재발급 요청을 수행할 때 프로세스가 시작된다.
+  클라이언트에서 API 호출 시 401(AccessToken 만료) 응답을 받았을 때,
+자동 또는 수동으로 토큰 재발급 요청을 보낸다.
 - **Success Post Condition**  
-  - 서버는 전달받은 Refresh Token이 유효한 경우, 해당 사용자에 대해 새로운 Access Token (및 필요 시 새로운 Refresh Token)을 생성한다.
-  - 클라이언트는 새로 발급된 토큰으로 기존 세션을 유지하며, 추가 로그인 입력 없이 서비스를 계속 이용할 수 있다.
+  - 서버는 RefreshToken의 유효성을 검증하고, 새로운 AccessToken(및 필요 시 RefreshToken)을 생성하여 반환한다.
+  - 클라이언트는 기존 토큰을 새 토큰으로 교체한다.
   
 - **Failed Post Condition** 
-  - Refresh Token이 만료되었거나 위조, 포맷 오류 등으로 유효하지 않은 경우, 새로운 토큰은 발급되지 않는다.
-  - 사용자는 다시 로그인 페이지로 이동하여 재인증을 받아야 한다.
-  
+  - RefreshToken이 만료, 위조, DB에 없음 등의 이유로 유효하지 않다면 재발급이 실패한다.
+  - 클라이언트는 로그인 페이지로 리다이렉트하여 전체 로그인 절차를 다시 수행해야 한다.
+
 #### MAIN SUCCESS SCENARIO
-| Step | Action                                                                                                                 |
-| Step | Action                                                                                                                        |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------- |
-| S    | 사용자가 서비스를 이용하던 중, 보호된 API 호출에서 Access Token 만료로 인한 `401 Unauthorized` 응답을 받는다.                                                |
-| 1    | 클라이언트는 저장된 Refresh Token을 읽어온다.                                                                                               |
-| 2    | 클라이언트는 `POST /api/auth/refresh` 엔드포인트에 `refreshToken` 파라미터를 포함하여 서버로 요청을 전송한다. (예: `POST /api/auth/refresh?refreshToken=...`) |
-| 3    | `AuthController.refresh(String refreshToken)`가 요청을 수신하고, `AuthService.refresh(refreshToken)`을 호출한다.                           |
-| 4    | `AuthService`는 `JwtTokenProvider.validateToken(refreshToken)`으로 Refresh Token의 유효성을 검증한다.                                     |
-| 5    | 토큰이 유효하면, `JwtTokenProvider.getUserIdFromToken(refreshToken)`으로 userId를 추출한다.                                                 |
-| 6    | 추출된 userId를 기반으로 `JwtTokenProvider.generateAccessToken(userId, role)`을 호출하여 새로운 Access Token을 생성한다. (role 정보는 필요 시 토큰에 포함)    |
-| 7    | 필요에 따라 `JwtTokenProvider.generateRefreshToken(userId)`으로 새로운 Refresh Token을 재발급할 수 있다. (현재 구현에 맞춰 필수/선택 여부를 결정)               |
-| 8    | `AuthTokens` 객체에 새 Access Token과 (필요 시) 새 Refresh Token을 담아 `AuthService`에서 반환한다.                                             |
-| 9    | `AuthController`는 `200 OK` 상태 코드와 함께 `AuthTokens`를 JSON으로 클라이언트에 반환한다.                                                        |
-| 10   | 클라이언트는 이전 Access Token을 새로운 Access Token으로 교체하고, 필요 시 Refresh Token도 갱신하여 저장한 후, 재시도했던 API 요청을 새 토큰으로 다시 호출한다.                |
-                                               |
+| Step | Action                                                              |
+| ---- | ------------------------------------------------------------------- |
+| S    | 클라이언트가 API 요청 중 401(만료) 응답을 받고, 토큰 재발급을 시도한다.                       |
+| 1    | 클라이언트는 저장된 RefreshToken을 포함해 `POST /api/auth/refresh` 요청을 서버로 전송한다. |
+| 2    | 서버는 RefreshToken의 서명 유효성 및 만료 여부를 검증한다.                             |
+| 3    | 서버는 DB/Redis에 저장된 RefreshToken과 비교하여 동일한지 확인한다.                     |
+| 4    | 검증에 성공하면, 서버는 새로운 AccessToken(및 경우에 따라 RefreshToken도 갱신)을 생성한다.     |
+| 5    | 서버는 200 OK와 함께 새 토큰들을 응답한다.                                         |
+| 6    | 클라이언트는 기존 토큰을 새 토큰으로 교체하고, 중단된 요청을 재시도할 수 있다.                       |
+
 
 
 #### EXTENSION SCENARIOS
-| Step | Branching Action                                                                                                                                         |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2a   | 클라이언트에 Refresh Token이 없거나 손상된 경우, 토큰 재발급 요청을 수행할 수 없으며, “로그인 정보가 만료되었습니다. 다시 로그인해 주세요.” 메시지를 표시하고 로그인 페이지로 이동시킨다.                                        |
-| 4a   | `JwtTokenProvider.validateToken(refreshToken)` 검증에 실패한 경우(만료, 위조, 서명 불일치 등), 서버는 `401 Unauthorized` 응답과 함께 “세션이 만료되었습니다.” 또는 “유효하지 않은 토큰입니다.” 메시지를 반환한다. |
-| 5a   | 토큰에서 userId 추출에 실패한 경우, 서버는 인증 실패로 간주하고 적절한 에러 응답(401/400)을 반환한다.                                                                                        |
-| 6a   | 새로운 Access Token 생성 중 예외가 발생하면, 서버는 `500 Internal Server Error`와 함께 “토큰 재발급 중 오류가 발생했습니다.” 메시지를 반환한다.                                                    |
-| 9a   | 클라이언트 측에서 응답 파싱 오류가 발생하면, 기존 토큰 상태를 유지하거나 모두 삭제한 뒤 “세션 갱신 중 문제가 발생했습니다.” 메시지를 표시하고 다시 로그인하도록 유도한다.                                                       |
+| Step | Branching Action                                                      |
+| ---- | --------------------------------------------------------------------- |
+| 2a   | RefreshToken 자체가 만료된 경우, 서버는 401 또는 403을 반환하고 “다시 로그인하세요.” 메시지를 전달한다. |
+| 3a   | DB/Redis에 해당 RefreshToken이 없거나 이미 폐기된 경우, 서버는 재발급을 거부한다.              |
+| 4a   | 새로운 토큰 생성 중 서버 오류가 발생하면, “토큰 재발급 중 오류가 발생했습니다.” 메시지를 반환한다.            |
 
 
 #### RELATED INFORMATION
