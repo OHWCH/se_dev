@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { patchStudyForm } from '../hooks/useStudyForm';
 import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
-import { mockStudyDetail, mockApplications, mockCategories } from '../data/studyData';
+import { mockCategories } from '../data/studyData';
 import { Link } from 'react-router-dom';
-import { getStudyDetail, getStudyMember, approveApplicant, rejectApplicant, deleteMember, createStudySchedule } from '../services/studyApi';
+import { getStudyMember, approveApplicant, rejectApplicant, deleteMember, createStudySchedule, getStudyMain } from '../services/studyApi';
 
 // ---------------------------------------------------------------------
 // 탭 컴포넌트 1: 스터디 정보 수정 폼
@@ -166,7 +166,7 @@ const MemberManageTab = ({ members, studyId }) => {
                             
                             {/* 리더가 아닐 때만 추방 버튼 표시 */}
                             {!isLeader && (
-                                <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" onClick={() => deleteMember(studyId, member.name)}>
+                                <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" onClick={() => deleteMember(studyId, member.userId)}>
                                     추방
                                 </button>
                             )}
@@ -368,8 +368,11 @@ const ScheduleCreateTab = ({ studyId }) => {
 // ---------------------------------------------------------------------
 const StudyManagePage = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [foundStudyDetail, setFoundStudyDetail] = useState(null);
     const [foundStudyMembers, setFoundStudyMembers] = useState(null);
+    const [loading, setLoading] = useState(true); // 기존 로딩 상태
+    const [loadingError, setLoadingError] = useState(false); // 🌟 상태 추가
 
     const tabs = [
         // 이 tabs 배열을 정의하는 코드는 데이터 로딩 상태와 관계 없이 미리 정의 가능합니다.
@@ -381,36 +384,76 @@ const StudyManagePage = () => {
 
     useEffect(() => {
         const fetchStudyData = async () => {
+            let detailData = null; // 🌟 detailData 초기화 유지 (하위 컴포넌트 호환용)
+            let memberData = null;
             try {
-                // 🌟 [DEBUG] 호출 시작 로그
-                console.log("---------------- API 호출 시작 ----------------");
-                console.log("요청 ID:", id);
+                setLoading(true);
+                setLoadingError(false); // 🌟 setLoadingError 호출
+
+                // 1. API 호출
+                detailData = await getStudyMain(id); // 🌟 mainData에 할당
+                memberData = await getStudyMember(id);
                 
-                // API 호출
-                const detailData = await getStudyDetail(id);
-                const memberData = await getStudyMember(id);
+                // 2. 유효성 검사
+                if (!detailData) {
+                    throw new Error("스터디 데이터를 찾을 수 없거나 API 응답이 유효하지 않습니다.");
+                }
 
-                // 🌟 [DEBUG] 성공 로그 및 데이터 구조 확인
-                console.log("API 호출 성공. 상세 데이터 (detailData):", detailData);
-                console.log("API 호출 성공. 멤버 데이터 (memberData):", memberData);
+                // 3. 리더 권한 체크 (githubId 비교)
+                const leaderMember = detailData.members.find(m => m.studyRole === 'LEADER');
+                const leaderGithubId = leaderMember ? leaderMember.githubId : null;
 
-                // 상태 업데이트
-                setFoundStudyDetail(detailData);
-                setFoundStudyMembers(memberData);
+                const currentGithubId = localStorage.getItem("currentGithubId");
+
+                if (!currentGithubId) {
+                    // githubId가 없으면 인증 실패로 간주
+                    throw new Error("Local Storage에 GitHub ID가 없습니다. 로그인 정보 확인 필요.");
+                }
+
+                const isCurrentUserLeader = leaderGithubId === currentGithubId;
+
+                if (!isCurrentUserLeader) {
+                    alert('스터디 리더만 스터디 관리에 접근할 수 있습니다.');
+                    setLoading(false); // 로딩 종료
+                    navigate(`/study/${id}`, { replace: true });
+                    return; 
+                }
+
+                const formattedDetail = {
+                    studyInfo: {
+                        studyId: detailData.studyId,
+                        studyName: detailData.studyName,
+                        studyDescription: detailData.studyDescription,
+                        studyCategory: detailData.studyCategory,
+                        maxMemberCount: detailData.maxMembers,
+                    },
+                    // 🌟 getStudyMain에서 가져온 members를 사용
+                    members: detailData.members, 
+                    // getStudyMember 응답에서 applicants를 가져와야 합니다.
+                    applicants: memberData?.applicants || [], 
+                };
+
+                setFoundStudyDetail(formattedDetail);
+                setFoundStudyMembers(formattedDetail.members); // 🌟 구성원 목록은 mainData 기반으로 업데이트
+                setLoading(false); // 🌟 성공 시 로딩 종료
                 
-                // 🌟 [DEBUG] 상태 업데이트 완료 로그
-                console.log("---------------- API 호출 완료 ----------------");
-
             } catch (error) {
-                // 🌟 [DEBUG] 실패 로그
-                console.error("API 호출 중 치명적인 오류 발생:", error);
-                // 추가로 사용자에게 알림 띄우기
-                alert("스터디 정보를 불러오는 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
+                console.error("API 호출 중 오류 발생:", error);
+                
+                const errorMessage = error.message.includes("GitHub ID") 
+                                   ? "로그인 정보가 유효하지 않습니다. 다시 로그인해주세요." 
+                                   : "스터디 정보를 불러오는데 실패했습니다.";
+                                   
+                // 🌟 에러 발생 시 로딩 및 에러 상태 설정
+                setLoading(false);
+                setLoadingError(true);
+                alert(errorMessage);
+                navigate(`/studylist`, { replace: true }); 
             }
         };
         
         fetchStudyData();
-    }, [id]);
+    }, [id, navigate]);
     
 
     const newPayload = useMemo(() => {

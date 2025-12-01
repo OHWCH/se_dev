@@ -152,10 +152,14 @@ export function patchStudyForm(initialData = null, studyId) { // initialData 기
 
         // 🚨 최종 Payload 생성: 백엔드 API 형식(maxMemberCount)에 맞춤
         const payload = {
-            ...formData, 
-            maxMemberCount: Number(formData.maxMembers), 
+            studyName: formData.studyName,
+            studyDescription: formData.studyDescription,
+            studyCategory: formData.studyCategory,
+            
+            // 🌟 FIX: maxMembers 필드에 숫자 타입 값 할당 (API 필드명이 maxMembers라고 가정)
+            maxMembers: Number(formData.maxMembers),
         };
-        delete payload.maxMembers; // 프론트엔드용 필드는 삭제
+    
 
         try {
             // 실제 수정 API 호출

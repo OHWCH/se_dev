@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { getMyProfile } from '../services/userApi';
 
 const CallbackPage = () => {
     const [searchParams] = useSearchParams();
@@ -17,7 +18,22 @@ const CallbackPage = () => {
             localStorage.setItem('accessToken', accessToken);
             
             // 3. 홈 또는 스터디 목록 페이지로 이동
-            navigate('/studylist', { replace: true });
+            const fetchUserProfile = async () => {
+                try {
+                    await getMyProfile();
+
+                    // 5. 모든 정보 저장이 완료되면 페이지 이동
+                    navigate('/studylist', { replace: true });
+
+                } catch (error) {
+                    console.error('프로필 정보 로드 실패:', error);
+                    alert('로그인에 성공했지만 사용자 정보 로드에 실패했습니다. 다시 로그인해 주세요.');
+                    localStorage.removeItem('accessToken');
+                    navigate('/logintest');
+                }
+            };
+            
+            fetchUserProfile();
             
         } else {
             // 토큰을 받지 못했다면 로그인 실패 처리
