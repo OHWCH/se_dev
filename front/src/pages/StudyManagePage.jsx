@@ -5,7 +5,7 @@ import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 import { mockCategories } from '../data/studyData';
 import { Link } from 'react-router-dom';
-import { getStudyMember, approveApplicant, rejectApplicant, deleteMember, createStudySchedule, getStudyMain } from '../services/studyApi';
+import { getStudyMember, approveApplicant, rejectApplicant, deleteMember, createStudySchedule, getStudyMain, getStudyDetail } from '../services/studyApi';
 
 // ---------------------------------------------------------------------
 // 탭 컴포넌트 1: 스터디 정보 수정 폼
@@ -386,6 +386,7 @@ const StudyManagePage = () => {
         const fetchStudyData = async () => {
             let detailData = null; // 🌟 detailData 초기화 유지 (하위 컴포넌트 호환용)
             let memberData = null;
+            let applicantData = null;
             try {
                 setLoading(true);
                 setLoadingError(false); // 🌟 setLoadingError 호출
@@ -393,6 +394,7 @@ const StudyManagePage = () => {
                 // 1. API 호출
                 detailData = await getStudyMain(id); // 🌟 mainData에 할당
                 memberData = await getStudyMember(id);
+                applicantData = await getStudyDetail(id);
                 
                 // 2. 유효성 검사
                 if (!detailData) {
@@ -430,7 +432,7 @@ const StudyManagePage = () => {
                     // 🌟 getStudyMain에서 가져온 members를 사용
                     members: detailData.members, 
                     // getStudyMember 응답에서 applicants를 가져와야 합니다.
-                    applicants: memberData?.applicants || [], 
+                    applicants: applicantData.applicants || [], 
                 };
 
                 setFoundStudyDetail(formattedDetail);
