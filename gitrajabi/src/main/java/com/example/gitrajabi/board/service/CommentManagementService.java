@@ -21,7 +21,7 @@ public class CommentManagementService {
 
     // Use Case #20: 댓글 작성
     public Comment createComment(Long postId, Long currentUserId, CommentCreationRequest request) {
-        //  Comment 생성자에 Long postId와 Long currentUserId를 전달합니다.
+        // Comment 생성자에 Long postId와 Long currentUserId를 전달합니다.
         Comment comment = new Comment(postId, currentUserId, request.content());
         return commentRepository.save(comment);
     }
@@ -36,7 +36,7 @@ public class CommentManagementService {
             throw new AccessDeniedException("삭제 권한이 없습니다. 본인 댓글만 삭제 가능합니다.");
         }
 
-        comment.softDelete(); // 소프트 삭제 플래그 설정
-        // @Transactional에 의해 자동 저장 처리됨
+        comment.softDelete(); // ⭐️ @SQLDelete에 의해 deletedAt이 자동 업데이트됩니다.
+        commentRepository.save(comment); // 변경 사항 저장 (Auditing과 SQLDelete를 함께 사용하기 위해 save 호출)
     }
 }

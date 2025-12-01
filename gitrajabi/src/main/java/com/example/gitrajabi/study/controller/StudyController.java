@@ -5,6 +5,9 @@ import com.example.gitrajabi.study.dto.*;
 import com.example.gitrajabi.study.service.StudyService;
 import com.example.gitrajabi.user.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,14 +32,20 @@ public class StudyController {
 
     // 전체 스터디 목록 조회 (로그인 유저의 가입 여부 포함)
     @GetMapping
-    public ResponseEntity<List<StudyListResponse>> getStudyList() {
-
+    public ResponseEntity<List<StudyListResponse>> getStudyList(@RequestParam(defaultValue = "0") int page) {
         Long userId = SecurityUtil.getCurrentUserId();
 
-        List<StudyListResponse> list = studyService.getStudyList(userId);
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<StudyListResponse> pageResult = studyService.getStudyList(userId, pageable);
 
-        return ResponseEntity.ok(list);
+        List<StudyListResponse> contentOnly = pageResult.getContent();
+
+        return ResponseEntity.ok(contentOnly);
     }
+
+
+
+
 
     // 내가 가입한 스터디 목록 조회
     @GetMapping("/me")

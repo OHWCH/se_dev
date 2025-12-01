@@ -1,6 +1,5 @@
 package com.example.gitrajabi.board.domain;
 
-import com.example.gitrajabi.user.domain.entity.UserEntity; // 🌟 UserEntity 임포트
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +9,7 @@ import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import com.example.gitrajabi.board.domain.Post;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,20 +22,14 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
+
+    // ⭐️ post_id 칼럼을 직접 매핑 (ID-Only 방식)
     @Column(name = "post_id")
-     private Long postId; // 기존 필드 유지 (FK로 사용)
-    //private Long postId;
+    private Long postId;
+
+    // ⭐️ user_id 칼럼을 직접 매핑 (ID-Only 방식)
     @Column(name = "user_id")
-     private Long userId; // 기존 필드 유지 (FK로 사용)
-    // Long userId;
-
-    /*@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", insertable = false, updatable = false)
-    private Post post; // 🌟 추가: 게시글 엔티티 매핑
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private UserEntity user;*/ // 🌟 추가: 작성자 엔티티 매핑
+    private Long userId;
 
     private String content;
 
@@ -56,12 +49,5 @@ public class Comment {
     // Use Case #21: 소프트 삭제 플래그 설정
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
-        // @SQLDelete에 의해 DB에서는 자동으로 deleted_at와 updated_at이 업데이트되지만,
-        // JPA 영속성 컨텍스트 내의 객체 상태를 업데이트하는 것이 좋습니다.
-    }
-
-    // 편의 메서드: CommentResponse 생성을 위해 postId를 반환합니다.
-    public Long getPostId() {
-        return this.postId; // ⭐️ 직접 ID 필드를 반환하도록 수정
     }
 }

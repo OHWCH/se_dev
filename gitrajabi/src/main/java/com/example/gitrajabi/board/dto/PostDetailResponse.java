@@ -20,6 +20,8 @@ public record PostDetailResponse(
         // String nickname, // 작성자 닉네임 // ❌ 제거됨
         @Schema(description = "조회수", example = "10")
         int viewCount,
+        @Schema(description = "댓글 개수", example = "5") // ✅ 추가: 댓글 개수
+        int commentCount,
         @Schema(description = "생성 일시", example = "2024-01-01T10:00:00")
         LocalDateTime createdAt,
         @Schema(description = "수정 일시", example = "2024-01-01T10:30:00")
@@ -28,16 +30,17 @@ public record PostDetailResponse(
         @Schema(description = "댓글 목록")
         List<CommentResponse> comments // 🌟 상세 조회용: 댓글 리스트 추가
 ) {
-    public static PostDetailResponse from(Post post, List<CommentResponse> commentResponses) {
-        // String nickname = (post.getAuthor() != null) ? post.getAuthor().getNickname() : "탈퇴한 사용자"; // ❌ 닉네임 로직 제거
+    // ✅ 변경: 댓글 개수 필드 추가
+    public static PostDetailResponse from(Post post, int commentCount, List<CommentResponse> commentResponses) {
+        // String nickname = (post.getAuthor() != null) ? post.getAuthor().getNickname() : "탈퇴한 사용자"; // ❌ 닉네임 로직
 
         return new PostDetailResponse(
                 post.getPostId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getUserId(),
-                // nickname, // ❌ 닉네임 인자 제거
                 post.getViewCount(),
+                commentCount, // ✅ 댓글 개수 주입
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 commentResponses
