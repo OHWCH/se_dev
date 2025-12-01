@@ -3,10 +3,12 @@ package com.example.gitrajabi.study.service;
 import com.example.gitrajabi.study.dto.*;
 import com.example.gitrajabi.study.entity.Study;
 import com.example.gitrajabi.study.entity.StudyMember;
+import com.example.gitrajabi.study.entity.StudySchedule;
 import com.example.gitrajabi.study.erum.JoinStatus;
 import com.example.gitrajabi.study.erum.StudyRole;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
+import com.example.gitrajabi.study.repository.StudyScheduleRepository;
 import com.example.gitrajabi.user.domain.entity.UserEntity;
 import com.example.gitrajabi.user.domain.repository.UserRepository;
 
@@ -25,6 +27,7 @@ public class StudyService {
     private final StudyMemberRepository studyMemberRepository;
     private final UserRepository userRepository;
     private final StudyMemberService studyMemberService;
+    private final StudyScheduleRepository studyScheduleRepository;
 
 
     // 스터디 생성
@@ -170,4 +173,56 @@ public class StudyService {
         study.setMaxMemberCount(request.getMaxMembers());
         study.setUpdatedAt(LocalDateTime.now());
     }
+
+    @Transactional(readOnly = true)
+    public StudyMainPageResponse getStudyMainPage(Long studyId) {
+
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("스터디가 존재하지 않습니다."));
+
+        // 현재 인원수
+        int currentMembers = studyMemberRepository
+                .countByStudy_StudyIdAndJoinStatus(studyId, JoinStatus.APPROVED);
+
+        // 멤버 목록 조회
+        List<StudyMember> members = studyMemberRepository
+                .findByStudy_StudyIdAndJoinStatus(studyId, JoinStatus.APPROVED);
+
+        List<StudyMemberResponse> memberResponses = members.stream()
+                .map(m -> StudyMemberResponse.builder()
+                        .userId(m.getUser().getUserId())
+                        .githubId(m.getUser().getGithubId())
+                        .joinStatus(m.getJoinStatus())
+                        .studyRole(m.getStudyRole().name())
+                        .build())
+                .toList();
+
+        // 스케줄 목록 조회
+        List<StudySchedule> schedules =
+                studyScheduleRepository.findByStudy_StudyId(studyId);
+
+        List<StudyMainScheduleResponse> scheduleResponses = schedules.stream()
+                .map(s -> StudyMainScheduleResponse.builder()
+                        .scheduleId(s.getScheduleId())
+                        .comment(s.getComment())
+                        .startedAt(s.getStartedAt().toString())
+                        .endAt(s.getEndAt().toString())
+                        .build())
+                .toList();
+
+
+        return StudyMainPageResponse.builder()
+                .studyId(study.getStudyId())
+                .studyName(study.getName())
+                .studyDescription(study.getDescription())
+                .studyCategory(study.getCategory().name())
+                .currentMembers(currentMembers)
+                .maxMembers(study.getMaxMemberCount())
+                .leaderGithubId(study.getLeader().getGithubId())
+                .members(memberResponses)
+                .schedules(scheduleResponses)
+                .build();
+    }
+
+
 }

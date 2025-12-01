@@ -74,4 +74,14 @@ public class StudyController {
         return ResponseEntity.ok(new MessageResponse("스터디 정보가 수정되었습니다."));
     }
 
+    // 스터디 메인 페이지 조회
+    @GetMapping("/{studyId}/main")
+    public ResponseEntity<StudyMainPageResponse> getStudyMainPage(
+            @PathVariable Long studyId
+    ) {
+        StudyMainPageResponse response = studyService.getStudyMainPage(studyId);
+        return ResponseEntity.ok(response);
+    }
+
+
 }
