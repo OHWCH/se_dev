@@ -4223,328 +4223,554 @@ classDiagram
 |  | submitComment(postId, content)<br>댓글 작성/답변 등록 요청을 서비스로 전달 | void | Public |
 
 ### 오픈소스 이슈 관리
-<img width="1411" height="682" alt="image" src="https://github.com/user-attachments/assets/38b462e5-08d4-415f-8786-91f50cfce958" />
+```mermaid
+classDiagram
+    direction TB
+    class IssueController {
+        -IssueService issueService
+        +getGoodFirstIssues(String keyword, int page) Mono~List~GithubIssueDto~~
+    }
 
-- 엔티티 클래스의 연결은 표시하지 않음
-- 컨트롤 클래스와 바운더리 클래스의 의존성 표시
+    class GithubApiClient {
+        -WebClient webClient
+        +searchGoodFirstIssues(String keyword, int page) Mono~GithubIssueSearchResponseDto~
+        +fetchContributionData(String username) Mono~GraphQLResponseDto~
+    }
 
+    class GithubApiConfig {
+        -String baseUrl
+        -String devPatToken
+        +githubWebClientBuilder() WebClient.Builder
+    }
+
+    class IssueService {
+        -GithubApiClient githubApiClient
+        ~int page
+        +searchGoodFirstIssues(String keyword, int page) Mono~List~GithubIssueDto~~
+    }
+
+    class GithubIssueSearchResponseDto {
+        <<DTO>>
+        -List~GithubIssueDto~ items
+    }
+
+    class GithubIssueDto {
+        <<DTO>>
+        -String title
+        -String htmlUrl
+        -GithubUserDto user
+    }
+
+    class GithubUserDto {
+        <<DTO>>
+        -String login
+    }
+
+    IssueController --> IssueService
+
+    IssueService --> GithubApiClient
+
+    GithubApiClient ..> GithubApiConfig
+
+    IssueService ..> GithubIssueSearchResponseDto
+    IssueService ..> GithubIssueDto
+
+    GithubIssueSearchResponseDto *-- GithubIssueDto
+    GithubIssueDto *-- GithubUserDto
+```
 #### Entity Class
-| Class Name | Issue |   |   |
+| Class Name | GithubIssueSearchResponseDto |   |   |
 |---|---|---|---|
-| Class Description | 오픈소스 리포지토리의 개별 이슈를 표현하고 상태·라벨·메타정보를 관리 |   |   |
+| Class Description | GitHub 검색 API의 응답 전체를 매핑하는 DTO |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | issueId<br>플랫폼 전역 이슈 식별자(예: GitHub issue node/id) | String | Private |
-|  | repositoryId<br>소속 리포지토리 식별자(owner/name 또는 내부 PK) | String | Private |
-|  | title<br>이슈 제목 | String | Private |
-|  | state<br>이슈 상태(OPEN/CLOSED 등) | String | Private |
-|  | labels<br>이슈에 부착된 라벨 집합(중복 없음) | Set<IssueLabel> | Private |
-|  | language<br>주요 언어(추천/필터링 보조용) | String | Private |
-|  | createdAt<br>이슈 생성 시각 | Instant | Private |
-|  | updatedAt<br>최근 업데이트 시각 | Instant | Private |
-|  | comments<br>댓글(코멘트) 수 | Integer | Private |
-|  | reactions<br>리액션 합계 | Integer | Private |
-|  | authorId<br>작성자 식별자 | String | Private |
+| Attribute | totalCount | Integer | Private |
+|  | incompleteResults | Boolean | Private |
+|  | items | List<GithubIssueDto> | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | isOpen()<br>현재 상태가 OPEN인지 여부 반환 | boolean | Public |
-|  | hasLabel(String name)<br>라벨 존재 여부 | boolean | Public |
-|  | labelCount()<br>UI·정렬 보조 | int | Public |
-|  | age()<br>생성 이후 경과 시간. 정렬·스코어링 보조 | java.time.Duration | Public |
+| Operations | 없음 |  |  |
 
-| Class Name | IssueBookmark |   |   |
+| Class Name | GithubIssueDto |   |   |
 |---|---|---|---|
-| Class Description | 사용자별 이슈 북마크 상태 엔티티 |   |   |
+| Class Description | GitHub의 개별 이슈 정보를 표현하는 DTO |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | userId<br>사용자 식별 | String | Private |
-|  | issueId<br>이슈 식별 | String | Private |
-|  | createdAt<br>북마크 생성 시각 | Instant | Private |
+| Attribute | id | String | Private |
+|  | title | String | Private |
+|  | state | String | Private |
+|  | htmlUrl | String | Private |
+|  | comments | Integer | Private |
+|  | createdAt | Instant | Private |
+|  | updatedAt | Instant | Private |
+|  | user | GithubUserDto | Private |
+|  | labels | Set<IssueLabel> | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | getUserId()<br>userid 읽기 | String | Public |
-|  | getIssueId()<br>issueid 읽기 | String | Public |
-|  | getCreatedAt()<br>북마크 시각 | Instant | Public |
-|  | equals(Object o)<br>(userId,issueId) 비교 | boolean | Public |
-|  | hashCode()<br>(userId,issueId) 기반 | int | Public |
+| Operations | 없음 |  |  |
 
-| Class Name | Repository |   |   |
+| Class Name | GithubUserDto |   |   |
 |---|---|---|---|
-| Class Description | 레포지토리 단위 식별, 정보 |   |   |
+| Class Description | GitHub 이슈 작성자의 정보를 담는 DTO |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | owner<br>리포 소유자 | String | Private |
-|  | name<br>리포 명 | String | Private |
-|  | url<br>리포 전체 URL | String | Private |
-|  | defaultBranch<br>기본 브랜치명 | String | Private |
-|  | topics<br>주제 태그 집합 | Set<String> | Private |
-|  | syncedAt<br>최신 동기화 시각 | Instant | Private |
+| Attribute | id | String | Private |
+|  | login | String | Private |
+|  | avatarUrl | String | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | getFullName()<br>owner와 name을 결합한 전체 이름 반환 | String | Public |
+| Operations | 없음 |  |  |
 
-| Class Name | IssueLabel |   |   |
+#### Boundary Class
+| Class Name | IssueController |   |   |
 |---|---|---|---|
-| Class Description | 이슈에 부착되는 라벨 단위 |   |   |
+| Class Description | 이슈 검색 요청을 처리하는 API 엔드포인트 |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | name<br>라벨명 | String | Private |
-|  | color<br>표시 색상 코드 | String | Private |
-|  | description<br>라벨 설명 | String | Private |
+| Attribute | issueService | IssueService | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | isNamed(String n)<br>이름 비교 | boolean | Public |
+| Operations | searchIssues() | ResponseEntity | Public |
+
+| Class Name | GithubApiClient |   |   |
+|---|---|---|---|
+| Class Description | GitHub REST API 호출(WebClient) 담당 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | webClient | WebClient | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | searchGoodFirstIssues() | GithubIssueSearchResponseDto | Public |
+
+| Class Name | GithubApiConfig |   |   |
+|---|---|---|---|
+| Class Description | GitHub API URL 및 인증 설정 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | baseUrl | String | Private |
+|  | token | String | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | webClient() | WebClient | Public |
 
 #### Control Class
 | Class Name | IssueService |   |   |
 |---|---|---|---|
-| Class Description | Issue 검색과 북마크 변경을 조합하는 도메인 제어 |   |   |
+| Class Description | Good First Issue 검색 비즈니스 로직 |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | issueStore<br>DB 접근 | IssueStore | Private |
-|  | searchIndex<br>검색 인덱스 | SearchIndex | Private |
+| Attribute | githubApiClient | GithubApiClient | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | search(String keyword,List<String> labels,int limit)<br>검색 인덱스 기반 이슈 조회 | List<Issue> | Public |
-|  | addBookmark(String userId,String issueId)<br>북마크 저장 | void | Public |
-|  | removeBookmark(String userId,String issueId)<br>북마크 제거 | void | Public |
+| Operations | search() | List<GithubIssueDto> | Public |
 
-| Class Name | SyncService |   |   |
-|---|---|---|---|
-| Class Description | GitHub에서 가져온 최신 데이터를 DB와 인덱스를 동기화 |   |   |
-| 구분 | Name | Type | Visibility |
-| Attribute | gitHubGateway<br>github api 호출 | GitHubGateway | Private |
-|  | repositoryStore<br>repository: 저장, 조회 포트 | RepositoryStore | Private |
-|  | issueStore<br>issue: 저장, 조회 포트 | IssueStore | Private |
-|  | searchIndex<br>검색 인덱스 갱신 포트 | SearchIndex | Private |
-| 구분 | Name | Type | Visibility |
-| Operations | syncRepository(String repositoryId)<br>지정 리포를 가져와 저장과 인덱싱까지 실행 | void | Public |
 
-#### Boundary Class
-| Class Name | IssueApi |   |   |
-|---|---|---|---|
-| Class Description | HTTP요청을 받아 IssueService 호출 |   |   |
-| 구분 | Name | Type | Visibility |
-| Attribute | issueService<br>컨트롤 계층 진입점 | IssueService | Private |
-|  | userId<br>요청에서 추출한 사용자 식별 | String | Private |
-| 구분 | Name | Type | Visibility |
-| Operations | getIssues(IssueQuerySpec spec)<br>목록 조회 요청 처리 | List<Issue> | Public |
-|  | addBookmark(String issueId)<br>북마크 추가 요청 처리 | void | Public |
-|  | removeBookmark(String issueId)<br>북마크 삭제 요청 처리 | void | Public |
+### Challenge
+```mermaid
+classDiagram
+    direction TB
+    class ChallengeController {
+        -ChallengeService challengeService
+        +getAllChallenges() List~ChallengeResponseDto~
+    }
+    class ChallengeService {
+        -UserChallengeRepository userChallengeRepository
+        -ChallengeRepository challengeRepository
+        -UserRepository userRepository
+        +getChallengeList(Long userId) List~ChallengeResponseDto~
+        +updateChallengeStatus(Long userId, ContributionStatsDto stats) void
+    }
+    class ChallengeRepository {
+        <<Interface>>
+        +existsByName(ChallengeType name) boolean
+    }
+    class UserChallengeRepository {
+        <<Interface>>
+        +existsByUserIdAndChallengeAndIsCompletedTrue(Long userId, Challenge challenge) boolean
+        +findByUserIdAndChallenge(Long userId, Challenge challenge) Optional~UserChallenge~
+    }
+    class ChallengeDataLoader {
+        -ChallengeRepository challengeRepository
+        +run(String... args) void
+    }
+    class Challenge {
+        -Long challengeId
+        -ChallengeType name
+        -String description
+        -int goal
+    }
+    class UserChallenge {
+        -Long id
+        -Long userId
+        -Challenge challenge
+        -boolean isCompleted
+        -LocalDateTime achievedAt
+        +complete() void
+    }
+    class ChallengeResponseDto {
+        <<DTO>>
+        -Long challengeId
+        -String title
+        -String description
+        -int currentCount
+        -int goal
+        -boolean isCompleted
+    }
+    class ChallengeType {
+        <<Enumeration>>
+        COMMIT_1
+        PR_1
+        ISSUE_1
+    }
 
-| Class Name | IssueStore |   |   |
-|---|---|---|---|
-| Class Description | Issue, IssueBookmark 접근 |   |   |
-| 구분 | Name | Type | Visibility |
-| 구분 | Name | Type | Visibility |
-| Operations | find(IssueQuerySpec spec)<br>조건으로 이슈 페이지 조회 | List<Issue> | Public |
-|  | saveIssue(Issue i)<br>이슈 insert or update | void | Public |
-|  | saveBookmark(String userId,String issueId)<br>북마크 저장 | void | Public |
-|  | deleteBookmark(String userId,String issueId)<br>북마크 삭제 | void | Public |
-|  | existsBookmark(String userId,String issueId)<br>존재 여부 확인 | boolean | Public |
-
-| Class Name | RepositoryStore |   |   |
-|---|---|---|---|
-| Class Description | 레포지토리 저장, 조회 |   |   |
-| 구분 | Name | Type | Visibility |
-| 구분 | Name | Type | Visibility |
-| Operations | upsert(Repository repo)<br>단건 생성/갱신 | void | Public |
-|  | findById(String repositoryId)<br>ID로 조회 | Optional<Repository> | Public |
-|  | deleteByOwner(String owner)<br>소유자 기준 삭제 | long | Public |
-
-| Class Name | GitHubGateway |   |   |
-|---|---|---|---|
-| Class Description | GitHub REST / GraphQL API 호출 |   |   |
-| 구분 | Name | Type | Visibility |
-| Attribute | httpClient<br>HTTP 클라이언트 | String | Private |
-|  | token<br>액세스 토큰 | String | Private |
-|  | baseUrl<br>GitHub API base | String | Private |
-| 구분 | Name | Type | Visibility |
-| Operations | fetchIssues(IssueQuerySpec spec)<br>GitHub 이슈 목록 호출 | List<Issue> | Public |
-|  | fetchRepository(String owner,String name)<br>리포 조회 | Repository | Public |
-|  | fetchLabels(String owner,String name)<br>라벨 목록 조회 | Set<IssueLabel> | Public |
-
-| Class Name | SearchIndex |   |   |
-|---|---|---|---|
-| Class Description | 키워드 기반 이슈 검색 인덱스 어댑터 |   |   |
-| 구분 | Name | Type | Visibility |
-| Attribute | indexPath<br>인덱스 파일 저장 위치 | String | Private |
-|  | language<br>형태소 분석 언어 | String | Private |
-|  | defaultLimit<br>기본 검색 상한 | int | Private |
-|  | timeoutMillis<br>타임아웃 ms | long | Private |
-|  | highlightEnabled<br>하이라이트 사용 여부 | boolean | Private |
-| 구분 | Name | Type | Visibility |
-| Operations | putIssue(Issue issue)<br>단일 이슈 인덱싱 | void | Public |
-|  | putAll(List<Issue> issues)<br>여러 이슈 일괄 인덱싱 | void | Public |
-|  | searchIds(String keyword,List<String> labels,int limit)<br>조건으로 issueId 검색 | List<String> | Public |
-|  | deleteIssue(String issueId)<br>이슈 인덱스 삭제 | void | Public |
-|  | deleteByRepository(String repositoryId)<br>리포지토리 단위 인덱스 삭제 | void | Public |
-|  | rebuild(List<Issue> issues)<br>전체 재인덱싱 | void | Public |
-|  | healthy()<br>상태 확인 | boolean | Public |
-
-### 기여도 및 도전과제
-<img width="1418" height="687" alt="image" src="https://github.com/user-attachments/assets/6eae7f80-3768-4a20-aa52-cada79015b04" />
-
-- 엔티티 클래스의 연결은 표시하지 않음
-- 컨트롤 클래스와 바운더리 클래스의 의존성 표시
+    ChallengeController --> ChallengeService
+    ChallengeService --> ChallengeRepository
+    ChallengeService --> UserChallengeRepository
+    ChallengeDataLoader --> ChallengeRepository
+    
+    UserChallenge --> Challenge
+    Challenge --> ChallengeType
+    ChallengeService ..> ChallengeResponseDto
+```
 
 #### Entity Class
 | Class Name | Challenge |   |   |
 |---|---|---|---|
-| Class Description | 도전과제 정의 |   |   |
+| Class Description | 도전과제의 메타데이터를 관리하는 엔티티 |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | challengeId<br>과제 식별 | String | Private |
-|  | title<br>이름 | String | Private |
-|  | conditions<br>완료 조건 텍스트 목록 | List<String> | Private |
-|  | reward<br>보상 설명 | String | Private |
-|  | active<br>활성 여부 | boolean | Private |
+| Attribute | id | Long | Private |
+|  | title | String | Private |
+|  | description | String | Private |
+|  | targetCount | Integer | Private |
+|  | type | ChallengeType | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | isActive()<br>활성 여부 반환 | boolean | Public |
+| Operations | isCompletedBy(int count) | boolean | Public |
 
-| Class Name | ChallengeProgress |   |   |
+| Class Name | UserChallenge |   |   |
 |---|---|---|---|
-| Class Description | 사용자별 특정 과제 진행 상태 |   |   |
+| Class Description | 사용자별 도전과제 달성 상태를 관리하는 엔티티 |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | userId<br>사용자 식별 | String | Private |
-|  | challengeId<br>과제 식별 | String | Private |
-|  | progressRate<br>진행률 0~100 | int | Private |
-|  | completedAt<br>완료 시각 null 가능 | Instant | Private |
-|  | updatedAt<br>최근 갱신 시각 | Instant | Private |
+| Attribute | id | Long | Private |
+|  | userId | Long | Private |
+|  | challengeId | Long | Private |
+|  | progressCount | Integer | Private |
+|  | completed | Boolean | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | updateRate(int r)<br>진행률 갱신 0~100 범위 강제 | void | Public |
-|  | isCompleted()<br>완료 여부 반환 | boolean | Public |
-|  | markCompleted()<br>완료 플래그 처리 completedAt 설정 | void | Public |
+| Operations | increaseProgress() | void | Public |
+|  | complete() | void | Public |
 
-| Class Name | ContributionBadge |   |   |
+| Class Name | ChallengeType(Enum) |   |   |
 |---|---|---|---|
-| Class Description | 기여 배지 |   |   |
+| Class Description | 도전과제 종류 Enum |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | userId<br>사용자 식별 | String | Private |
-|  | badgeCode<br>배지 코드 식별 | String | Private |
-|  | awardedAt<br>부여 시각 | Instant | Private |
-|  | reason<br>부여 사유 | String | Private |
+| Attribute | FIRST_COMMIT | Enum | Public |
+|  | TEN_COMMITS | Enum | Public |
+|  | FIRST_PR | Enum | Public |
 | 구분 | Name | Type | Visibility |
-| Operations | getUserId()<br>사용자 식별 반환 | String | Public |
-|  | getBadgeCode()<br>배지 코드 반환 | String | Public |
-|  | getAwardedAt()<br>부여 시각 반환 | Instant | Public |
-|  | getReason()<br>사유 텍스트 반환 | String | Public |
-|  | equals(Object o)<br>(userId,badgeCode) 동일성 판단 | boolean | Public |
-|  | hashCode()<br>(userId,badgeCode) 기반 | int | Public |
+| Operations | 없음 |  |  |
 
-| Class Name | UserContributionStats |   |   |
+| Class Name | ChallengeResponseDto |   |   |
 |---|---|---|---|
-| Class Description | 사용자별 기여 지표 집계 |   |   |
+| Class Description | 도전과제 진행 상황을 반환하는 DTO |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | userId<br>사용자 식별 | String | Private |
-|  | commits<br>커밋 수 | int | Private |
-|  | prs<br>PR 수 | int | Private |
-|  | issues<br>이슈 생성/해결 수 | int | Private |
-|  | reviews<br>리뷰 수 | int | Private |
-|  | score<br>종합 점수 | int | Private |
-|  | ranking<br>전체 사용자 내 순위 | int | Private |
-|  | period<br>집계 기간 식별 | String | Private |
+| Attribute | challengeId | Long | Private |
+|  | title | String | Private |
+|  | progress | Integer | Private |
+|  | target | Integer | Private |
+|  | completed | Boolean | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | calcScore()<br>점수 재계산 | void | Public |
-|  | setRanking(int r)<br>순위 갱신 | void | Public |
+| Operations | 없음 |  |  |
 
-| Class Name | News |   |   |
+#### Boundary Class
+| Class Name | ChallengeController |   |   |
 |---|---|---|---|
-| Class Description | OSS 뉴스 항목 |   |   |
+| Class Description | 도전과제 조회 API 엔드포인트 |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | newsId<br>뉴스 식별자 | String | Private |
-|  | title<br>제목 | String | Private |
-|  | url<br>원문 링크 | String | Private |
-|  | source<br>제공 매체명 | String | Private |
-|  | publishedAtEpochMillis<br>게시 시각 | long | Private |
-|  | updatedAtEpochMillis<br>갱신 시각 | long | Private |
-|  | tags<br>태그 목록 | List<String> | Private |
-|  | thumbnailUrl<br>썸네일 이미지 링크 | String | Private |
+| Attribute | challengeService | ChallengeService | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | hasTag(String tag)<br>특정 태그 포함 여부 | boolean | Public |
+| Operations | getMyChallenges() | ResponseEntity | Public |
+
+| Class Name | ChallengeDataLoader |   |   |
+|---|---|---|---|
+| Class Description | 서버 시작 시 도전과제 데이터를 초기 적재 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | challengeRepository | ChallengeRepository | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | run() | void | Public |
+
+| Class Name | ChallengeRepository |   |   |
+|---|---|---|---|
+| Class Description | 도전과제 메타데이터 DB 접근 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | 없음 |  |  |
+| 구분 | Name | Type | Visibility |
+| Operations | findAll() | List<Challenge> | Public |
+|  | save() | Challenge | Public |
+
+| Class Name | UserChallengeRepository |   |   |
+|---|---|---|---|
+| Class Description | 사용자 도전과제 현황 DB 접근 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | 없음 |  |  |
+| 구분 | Name | Type | Visibility |
+| Operations | findByUserId() | List<UserChallenge> | Public |
+|  | save() | UserChallenge | Public |
 
 #### Control Class
 | Class Name | ChallengeService |   |   |
 |---|---|---|---|
-| Class Description | 도전과제 진행률 갱신과 완료 판정을 제어 |   |   |
+| Class Description | 도전과제 진행 및 완료 처리 로직 |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | challengeStore<br>DB 접근 | ChallengeStore | Private |
+| Attribute | challengeRepository | ChallengeRepository | Private |
+|  | userChallengeRepository | UserChallengeRepository | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | listActive()<br>활성 과제 목록 조회 | List<Challenge> | Public |
-|  | getMyProgress(String challengeId)<br>내 진행률 조회 | ChallengeProgress | Public |
-|  | updateMyProgress(String challengeId,int rate)<br>내 진행률 갱신 | void | Public |
-|  | completeMyChallenge(String challengeId)<br>내 과제 완료 처리 | void | Public |
+| Operations | checkCondition() | boolean | Public |
+|  | complete() | void | Public |
+|  | getAllChallenges() | List<ChallengeResponseDto> | Public |
 
-| Class Name | ContributionService |   |   |
-|---|---|---|---|
-| Class Description | 기여 통계 조회·저장과 배지·랭킹 조회 |   |   |
-| 구분 | Name | Type | Visibility |
-| Attribute | challengeStore<br>DB 접근 | ChallengeStore | Private |
-| 구분 | Name | Type | Visibility |
-| Operations | getMyStats()<br>내 통계 조회 | UserContributionStats | Public |
-|  | saveMyStats(UserContributionStats stats)<br>내 통계 저장 | void | Public |
-|  | myBadges()<br>내 배지 목록 조회 | List<ContributionBadge> | Public |
-|  | getBadge(String badgeCode)<br>배지 한 건 조회 | ContributionBadge | Public |
-|  | applyDelta(String userId,int commits,int prs,int issues,int reviews)<br>증가량 반영 점수 재계산 저장 | void | Public |
-|  | addCommits(String userId,int n)<br>커밋 n 증가 점수 재계산 저장 | void | Public |
-|  | addPRs(String userId,int n)<br>PR n 증가 점수 재계산 저장 | void | Public |
-|  | addIssues(String userId,int n)<br>이슈 n 증가 점수 재계산 저장 | void | Public |
-|  | addReviews(String userId,int n)<br>리뷰 n 증가 점수 재계산 저장 | void | Public |
+### Contribution
+```mermaid
+classDiagram
+    direction TB
+    class ContributionController {
+        -ContributionService contributionService
+        +getMyContributions() Mono~MyContributionResponseDto~
+    }
+    class ContributionService {
+        -GithubApiClient githubApiClient
+        -UserRepository userRepository
+        -ChallengeService challengeService
+        +getMyContribution(Long userId) Mono~MyContributionResponseDto~
+    }
+    class GithubApiClient {
+        +fetchContributionData(String username) Mono~GraphQLResponseDto~
+    }
+    class MyContributionResponseDto {
+        <<DTO>>
+        -ContributionStatsDto stats
+        -Badge badge
+    }
+    class ContributionStatsDto {
+        <<DTO>>
+        -int commitCount
+        -int prCount
+        -int issueCount
+    }
+    class GraphQLResponseDto {
+        <<DTO>>
+        -Data data
+    }
+    class GraphQLRequestDto {
+        <<DTO>>
+        -String query
+    }
+    class Badge {
+        <<Enumeration>>
+        NONE
+        BRONZE
+        SILVER
+        GOLD
+        PLATINUM
+        DIAMOND
+        RUBY
+    }
 
-| Class Name | NewsService |   |   |
+    ContributionController --> ContributionService
+    ContributionService --> GithubApiClient
+    
+    ContributionService ..> MyContributionResponseDto
+    MyContributionResponseDto *-- ContributionStatsDto
+    MyContributionResponseDto *-- Badge
+    
+    GithubApiClient ..> GraphQLResponseDto
+    GithubApiClient ..> GraphQLRequestDto
+```
+
+#### Entity Class
+| Class Name | Badge(Enum) |   |   |
 |---|---|---|---|
-| Class Description | 뉴스 검색 정렬 페이징 조합 이동 URL 반환 |   |   |
+| Class Description | 기여도 점수 기반 뱃지 Enum |   |   |
 | 구분 | Name | Type | Visibility |
+| Attribute | NONE | Enum | Public |
+|  | BRONZE | Enum | Public |
+|  | SILVER | Enum | Public |
+|  | GOLD | Enum | Public |
+|  | PLATINUM | Enum | Public |
 | 구분 | Name | Type | Visibility |
-| Operations | find(int page,int size,String keyword,List<String> tags,boolean recentFirst)<br>조건에 맞는 뉴스 목록 반환 | List<News> | Public |
-|  | newsUrl(String newsId)<br>원문 URL 생성 | String | Public |
+| Operations | 없음 |  |  |
+
+| Class Name | MyContributionResponseDto |   |   |
+|---|---|---|---|
+| Class Description | 기여도 산정 결과 응답 DTO |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | badge | Badge | Private |
+|  | score | Integer | Private |
+|  | stats | ContributionStatsDto | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | 없음 |  |  |
+
+| Class Name | ContributionStatsDto |   |   |
+|---|---|---|---|
+| Class Description | 활동별 통계 정보 DTO |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | commitCount | Integer | Private |
+|  | pullRequestCount | Integer | Private |
+|  | issueCount | Integer | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | 없음 |  |  |
+
+| Class Name | GraphQLResponseDto |   |   |
+|---|---|---|---|
+| Class Description | GitHub GraphQL 응답 DTO |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | data | Object | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | 없음 |  |  |
+
+| Class Name | GraphQLRequestDto |   |   |
+|---|---|---|---|
+| Class Description | GitHub GraphQL 요청 DTO |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | query | String | Private |
+|  | variables | Map<String, Object> | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | 없음 |  |  |
 
 #### Boundary Class
-| Class Name | ChallengeApi |   |   |
+| Class Name | ContributionController |   |   |
 |---|---|---|---|
-| Class Description | HTTP 요청을 받아 ChallengeService를 거쳐 도전과제 관련 서비스 호출 ChallengeStore로 전달 |   |   |
+| Class Description | 기여도 조회 API |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | userId<br>인증 사용자 식별자 | String | Private |
-|  | challengeStore<br>DB 게이트웨이 | ChallengeStore | Private |
+| Attribute | contributionService | ContributionService | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | listActive()<br>활성 과제 목록 조회 | List<Challenge> | Public |
-|  | getProgress(String challengeId)<br>특정 과제 진행 조회 | ChallengeProgress | Public |
-|  | updateProgress(String challengeId,int rate)<br>진행률 갱신 | void | Public |
-|  | complete(String challengeId)<br>완료 처리 | void | Public |
+| Operations | getMyContribution() | ResponseEntity | Public |
 
-| Class Name | BadgeApi |   |   |
+#### Control Class
+| Class Name | ContributionService |   |   |
 |---|---|---|---|
-| Class Description | HTTP 요청을 받아 ChallengeService를 거쳐 ChallengeStore를 통해 배지 조회 |   |   |
+| Class Description | 활동 집계, 점수 계산, 뱃지 산정, 도전과제 동기화 로직 |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | userId<br>인증 사용자 식별자 | String | Private |
-|  | challengeStore<br>DB 게이트웨이 | ChallengeStore | Private |
+| Attribute | githubApiClient | GithubApiClient | Private |
+|  | challengeService | ChallengeService | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | listBadges()<br>내 배지 목록 조회 | List<ContributionBadge> | Public |
-|  | getBadge(String badgeCode)<br>배지 한 건 조회 | ContributionBadge | Public |
+| Operations | calculateContribution() | MyContributionResponseDto | Public |
+|  | computeBadge() | Badge | Public |
+|  | updateChallenges() | void | Public |
 
-| Class Name | RankingApi |   |   |
-|---|---|---|---|
-| Class Description | HTTP 요청 입력을 받아 ChallengeService를 거쳐 ChallengeStore를 통해 랭킹 조회 |   |   |
-| 구분 | Name | Type | Visibility |
-| Attribute | userId<br>인증 사용자 식별자 | String | Private |
-|  | challengeStore<br>DB 게이트웨이 | ChallengeStore | Private |
-| 구분 | Name | Type | Visibility |
-| Operations | top(int limit)<br>상위 N 사용자 기여도 반환 | List<UserContributionStats> | Public |
-|  | myRank()<br>authUserId 기준 내 랭킹 반환 | UserContributionStats | Public |
+### To-do List
+```mermaid
+classDiagram
+    direction TB
+    class TodoController {
+        -TodoService todoService
+        +createTodo(TodoRequestDto request) TodoResponseDto
+        +getTodos(Pageable pageable) Slice~TodoResponseDto~
+        +toggleTodo(Long todoId) void
+        +deleteTodos(TodoBatchDeleteRequestDto request) void
+    }
+    class TodoService {
+        -TodoRepository todoRepository
+        +createTodo(Long userId, TodoRequestDto request) TodoResponseDto
+        +getTodos(Long userId, Pageable pageable) Slice~TodoResponseDto~
+        +toggleTodo(Long userId, Long todoId) void
+        +deleteTodos(Long userId, List~Long~ todoIds) void
+    }
+    class TodoRepository {
+        <<Interface>>
+        +findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable) Slice~Todo~
+    }
+    class Todo {
+        -Long id
+        -Long userId
+        -String content
+        -boolean isChecked
+        -LocalDateTime createdAt
+        +toggle() void
+    }
+    class TodoRequestDto {
+        <<DTO>>
+        -String content
+    }
+    class TodoResponseDto {
+        <<DTO>>
+        -Long id
+        -String content
+        -boolean isChecked
+    }
+    class TodoBatchDeleteRequestDto {
+        <<DTO>>
+        -List~Long~ todoIds
+    }
 
-| Class Name | ChallengeStore |   |   |
+    TodoController --> TodoService
+    TodoService --> TodoRepository
+    TodoRepository ..> Todo
+    
+    TodoController ..> TodoRequestDto
+    TodoController ..> TodoBatchDeleteRequestDto
+    TodoService ..> TodoResponseDto
+```
+#### Entity Class
+| Class Name | Todo |   |   |
 |---|---|---|---|
-| Class Description | 챌린지 관련 클래스에 대한 DB접근 게이트 웨이 |   |   |
+| Class Description | 사용자 Todo 엔티티 |   |   |
 | 구분 | Name | Type | Visibility |
+| Attribute | id | Long | Private |
+|  | userId | Long | Private |
+|  | title | String | Private |
+|  | description | String | Private |
+|  | completed | Boolean | Private |
+|  | createdAt | Instant | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | findActiveChallenges()<br>활성 Challenge 목록 조회 | List<Challenge> | Public |
-|  | findProgress(String userId,String challengeId)<br>한 사용자 한 과제 진행 조회 | ChallengeProgress | Public |
-|  | saveProgress(ChallengeProgress progress)<br>진행률 insert or update | void | Public |
-|  | saveComplete(String userId,String challengeId)<br>완료 처리 | void | Public |
-|  | findBadges(String userId)<br>사용자의 배지 목록 조회 | List<ContributionBadge> | Public |
-|  | findBadge(String userId,String badgeCode)<br>배지 한 건 조회 | ContributionBadge | Public |
-|  | saveBadge(ContributionBadge badge)<br>배지 insert | void | Public |
-|  | findTop(int limit)<br>상위 기여도 순위 N명 조회 | List<UserContributionStats> | Public |
-|  | findStats(String userId)<br>특정 사용자 기여 통계 조회 | UserContributionStats | Public |
-|  | saveStats(UserContributionStats stats)<br>통계 insert or update | void | Public |
+| Operations | toggle() | void | Public |
 
-| Class Name | NewsApi |   |   |
+| Class Name | TodoRequestDto |   |   |
 |---|---|---|---|
-| Class Description | HTTP요청을 받아 목록 조회 이동 기능을 NewsService로 |   |   |
+| Class Description | Todo 생성 DTO |   |   |
 | 구분 | Name | Type | Visibility |
-| Attribute | newsService<br>컨트롤 계층 | NewsService | Private |
+| Attribute | title | String | Private |
+|  | description | String | Private |
 | 구분 | Name | Type | Visibility |
-| Operations | list(int page,int size,String keyword,List<String> tags,boolean recentFirst)<br>뉴스 목록 조회 | List<News> | Public |
-|  | goTo(String newsId)<br>뉴스 상세 원문으로 이동할 URL 반환 | String | Public |
+| Operations | 없음 |  |  |
+
+| Class Name | TodoResponseDto |   |   |
+|---|---|---|---|
+| Class Description | Todo 조회 DTO |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | id | Long | Private |
+|  | title | String | Private |
+|  | description | String | Private |
+|  | completed | Boolean | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | 없음 |  |  |
+
+| Class Name | TodoBatchDeleteRequestDto |   |   |
+|---|---|---|---|
+| Class Description | Todo ID 배열을 통한 일괄 삭제 요청 DTO |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | ids | List<Long> | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | 없음 |  |  |
+
+#### Boundary Class
+| Class Name | TodoController |   |   |
+|---|---|---|---|
+| Class Description | Todo CRUD 기능을 제공하는 API 엔드포인트 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | todoService | TodoService | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | create() | ResponseEntity | Public |
+|  | getTodos() | ResponseEntity | Public |
+|  | update() | ResponseEntity | Public |
+|  | delete() | ResponseEntity | Public |
+
+| Class Name | TodoRepository |   |   |
+|---|---|---|---|
+| Class Description | Todo 엔티티 DB 접근 레이어 |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | 없음 |  |  |
+| 구분 | Name | Type | Visibility |
+| Operations | save() | Todo | Public |
+|  | findByUserId() | List<Todo> | Public |
+|  | deleteById() | void | Public |
+
+#### Control Class
+| Class Name | TodoService |   |   |
+|---|---|---|---|
+| Class Description | Todo 비즈니스 로직(소유자 검증·토글·CRUD) |   |   |
+| 구분 | Name | Type | Visibility |
+| Attribute | todoRepository | TodoRepository | Private |
+| 구분 | Name | Type | Visibility |
+| Operations | create() | Todo | Public |
+|  | update() | Todo | Public |
+|  | delete() | void | Public |
+|  | toggle() | Todo | Public |
 
 ---
 ## 4. Sequence diagram
