@@ -9,6 +9,8 @@ public interface ScheduleParticipateRepository extends JpaRepository<SchedulePar
     boolean existsBySchedule_ScheduleIdAndUser_UserId(Long scheduleId, Long userId);
 
     int countBySchedule_ScheduleId(Long scheduleId);
+    void deleteBySchedule_Study_StudyId(Long studyId);
+    void deleteBySchedule_ScheduleId(Long scheduleId);
 
 
 }
