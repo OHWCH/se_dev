@@ -4351,7 +4351,7 @@ classDiagram
 | Operations | search() | List<GithubIssueDto> | Public |
 
 
-### Challenge
+### 도전과제
 ```mermaid
 classDiagram
     direction TB
@@ -4514,7 +4514,7 @@ classDiagram
 |  | complete() | void | Public |
 |  | getAllChallenges() | List<ChallengeResponseDto> | Public |
 
-### Contribution
+### 기여도
 ```mermaid
 classDiagram
     direction TB
@@ -4643,7 +4643,7 @@ classDiagram
 |  | computeBadge() | Badge | Public |
 |  | updateChallenges() | void | Public |
 
-### To-do List
+### To-do 리스트
 ```mermaid
 classDiagram
     direction TB
@@ -5829,324 +5829,282 @@ sequenceDiagram
 
 
 ## 오픈소스 이슈 관리
-### Good First Issue 목록 조회
+### 굿 퍼스트 이슈 탐색
 ```mermaid
 sequenceDiagram
-    participant User
-    participant IssueApi
-    participant IssueService
-    participant IssueStore
+    actor User as 사용자
+    participant Client as 클라이언트 (Web)
+    participant Controller as IssueController
+    participant Service as IssueService
+    participant APIClient as GithubApiClient
+    participant GitHub as GitHub API
 
-    activate User
-    User->>+IssueApi: S: "Good First Issue 목록" 메뉴 클릭 (getIssues)
+    User->>Client: 이슈 검색 요청 (키워드)
+    Client->>Controller: GET /api/issues/good-first?keyword=...
+    activate Controller
     
-    IssueApi->>+IssueService: getIssues(spec)
+    Controller->>Service: searchGoodFirstIssues(keyword, page)
+    activate Service
     
-    IssueService->>+IssueStore: 2: find(spec)
-    IssueStore-->>-IssueService: 3: List<Issue> issues (조회된 목록)
+    Service->>APIClient: searchGoodFirstIssues(keyword, page)
+    activate APIClient
     
-    IssueService-->>-IssueApi: List<Issue> issues
+    Note right of APIClient: WebClient로 외부 API 호출
+    APIClient->>GitHub: GET /search/issues?q=label:"good first issue"...
+    activate GitHub
+    GitHub-->>APIClient: JSON 응답 (Items)
+    deactivate GitHub
     
-    IssueApi-->>-User: 4: (200 OK) 이슈 목록 데이터
-    deactivate User
+    APIClient-->>Service: GithubIssueSearchResponseDto
+    deactivate APIClient
+    
+    Service-->>Controller: List<GithubIssueDto>
+    deactivate Service
+    
+    Controller-->>Client: JSON 응답 (이슈 목록)
+    deactivate Controller
+    Client-->>User: 이슈 목록 표시
 ```
-사용자가 'Good First Issue 목록' 메뉴를 클릭하면 이 과정이 시작됩니다. 이 요청은 IssueApi로 전달되어 getIssues가 호출되며, API는 IssueService에 쿼리 스펙(spec)을 넘깁니다. IssueService는 이 스펙을 바탕으로 IssueStore의 find 메서드를 호출하여 "Good First Issue" 라벨과 "OPEN" 상태 등의 조건에 맞는 이슈 목록을 데이터베이스에서 조회합니다. IssueStore가 이슈 목록을 반환하면, IssueService와 IssueApi를 거쳐 최종적으로 사용자에게 목록 데이터가 전달되어 화면에 표시됩니다.
-
-### 이슈 북마크 저장
-```mermaid
-sequenceDiagram
-    participant User
-    participant IssueApi
-    participant IssueService
-    participant IssueStore
-
-    activate User
-    User->>+IssueApi: S: "북마크" 아이콘 클릭 (addBookmark)
-    
-    IssueApi->>+IssueService: 1: addBookmark(userId, issueId)
-    
-    IssueService->>+IssueStore: 2: existsBookmark(userId, issueId)
-    IssueStore-->>-IssueService: false (북마크 없음)
-    
-    IssueService->>+IssueStore: 3: saveBookmark(userId, issueId)
-    IssueStore-->>-IssueService: (저장 완료)
-    
-    IssueService-->>-IssueApi: (200 OK)
-    
-    IssueApi-->>User: 4: "북마크에 저장되었습니다."
-    deactivate IssueApi
-    deactivate User
-```
-사용자가 특정 이슈의 '북마크' 아이콘을 클릭하면 IssueApi의 addBookmark가 호출됩니다. IssueApi는 IssueService에 userId와 issueId를 전달하여 addBookmark를 요청합니다. IssueService는 먼저 IssueStore의 existsBookmark를 호출해 중복 여부를 확인합니다. 중복이 아닐 경우(false), IssueService는 IssueStore의 saveBookmark를 호출하여 데이터베이스에 정보를 저장합니다. 저장이 완료되면, IssueApi를 통해 사용자에게 "북마크에 저장되었습니다."라는 확인 메시지가 전달됩니다.
-
-### 이슈 북마크 삭제
-```mermaid
-sequenceDiagram
-    participant User
-    participant IssueApi
-    participant IssueService
-    participant IssueStore
-
-    activate User
-    User->>+IssueApi: S: 활성화된 "북마크" 아이콘 클릭 (removeBookmark)
-    
-    IssueApi->>+IssueService: 1: removeBookmark(userId, issueId)
-    
-    IssueService->>+IssueStore: 2: deleteBookmark(userId, issueId)
-    IssueStore-->>-IssueService: (삭제 완료)
-    
-    IssueService-->>-IssueApi: (200 OK)
-    
-    IssueApi-->>User: 3: "북마크에서 삭제되었습니다."
-    deactivate IssueApi
-    deactivate User
-```
-사용자가 이미 활성화된 북마크 아이콘을 다시 클릭하면 IssueApi의 removeBookmark가 호출됩니다. IssueApi는 IssueService에 userId와 issueId를 전달하여 removeBookmark를 요청합니다. IssueService는 즉시 IssueStore의 deleteBookmark를 호출하여 데이터베이스에서 해당 북마크 데이터를 삭제합니다. 삭제가 성공적으로 완료되면, IssueApi를 통해 사용자에게 "북마크에서 삭제되었습니다."라는 확인 메시지가 전달됩니다.
-
-### 키워드 검색
-```mermaid
-sequenceDiagram
-    participant User
-    participant IssueApi
-    participant IssueService
-    participant SearchIndex
-    participant IssueStore
-
-    activate User
-    User->>+IssueApi: S: 키워드 입력 후 검색 (getIssues with spec)
-    
-    IssueApi->>+IssueService: 2: search(keyword, labels, limit)
-    
-    IssueService->>+SearchIndex: searchIds(keyword, labels, limit)
-    SearchIndex-->>-IssueService: List<String> issueIds
-    
-    IssueService->>+IssueStore: 3: find(spec_with_ids)
-    IssueStore-->>-IssueService: List<Issue> issues
-    
-    IssueService-->>-IssueApi: List<Issue> issues (정렬/가공된 결과)
-    
-    IssueApi-->>User: 4: (200 OK) 검색 결과 목록
-    deactivate IssueApi
-    deactivate User
-```
-사용자가 키워드를 입력하고 검색을 요청하면 IssueApi가 IssueService의 search 메서드를 호출합니다. IssueService는 SearchIndex의 searchIds를 호출하여 검색 인덱스로부터 키워드와 일치하는 이슈 ID 목록(issueIds)을 먼저 받아옵니다. 그 후, 이 ID 목록을 포함한 쿼리 스펙을 IssueStore의 find 메서드로 전달하여 데이터베이스에서 실제 Issue 객체 목록을 조회합니다. IssueService는 이 결과를 정렬하고 가공하여 IssueApi를 통해 사용자에게 최종 검색 결과 목록을 반환합니다.
-
-### OSS 이슈 이동
-```mermaid
-sequenceDiagram
-    participant User
-    participant System (Client)
-    participant GitHub
-
-    activate User
-    User->>System (Client): S: "GitHub에서 보기" 버튼 클릭
-    
-    System (Client)->>System (Client): 1: 클릭된 이슈의 GitHub URL 식별
-    
-    System (Client)->>+GitHub: 2: URL로 리다이렉트 (새 탭)
-    
-    GitHub-->>-System (Client): 3: GitHub 이슈 페이지 반환
-    
-    System (Client)-->>User: 4: 이슈 페이지 표시
-    deactivate User
-```
-사용자가 이슈 상세 화면에서 "GitHub에서 보기" 버튼을 클릭하면, 시스템(클라이언트)은 해당 이슈가 가지고 있는 고유한 GitHub URL을 식별합니다. 시스템은 즉시 사용자의 웹 브라우저에 새 탭을 열어 식별된 URL로 리다이렉트시킵니다. GitHub 서버는 이 요청에 응답하여 해당 이슈의 원본 페이지를 사용자 브라우저에 표시합니다.
-
-### vscode.dev 열기
-```mermaid
-sequenceDiagram
-    participant User
-    participant System (Client)
-    participant vscode.dev
-    participant GitHub
-
-    activate User
-    User->>System (Client): S, 1: "vscode.dev 열기" 버튼 클릭
-    
-    System (Client)->>System (Client): 2: 대상 리포(owner/repo)로 URL 구성
-    
-    System (Client)->>+vscode.dev: 3: 새 탭으로 URL 이동 (https://vscode.dev/github/...)
-```
-사용자가 "vscode.dev 열기" 버튼을 클릭하면, 시스템(클라이언트)은 현재 리포지토리의 owner와 name 정보를 바탕으로 https://vscode.dev/github/{owner}/{name} 형식의 URL을 동적으로 구성합니다. 시스템은 이 URL로 새 탭을 열어 vscode.dev로 이동시킵니다. 만약 대상 리포지토리가 Private인 경우, vscode.dev는 사용자에게 GitHub 인증을 요구하며, 사용자가 이를 승인하면 vscode.dev가 리포지토리의 파일 트리를 로드하여 웹 에디터를 렌더링합니다.
+사용자가 이슈 검색 화면에서 키워드를 입력하면 요청이 시작된다. 이 요청은 IssueController의 getGoodFirstIssues 메서드로 전달되어 IssueService의 searchGoodFirstIssues 메서드를 호출한다. IssueService는 GithubApiClient를 통해 GitHub Search API에 요청을 보내고, label:good first issue 조건과 키워드가 포함된 이슈 목록을 조회한다. API로부터 응답받은 데이터는 GithubIssueSearchResponseDto 형태로 반환되며, 서비스 계층에서 필요한 정보만 추출된 GithubIssueDto 리스트로 변환된다. 최종적으로 IssueController는 이 리스트를 사용자에게 JSON 형태로 반환하여 화면에 검색 결과를 표시한다.
 
 ## 기여도 및 도전과제
-### 도전과제 진행 상태 조회
+### 내 기여도 조회
 ```mermaid
 sequenceDiagram
-    participant User
-    participant ChallengeApi
-    participant ChallengeService
-    participant ChallengeStore
+    actor User as 사용자
+    participant Controller as ContributionController
+    participant Service as ContributionService
+    participant UserRepo as UserRepository
+    participant APIClient as GithubApiClient
+    participant GitHub as GitHub API (GraphQL)
+    participant C_Service as ChallengeService
 
-    activate User
-    User->>+ChallengeApi: 1: '도전과제 진행 현황' 클릭 (listActive)
+    User->>Controller: GET /api/my/contributions
+    activate Controller
     
-    ChallengeApi->>+ChallengeService: listActive()
-    ChallengeService->>+ChallengeStore: 2: findActiveChallenges()
-    ChallengeStore-->>-ChallengeService: List<Challenge> activeChallenges
+    Controller->>Service: getMyContribution(userId)
+    activate Service
     
-    loop for each challenge in activeChallenges
-        ChallengeService->>+ChallengeStore: 2: findProgress(userId, C.challengeId)
-        ChallengeStore-->>-ChallengeService: ChallengeProgress progress
-    end
+    Service->>UserRepo: findById(userId)
+    UserRepo-->>Service: UserEntity (Github ID 포함)
     
-    ChallengeService-->>-ChallengeApi: List<CombinedChallengeProgress>
+    Service->>APIClient: fetchContributionData(githubId)
+    activate APIClient
+    APIClient->>GitHub: POST /graphql (Query)
+    GitHub-->>APIClient: GraphQL Response
+    APIClient-->>Service: GraphQLResponseDto
+    deactivate APIClient
     
-    ChallengeApi-->>User: 3: (200 OK) 도전과제 목록 및 진행률
-    deactivate ChallengeApi
-    deactivate User
+    Service->>Service: transformToStats() & calculateScore()
+    Note right of Service: 점수 기반 뱃지 계산
+    
+    Service->>UserRepo: save(updatedUser)
+    
+    Note right of Service: 도전과제 달성 여부 체크 트리거
+    Service->>C_Service: updateChallengeStatus(userId, stats)
+    activate C_Service
+    C_Service-->>Service: void
+    deactivate C_Service
+    
+    Service-->>Controller: MyContributionResponseDto
+    deactivate Service
+    
+    Controller-->>User: 기여도 및 뱃지 정보 반환
+    deactivate Controller
 ```
-사용자가 '도전과제 진행 현황' 메뉴를 클릭하면 ChallengeApi의 listActive가 호출됩니다. ChallengeApi는 ChallengeService를 호출하고, ChallengeService는 ChallengeStore의 findActiveChallenges를 통해 현재 활성화된 모든 과제 목록을 가져옵니다. 그 다음, ChallengeService는 이 목록을 반복(loop)하면서 각 과제 ID에 대해 ChallengeStore의 findProgress를 호출하여 해당 사용자의 진행률(ChallengeProgress) 데이터를 개별적으로 조회합니다. 모든 과제 정보와 진행률이 조합되면, ChallengeApi를 통해 사용자에게 최종 목록이 반환됩니다.
+사용자가 마이페이지에 접속하여 기여도 조회를 요청하면 ContributionController가 이를 수신하여 ContributionService의 getMyContribution 메서드를 호출한다. ContributionService는 먼저 UserRepository를 통해 현재 사용자의 GitHub ID를 조회하고, 이를 기반으로 GithubApiClient에게 GraphQL API 호출을 위임하여 커밋, PR, 이슈 통계를 가져온다. 조회된 통계 데이터는 점수로 환산되어 적절한 뱃지 등급이 산정되며, 이 최신 정보는 다시 UserRepository를 통해 데이터베이스에 저장된다. 저장이 완료되면 ContributionService는 ChallengeService를 호출하여 도전과제 달성 여부를 체크하게 하고, 최종적으로 사용자의 통계와 뱃지 정보가 담긴 MyContributionResponseDto를 반환한다.
 
-### 도전과제 완료
+### 도전과제 목록 조회
 ```mermaid
 sequenceDiagram
-    participant User
-    participant ChallengeApi
-    participant ChallengeService
-    participant ChallengeStore
+    actor User as 사용자
+    participant Controller as ChallengeController
+    participant Service as ChallengeService
+    participant ChallengeRepo as ChallengeRepository
+    participant UC_Repo as UserChallengeRepository
 
-    activate User
-    User->>+ChallengeApi: S, 1: '완료하기' 버튼 클릭 (complete)
+    User->>Controller: GET /api/challenges
+    activate Controller
     
-    ChallengeApi->>+ChallengeService: completeMyChallenge(challengeId)
+    Controller->>Service: getChallengeList(userId)
+    activate Service
     
-    ChallengeService->>+ChallengeStore: 2: findProgress(userId, challengeId)
-    ChallengeStore-->>-ChallengeService: ChallengeProgress (진행 상태)
+    Service->>ChallengeRepo: findAll()
+    ChallengeRepo-->>Service: List<Challenge>
     
-    ChallengeService->>+ChallengeStore: 3: saveComplete(userId, challengeId)
-    ChallengeStore-->>-ChallengeService: (완료 상태 저장)
-    
-    ChallengeService-->>-ChallengeApi: (완료 성공)
-    
-    ChallengeApi-->>User: 4: "과제가 완료되었습니다."
-    deactivate ChallengeApi
-    deactivate User
-```
-사용자가 '완료하기' 버튼을 클릭하면 ChallengeApi의 complete 메서드가 호출됩니다. ChallengeApi는 ChallengeService의 completeMyChallenge를 호출합니다. ChallengeService는 먼저 ChallengeStore의 findProgress를 통해 해당 과제의 진행률이 100%인지 내부적으로 검증합니다. 검증이 완료되면, ChallengeService는 ChallengeStore의 saveComplete를 호출하여 데이터베이스의 과제 상태를 '완료'(예: completedAt 시각 기록)로 갱신하고 보상 지급 로직을 처리합니다. 모든 과정이 성공하면 ChallengeApi를 통해 사용자에게 "과제가 완료되었습니다."라는 메시지가 반환됩니다.
-
-### 오픈소스 기여 배지 획득
-```mermaid
-sequenceDiagram
-    participant User
-    participant System(Scheduler)
-    participant ContributionService
-    participant ChallengeStore
-
-    activate System(Scheduler)
-    System(Scheduler)->>+ContributionService: 1: (Event) 기여도/배지 조건 확인 (userId)
-    
-    ContributionService->>+ChallengeStore: findStats(userId)
-    ChallengeStore-->>-ContributionService: UserContributionStats
-    
-    ContributionService->>ContributionService: 2: (내부 로직) 배지 획득 조건 검증
-    
-    alt 조건 충족 시
-        ContributionService->>+ChallengeStore: 2: saveBadge(newBadge)
-        ChallengeStore-->>-ContributionService: (배지 저장 완료)
+    loop 모든 도전과제 순회
+        Service->>UC_Repo: existsByUserId...(userId, challenge)
+        UC_Repo-->>Service: boolean (완료 여부)
         
-        ContributionService-->>User: 3: (Push) "배지 획득" 알림
+        Service->>Service: getCurrentCountForChallenge()
+        Note right of Service: 현재 진행률(커밋/PR수) 매핑
     end
     
-    deactivate ContributionService
-    deactivate System(Scheduler)
+    Service-->>Controller: List<ChallengeResponseDto>
+    deactivate Service
+    
+    Controller-->>User: 도전과제 목록(진행률 포함) 반환
+    deactivate Controller
 ```
-이 과정은 사용자가 아닌 시스템 스케줄러에 의해 주기적으로 시작됩니다. 스케줄러가 ContributionService를 호출하여 특정 사용자의 배지 획득 조건 확인을 요청합니다. ContributionService는 ChallengeStore의 findStats를 호출하여 사용자의 기여 통계(UserContributionStats)를 조회합니다. 이 통계를 바탕으로 내부 로직을 통해 새로운 배지 획득 조건을 충족했는지 검증합니다. 만약 조건을 충족했다면, ContributionService는 ChallengeStore의 saveBadge를 호출하여 새 배지를 데이터베이스에 저장하고, 사용자에게 푸시 알림 등을 통해 배지 획득 사실을 알립니다.
+사용자가 도전과제 리스트 메뉴에 진입하면 요청이 ChallengeController로 전달되어 ChallengeService의 getChallengeList 메서드가 실행된다. ChallengeService는 ChallengeRepository에서 시스템에 등록된 모든 도전과제 메타데이터를 조회한 뒤, 각 과제에 대해 반복문을 수행한다. 반복문 내부에서는 UserChallengeRepository를 통해 해당 사용자가 과제를 이미 완료했는지 확인하고, 사용자의 현재 활동 횟수(커밋, PR 등)를 목표치와 매핑한다. 이 과정이 끝나면 각 도전과제의 진행률과 완료 여부가 포함된 ChallengeResponseDto 리스트가 생성되어 컨트롤러를 통해 사용자에게 반환된다.
 
-### 오픈소스 기여 배지 조회
+### 도전과제 달성
 ```mermaid
 sequenceDiagram
-    participant User
-    participant BadgeApi
-    participant ContributionService
-    participant ChallengeStore
+    participant C_Service as ContributionService
+    participant Service as ChallengeService
+    participant ChallengeRepo as ChallengeRepository
+    participant UC_Repo as UserChallengeRepository
+    participant DB as Database
 
-    activate User
-    User->>+BadgeApi: 1: '내 배지 보기' 클릭 (listBadges)
+    Note over C_Service, Service: 기여도 조회 후 자동 호출됨
+    C_Service->>Service: updateChallengeStatus(userId, stats)
+    activate Service
     
-    BadgeApi->>+ContributionService: myBadges()
+    Service->>ChallengeRepo: findAll()
+    ChallengeRepo-->>Service: List<Challenge>
     
-    ContributionService->>+ChallengeStore: 2: findBadges(userId)
-    ChallengeStore-->>-ContributionService: List<ContributionBadge> badgeList
+    loop 모든 도전과제 체크
+        Service->>UC_Repo: exists...(userId, challenge)
+        
+        alt 이미 완료함
+            Service->>Service: 건너뜀 (continue)
+        else 미완료
+            Service->>Service: checkCondition(stats >= goal)
+            
+            opt 조건 달성 시
+                Service->>UC_Repo: findBy... or builder()
+                Service->>DB: save(UserChallenge with complete=true)
+                Note right of DB: 완료 처리 및 시간 저장
+            end
+        end
+    end
     
-    ContributionService-->>-BadgeApi: List<ContributionBadge> badgeList
-    
-    BadgeApi-->>User: 3: (200 OK) 보유 배지 목록
-    deactivate BadgeApi
-    deactivate User
+    Service-->>C_Service: 완료
+    deactivate Service
 ```
-사용자가 '내 배지 보기' 메뉴를 클릭하면 BadgeApi의 listBadges가 호출됩니다. BadgeApi는 ContributionService의 myBadges 메서드를 호출합니다. ContributionService는 ChallengeStore의 findBadges를 호출하여 데이터베이스에서 현재 로그인한 사용자의 모든 ContributionBadge 목록을 조회합니다. 이 목록은 ContributionService와 BadgeApi를 거쳐 사용자에게 반환되어 화면에 표시됩니다.
+기여도 조회 로직 수행 후 최신 통계 정보가 확보되면 ContributionService에 의해 ChallengeService의 updateChallengeStatus 메서드가 내부적으로 호출된다. ChallengeService는 전체 도전과제 목록을 순회하면서, UserChallengeRepository를 통해 사용자가 아직 달성하지 않은 과제들만 선별한다. 선별된 과제들에 대해 현재 사용자의 활동 통계(Stats)가 목표 횟수(Goal)를 초과했는지 비교하고, 조건을 만족하는 경우 UserChallenge 엔티티를 생성하여 completed=true 상태로 데이터베이스에 저장함으로써 달성 처리를 완료한다.
 
-### 오픈소스 기여도 랭킹 확인
+## Todo 리스트
+### 할 일(Todo) 등록
+```mermaid
+ sequenceDiagram
+    actor User as 사용자
+    participant Controller as TodoController
+    participant Service as TodoService
+    participant Repo as TodoRepository
+
+    User->>Controller: POST /api/todos (content)
+    activate Controller
+    
+    Controller->>Service: createTodo(userId, request)
+    activate Service
+    
+    Service->>Repo: save(Todo 엔티티)
+    Repo-->>Service: Saved Todo
+    
+    Service-->>Controller: TodoResponseDto
+    deactivate Service
+    
+    Controller-->>User: 생성된 할 일 정보 반환
+    deactivate Controller
+```
+사용자가 할 일 내용을 입력하고 등록 버튼을 누르면 TodoController가 POST 요청을 받아 TodoService의 createTodo 메서드를 호출한다. TodoService는 전달받은 요청 데이터(TodoRequestDto)와 사용자 ID를 기반으로 새로운 Todo 엔티티를 생성한다. 생성된 엔티티는 TodoRepository의 save 메서드를 통해 데이터베이스에 영구 저장된다. 저장이 완료되면 서비스는 생성된 할 일의 ID와 내용을 담은 TodoResponseDto를 컨트롤러에게 반환하고, 컨트롤러는 이를 사용자에게 응답하여 목록 최상단에 새 할 일이 표시되도록 한다.
+
+### 할 일 목록 조회
 ```mermaid
 sequenceDiagram
-    participant User
-    participant RankingApi
-    participant ContributionService
-    participant ChallengeStore
+    actor User as 사용자
+    participant Controller as TodoController
+    participant Service as TodoService
+    participant Repo as TodoRepository
 
-    activate User
-    User->>+RankingApi: 1: '기여도 랭킹 보기' 클릭 (top + myRank)
+    User->>Controller: GET /api/todos?page=0&size=5
+    activate Controller
     
-    RankingApi->>+ContributionService: top(limit)
-    ContributionService->>+ChallengeStore: 2: findTop(limit)
-    ChallengeStore-->>-ContributionService: List<UserContributionStats> topList
-    ContributionService-->>-RankingApi: topList
+    Controller->>Service: getTodos(userId, pageable)
+    activate Service
     
-    RankingApi->>+ContributionService: myRank()
-    ContributionService->>+ChallengeStore: 2: findStats(userId)
-    ChallengeStore-->>-ContributionService: UserContributionStats myStats
-    ContributionService-->>-RankingApi: myStats
+    Service->>Repo: findByUserIdOrderByCreatedAtDesc(userId, pageable)
+    Repo-->>Service: Slice<Todo>
     
-    RankingApi-->>User: 3, 4: (200 OK) 랭킹 목록 및 내 순위
-    deactivate RankingApi
-    deactivate User
+    Service->>Service: map(TodoResponseDto::from)
+    
+    Service-->>Controller: Slice<TodoResponseDto>
+    deactivate Service
+    
+    Controller-->>User: 할 일 목록 (Slice)
+    deactivate Controller
 ```
-사용자가 '기여도 랭킹 보기'를 클릭하면 RankingApi가 호출됩니다. RankingApi는 먼저 ContributionService의 top 메서드를 호출하고, 이는 ChallengeStore의 findTop을 통해 상위 N명의 랭킹 목록(UserContributionStats 리스트)을 조회합니다. 동시에 RankingApi는 ContributionService의 myRank 메서드를 호출하고, 이는 ChallengeStore의 findStats를 통해 '내' 기여 통계 및 순위 정보를 조회합니다. RankingApi는 이 두 정보를 조합하여 사용자에게 전체 랭킹 목록과 자신의 순위를 함께 반환합니다.
+사용자가 할 일 목록 화면에 진입하거나 스크롤을 내려 다음 페이지를 요청하면 TodoController의 getTodos 메서드가 호출된다. 이 요청은 TodoService로 전달되며, 서비스는 TodoRepository의 findByUserIdOrderByCreatedAtDesc 메서드를 호출하여 해당 사용자의 할 일들을 생성일 역순으로 조회한다. 이때 Pageable 객체를 통해 페이징 처리가 수행되며, 데이터베이스로부터 조회된 Todo 엔티티들은 Slice<TodoResponseDto> 형태로 변환된다. 변환된 데이터는 컨트롤러를 거쳐 사용자에게 전달되어 무한 스크롤 형태의 목록으로 렌더링된다.
 
-### OSS 뉴스 목록 조회
+### 할 일 체크 토글
 ```mermaid
 sequenceDiagram
-    participant User
-    participant NewsApi
-    participant NewsService
+    actor User as 사용자
+    participant Controller as TodoController
+    participant Service as TodoService
+    participant Repo as TodoRepository
+    participant Entity as TodoEntity
 
-    activate User
-    User->>+NewsApi: S, 1: 'OSS 뉴스 보기' 클릭 (list)
+    User->>Controller: PATCH /api/todos/{todoId}/check
+    activate Controller
     
-    NewsApi->>+NewsService: list(page, size, keyword, tags, recentFirst)
+    Controller->>Service: toggleTodo(userId, todoId)
+    activate Service
     
-    NewsService->>NewsService: 2, 3: (내부 로직) 외부 API 호출 및<br/>뉴스 데이터 목록 가공
+    Service->>Repo: findById(todoId)
+    Repo-->>Service: Optional<Todo>
     
-    NewsService-->>-NewsApi: List<News> newsList
+    alt 존재하지 않거나 소유자가 아님
+        Service-->>Controller: Exception 발생
+    else 정상 확인
+        Service->>Entity: toggle()
+        Note right of Entity: isChecked = !isChecked
+        
+        Service->>Repo: (Transactional 종료 시 Dirty Checking)
+        Note right of Repo: Update Query 실행
+    end
     
-    NewsApi-->>User: 4: (200 OK) 뉴스 목록
-    deactivate NewsApi
-    deactivate User
+    Service-->>Controller: void
+    deactivate Service
+    
+    Controller-->>User: 200 OK
+    deactivate Controller
 ```
-사용자가 'OSS 뉴스 보기' 메뉴를 클릭하면 NewsApi의 list가 호출됩니다. NewsApi는 NewsService의 list 메서드를 호출합니다. NewsService는 (필요시 외부 API를 호출하거나 DB를 조회하는) 내부 로직을 통해 최신 뉴스 데이터를 가져와 News 객체 목록으로 가공합니다. 이 가공된 목록은 NewsApi를 거쳐 사용자에게 반환되어 화면에 표시됩니다.
+사용자가 특정 할 일의 체크박스를 클릭하면 TodoController가 PATCH 요청을 수신하여 TodoService의 toggleTodo 메서드를 실행한다. TodoService는 TodoRepository를 통해 해당 할 일(Todo)을 조회한 뒤, 현재 로그인한 사용자가 해당 할 일의 소유자인지 검증한다. 검증이 통과되면 Todo 엔티티의 toggle 메서드를 실행하여 완료 상태(isChecked)를 반전시킨다. 별도의 save 호출 없이도 트랜잭션 종료 시점에 변경 감지(Dirty Checking)가 동작하여 데이터베이스에 변경 사항이 반영되며, 요청 처리가 성공적으로 종료된다.
 
-### OSS 뉴스 페이지로 이동
+### 할 일 삭제
 ```mermaid
 sequenceDiagram
-    participant User
-    participant NewsApi
-    participant NewsService
-    participant ExternalNewsPage
+    actor User as 사용자
+    participant Controller as TodoController
+    participant Service as TodoService
+    participant Repo as TodoRepository
 
-    activate User
-    User->>+NewsApi: 1: 뉴스 항목 클릭 (goTo)
+    User->>Controller: POST /api/todos/batch-delete (ids=[1,3,5])
+    activate Controller
     
-    NewsApi->>+NewsService: 2: newsUrl(newsId)
-    NewsService-->>-NewsApi: String url (원문 URL 반환)
+    Controller->>Service: deleteTodos(userId, ids)
+    activate Service
     
-    NewsApi-->>User: 3: (Redirect) URL 전달
+    Service->>Repo: findAllById(ids)
+    Repo-->>Service: List<Todo>
     
-    User->>+ExternalNewsPage: 3: (Browser) 새 탭으로 URL 요청
-    ExternalNewsPage-->>-User: 4: 원문 페이지 표시
-    deactivate User
+    Service->>Service: filter(todo -> todo.userId == myId)
+    Note right of Service: 내 소유만 필터링
+    
+    opt 삭제할 항목이 존재하면
+        Service->>Repo: deleteAll(myTodos)
+    end
+    
+    Service-->>Controller: void
+    deactivate Service
+    
+    Controller-->>User: 200 OK
+    deactivate Controller
 ```
-사용자가 뉴스 목록에서 특정 항목을 클릭하면 NewsApi의 goTo 메서드가 호출됩니다. NewsApi는 NewsService의 newsUrl을 호출하여 해당 newsId의 원본 URL(문자열)을 요청합니다. NewsService가 이 URL을 반환하면, NewsApi는 사용자에게 이 URL로 리다이렉트하라는 응답을 보냅니다. 사용자의 브라우저는 이 응답을 받아 새 탭을 열고 해당 외부 뉴스 원문 페이지(ExternalNewsPage)로 이동하여 기사를 표시합니다.
+사용자가 완료된 할 일들을 선택하고 일괄 삭제 버튼을 클릭하면 TodoController가 삭제할 ID 목록을 받아 TodoService의 deleteTodos 메서드를 호출한다. TodoService는 먼저 요청된 ID들에 해당하는 모든 Todo 엔티티를 데이터베이스에서 조회한다. 조회된 목록 중에서 보안을 위해 실제 사용자 소유인 항목들만 스트림으로 필터링하여 추출한다. 필터링된 할 일 목록이 비어있지 않다면 TodoRepository의 deleteAll 메서드를 사용하여 데이터베이스에서 해당 항목들을 일괄적으로 영구 삭제한다.
 
 ---
 
