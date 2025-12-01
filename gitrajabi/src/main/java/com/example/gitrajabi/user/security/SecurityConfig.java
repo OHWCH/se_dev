@@ -85,6 +85,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/github/**").permitAll()
                         .requestMatchers("/studies/**").permitAll()
+                        .requestMatchers("/api/issues/good-first").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/issues/good-first").permitAll()
 

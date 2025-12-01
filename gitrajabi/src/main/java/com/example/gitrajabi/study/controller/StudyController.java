@@ -92,5 +92,15 @@ public class StudyController {
         return ResponseEntity.ok(response);
     }
 
+    // 스터디 삭제
+    @DeleteMapping("/{studyId}")
+    public ResponseEntity<MessageResponse> deleteStudy(@PathVariable Long studyId) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        studyService.deleteStudy(studyId, userId);
+
+        return ResponseEntity.ok(new MessageResponse("스터디가 삭제되었습니다."));
+    }
 
 }

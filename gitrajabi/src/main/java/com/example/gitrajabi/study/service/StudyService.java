@@ -6,6 +6,7 @@ import com.example.gitrajabi.study.entity.StudyMember;
 import com.example.gitrajabi.study.entity.StudySchedule;
 import com.example.gitrajabi.study.erum.JoinStatus;
 import com.example.gitrajabi.study.erum.StudyRole;
+import com.example.gitrajabi.study.repository.ScheduleParticipateRepository;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
 import com.example.gitrajabi.study.repository.StudyRepository;
 import com.example.gitrajabi.study.repository.StudyScheduleRepository;
@@ -30,6 +31,7 @@ public class StudyService {
     private final UserRepository userRepository;
     private final StudyMemberService studyMemberService;
     private final StudyScheduleRepository studyScheduleRepository;
+    private final ScheduleParticipateRepository scheduleParticipateRepository;
 
 
     // 스터디 생성
@@ -221,5 +223,34 @@ public class StudyService {
                 .build();
     }
 
+    @Transactional
+    public void deleteStudy(Long studyId, Long userId) {
+
+        // 1) 스터디 존재 여부 확인
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("Study not found"));
+
+        // 2) 스터디장 여부 검증 (선택)
+        if (!study.getLeader().getUserId().equals(userId)) {
+            throw new IllegalStateException("Only leader can delete study");
+        }
+
+        // 3) 일정들 가져오기
+        List<StudySchedule> schedules = studyScheduleRepository.findAllByStudy_StudyId(studyId);
+
+        // 4) 각 일정의 참여자 삭제
+        for (StudySchedule schedule : schedules) {
+            scheduleParticipateRepository.deleteBySchedule_ScheduleId(schedule.getScheduleId());
+        }
+
+        // 5) 일정 삭제
+        studyScheduleRepository.deleteByStudy_StudyId(studyId);
+
+        // 6) 스터디 멤버 삭제
+        studyMemberRepository.deleteByStudy_StudyId(studyId);
+
+        // 7) 스터디 삭제
+        studyRepository.delete(study);
+    }
 
 }

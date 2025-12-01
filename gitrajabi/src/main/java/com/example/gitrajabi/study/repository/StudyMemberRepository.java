@@ -23,5 +23,6 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
     int countByStudy_StudyIdAndJoinStatusIn(Long studyId, List<JoinStatus> statuses);
 
     List<StudyMember> findByUser_UserIdAndJoinStatus(Long userId, JoinStatus joinStatus);
+    void deleteByStudy_StudyId(Long studyId);
 }
 
