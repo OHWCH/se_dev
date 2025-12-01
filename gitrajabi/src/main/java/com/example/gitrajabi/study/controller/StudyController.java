@@ -35,7 +35,7 @@ public class StudyController {
     public ResponseEntity<List<StudyListResponse>> getStudyList(@RequestParam(defaultValue = "0") int page) {
         Long userId = SecurityUtil.getCurrentUserId();
 
-        Pageable pageable = PageRequest.of(page, 5);
+        Pageable pageable = PageRequest.of(page, 6);
         Page<StudyListResponse> pageResult = studyService.getStudyList(userId, pageable);
 
         List<StudyListResponse> contentOnly = pageResult.getContent();

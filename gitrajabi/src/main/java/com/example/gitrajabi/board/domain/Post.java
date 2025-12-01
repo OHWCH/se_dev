@@ -59,10 +59,9 @@ public class Post {
     public void update(String title, String content) {
         if (title != null && !title.isBlank()) { this.title = title; }
         if (content != null && !content.isBlank()) { this.content = content; }
-        // updatedAt은 @LastModifiedDate에 의해 자동 업데이트
     }
 
-    // Use Case #18: 상세 조회 시 조회수 증가
+    // ✅ 추가: Use Case #18 - 조회수 1 증가 메서드
     public void incrementViewCount() {
         this.viewCount++;
     }
@@ -70,5 +69,10 @@ public class Post {
     // Use Case #16: 소프트 삭제 플래그 설정
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    // ✅ 추가: 소유권 확인 메서드 (컨트롤러/서비스에서 사용)
+    public boolean isOwnedBy(Long userId) {
+        return this.userId != null && this.userId.equals(userId);
     }
 }
