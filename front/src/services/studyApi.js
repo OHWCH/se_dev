@@ -61,7 +61,7 @@ export async function getMyStudy() {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
             }
         })
-        
+        console.log(JSON.stringify(res.data, null, 2));
         return res.data;
     } catch (e) {
         alert(`${e.response}`);

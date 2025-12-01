@@ -16,7 +16,7 @@ const TodoList = () => {
             setLoading(true); // 로딩 시작
             try {
                 // 🚨 API 호출
-                const data = getTodoList(); 
+                const data = await getTodoList(); 
                 
                 // API 응답 데이터가 할 일 목록 배열이라고 가정
                 // data가 { todos: [...] } 형태일 경우 data.todos를 사용하도록 조정 필요

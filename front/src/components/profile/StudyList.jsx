@@ -15,7 +15,7 @@ const MyStudiesList = () => {
         const fetchMyStudies = async () => {
             try {
                 // 🚨 FIX: getMyStudy() 호출 시 await 사용
-                const data = getMyStudy(); 
+                const data = await getMyStudy(); 
                 
                 // API 응답이 배열이 아닌 객체 { studies: [...] } 형태일 수 있으므로 배열인지 확인
                 const studyList = Array.isArray(data) ? data : data.studies || []; 
