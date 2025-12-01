@@ -2988,48 +2988,30 @@ classDiagram
     direction LR
 
     %% =========================
-    %% 공통/도메인
+    %% 도메인(Entity)
     %% =========================
-    class Role {
-        <<enum>>
-        USER
-        ADMIN
-    }
-
     class UserEntity {
         <<entity>>
-        - Long id
-        - String email
-        - String password
-        - String nickname
+        - Long userId
         - String githubId
-        - String profileImg
-        - String bio
-        - Role role
+        - boolean isAdmin
         - Instant createdAt
-        - Instant updatedAt
         - Instant deletedAt
-        + void updateProfile(String nickname, String profileImg, String bio)
-        + void changePassword(String newPassword)
-        + void linkGithub(String githubId)
-        + void unlinkGithub()
+        - int commitCount
+        - int issueCount
+        - int prCount
+        + void changeAdmin(boolean isAdmin)
         + void softDelete()
         + boolean isDeleted()
+        + void updateStats(int commitCount, int issueCount, int prCount)
     }
 
     %% =========================
     %% DTOs
     %% =========================
-    class UserRegisterDto {
-        - String email
-        - String password
-        - String nickname
-        - String bio
-    }
-
-    class UserLoginDto {
-        - String email
-        - String password
+    class AuthTokens {
+        - String accessToken
+        - String refreshToken
     }
 
     class GithubAuthDto {
@@ -3038,48 +3020,54 @@ classDiagram
         - String accessToken
     }
 
+    class GithubProfileDto {
+        - Long id
+        - String login
+        - String avatarUrl
+        - String bio
+        - String email
+    }
+
+    class UserLoginDto {
+        - String email
+        - String password
+    }
+
+    class UserRegisterDto {
+        - String email
+        - String password
+        - String nickname
+        - String bio
+    }
+
+    class UserResponseDto {
+        - Long userId
+        - String githubId
+        - boolean admin
+        - int commitCount
+        - int issueCount
+        - int prCount
+        - Instant createdAt
+        - Instant deletedAt
+        + static UserResponseDto from(UserEntity user)
+    }
+
     class UserUpdateDto {
         - String nickname
         - String profileImg
         - String bio
     }
 
-    class UserResponseDto {
-        - Long id
-        - String email
-        - String nickname
-        - boolean githubLinked
-        - String profileImg
-        - String bio
-        - Role role
-        - Instant createdAt
-        + static UserResponseDto from(UserEntity user)
-    }
-
-    class GithubProfileDto {
-        - String githubId
-        - String email
-        - String name
-        - String avatarUrl
-        - String bio
-    }
-
-    class AuthTokens {
-        - String accessToken
-        - String refreshToken
-    }
+    UserResponseDto --> UserEntity : from()
 
     %% =========================
     %% Repository
     %% =========================
     class UserRepository {
         <<interface>>
-        + Optional~UserEntity~ findById(Long id)
-        + Optional~UserEntity~ findByEmail(String email)
         + Optional~UserEntity~ findByGithubId(String githubId)
-        + boolean existsByEmail(String email)
-        + boolean existsById(Long id)
-        + UserEntity save(UserEntity user)
+        + boolean existsByGithubId(String githubId)
+        %% JpaRepository 기본 CRUD 상속
     }
 
     UserRepository --> UserEntity : manages
@@ -3098,26 +3086,17 @@ classDiagram
         + Authentication getAuthentication(String token)
     }
 
-    class JwtAuthenticationFilter {
-        + void doFilterInternal(req, res, chain)
-    }
-
-    class CustomUserDetails {
+    class CustomJwtUserPrincipal {
         - Long userId
-        - String username
-        - String password
-        - List~GrantedAuthority~ authorities
-        + String getUsername()
-        + String getPassword()
-        + Collection~GrantedAuthority~ getAuthorities()
-        + boolean isAccountNonExpired()
-        + boolean isAccountNonLocked()
-        + boolean isCredentialsNonExpired()
-        + boolean isEnabled()
+        + Long getUserId()
     }
 
-    class CustomUserDetailsService {
-        + UserDetails loadUserByUsername(String email)
+    JwtTokenProvider --> CustomJwtUserPrincipal : creates
+
+    class JwtAuthenticationFilter {
+        - JwtTokenProvider tokenProvider
+        + void doFilterInternal(req, res, chain)
+        - String resolveToken(req)
     }
 
     class JwtAuthenticationEntryPoint {
@@ -3128,71 +3107,106 @@ classDiagram
         + void handle(req, res, ex)
     }
 
+    class CustomUserDetails {
+        - Long userId
+        - String githubId
+        - boolean admin
+        - Collection~GrantedAuthority~ authorities
+        - boolean accountNonLocked
+        - boolean accountNonExpired
+        - boolean credentialsNonExpired
+        - boolean enabled
+        + String getUsername()
+        + String getPassword()
+        + Collection~GrantedAuthority~ getAuthorities()
+        + boolean isAccountNonExpired()
+        + boolean isAccountNonLocked()
+        + boolean isCredentialsNonExpired()
+        + boolean isEnabled()
+        + static CustomUserDetails from(UserEntity user)
+    }
+
+    class CustomUserDetailsService {
+        - UserRepository userRepository
+        + UserDetails loadUserByUsername(String username)
+    }
+
     class SecurityConfig {
+        - JwtTokenProvider jwtTokenProvider
+        - JwtAuthenticationEntryPoint authenticationEntryPoint
+        - JwtAccessDeniedHandler accessDeniedHandler
+        + CorsConfigurationSource corsConfigurationSource()
         + PasswordEncoder passwordEncoder()
         + SecurityFilterChain filterChain(HttpSecurity http)
     }
 
-    CustomUserDetailsService --> UserRepository : uses
+    class SecurityUtil {
+        + static Long getCurrentUserId()
+    }
+
     JwtAuthenticationFilter --> JwtTokenProvider : uses
     SecurityConfig --> JwtAuthenticationFilter : registers
-    SecurityConfig --> JwtAuthenticationEntryPoint
-    SecurityConfig --> JwtAccessDeniedHandler
+    SecurityConfig --> JwtAuthenticationEntryPoint : uses
+    SecurityConfig --> JwtAccessDeniedHandler : uses
+    CustomUserDetailsService --> UserRepository : uses
+    SecurityUtil --> CustomJwtUserPrincipal : reads principal
 
     %% =========================
     %% Service 계층
     %% =========================
     class AuthService {
         - UserRepository userRepository
-        - PasswordEncoder passwordEncoder
         - JwtTokenProvider jwtTokenProvider
-        + UserResponseDto register(UserRegisterDto dto)
-        + AuthTokens login(UserLoginDto dto)
-        + void logout(Long userId)
+        + AuthTokens issueTokensForUser(UserEntity user)
         + AuthTokens refresh(String refreshToken)
+        + void logout(Long userId)
     }
 
     class GithubAuthService {
-        - UserRepository userRepository
-        - JwtTokenProvider jwtTokenProvider
-        - WebClient webClient
         - String clientId
         - String clientSecret
         - String redirectUri
+        - UserRepository userRepository
+        - AuthService authService
+        - RestTemplate restTemplate
         + String buildAuthorizeUrl()
         + String exchangeCodeForAccessToken(String code)
-        + GithubProfileDto fetchGithubProfile(String token)
+        + String fetchGithubLogin(String accessToken)
         + AuthTokens loginWithGithub(GithubAuthDto dto)
+        - UserEntity createUserFromGithubLogin(String githubLogin)
     }
 
     class UserService {
         - UserRepository userRepository
-        - PasswordEncoder passwordEncoder
-        + UserResponseDto getProfile(Long userId)
-        + void updateProfile(Long userId, UserUpdateDto dto)
-        + void changePassword(Long userId, String newPassword)
-        + void deleteAccount(Long userId)
+        + UserResponseDto getMyProfile()
+        + UserResponseDto getByGithubId(String githubId)
+        + void deleteMyAccount()
     }
 
     AuthService --> UserRepository : uses
     AuthService --> JwtTokenProvider : uses
-    AuthService --> PasswordEncoder : uses
 
     GithubAuthService --> UserRepository : uses
-    GithubAuthService --> JwtTokenProvider : uses
+    GithubAuthService --> AuthService : uses
+    GithubAuthService --> GithubAuthDto : uses
+    GithubAuthService --> AuthTokens : returns
+    GithubAuthService --> UserEntity : creates
 
     UserService --> UserRepository : uses
-    UserService --> PasswordEncoder : uses
+    UserService --> UserResponseDto : returns
+    UserService --> SecurityUtil : uses
 
     %% =========================
     %% Controller 계층
     %% =========================
     class AuthController {
+        - GithubAuthService githubAuthService
         - AuthService authService
-        + ResponseEntity~UserResponseDto~ register(UserRegisterDto dto)
-        + ResponseEntity~AuthTokens~ login(UserLoginDto dto)
-        + ResponseEntity~Void~ logout(Long userId)
-        + ResponseEntity~AuthTokens~ refresh(String refreshToken)
+        + ResponseEntity~String~ getGithubAuthorizeUrl()
+        + ResponseEntity~AuthTokens~ githubCallback(String code, String state)
+        + ResponseEntity~AuthTokens~ loginWithGithub(GithubAuthDto dto)
+        + ResponseEntity~AuthTokens~ refresh(Map~String,String~ body)
+        + ResponseEntity~Void~ logout(Map~String,Object~ body)
     }
 
     class GithubAuthController {
@@ -3205,245 +3219,361 @@ classDiagram
     class UserController {
         - UserService userService
         + ResponseEntity~UserResponseDto~ getMyProfile()
-        + ResponseEntity~Void~ updateMyProfile(UserUpdateDto dto)
+        + ResponseEntity~UserResponseDto~ getByGithubId(String githubId)
         + ResponseEntity~Void~ deleteMyAccount()
     }
 
+    AuthController --> GithubAuthService : uses
     AuthController --> AuthService : uses
     GithubAuthController --> GithubAuthService : uses
     UserController --> UserService : uses
 
     %% =========================
-    %% 관계: 도메인 / DTO / 기타
+    %% 기타 관계
     %% =========================
-    UserEntity --> Role
-    UserResponseDto --> Role
-    UserResponseDto --> UserEntity : from()
-    JwtTokenProvider --> Role : (role claim)
+    AuthService --> AuthTokens : returns
+    AuthController --> AuthTokens : returns
+    GithubAuthController --> AuthTokens : returns
+
 ```
-<img width="759" height="422" alt="image" src="https://github.com/user-attachments/assets/9e2ddc87-2739-4271-b062-550d4d96c21b" />
+
 
 
 #### Entity Class
 
-| Class Name        | UserEntity               |               |            |
-| ----------------- | ------------------------ | ------------- | ---------- |
-| Class Description | 사용자 정보를 저장하고 관리하는 엔티티 |               |            |
-| 구분                | Name                     | Type          | Visibility |
-| Attribute         | id<br>사용자 식별자(PK)       | Long          | Private    |
-|                   | email<br>로그인용 이메일(고유) | String        | Private    |
-|                   | password<br>비밀번호 해시값     | String        | Private    |
-|                   | nickname<br>닉네임           | String        | Private    |
-|                   | githubId<br>깃허브 계정 ID   | String        | Private    |
-|                   | profileImg<br>프로필 이미지 URL | String        | Private    |
-|                   | bio<br>자기소개              | String        | Private    |
-|                   | role<br>사용자 권한 (USER/ADMIN) | Role        | Private    |
-|                   | createdAt<br>가입 일시       | Instant       | Private    |
-|                   | updatedAt<br>수정 일시       | Instant       | Private    |
-|                   | deletedAt<br>탈퇴(삭제) 일시   | Instant       | Private    |
-| 구분                | Name                     | Type          | Visibility |
-| Operations        | updateProfile(String nickname, String profileImg, String bio)<br>프로필 수정 | void | Public |
-|                   | changePassword(String newPassword)<br>비밀번호 변경 | void | Public |
-|                   | linkGithub(String githubId)<br>깃허브 계정 연동 | void | Public |
-|                   | unlinkGithub()<br>깃허브 계정 해제 | void | Public |
-|                   | softDelete()<br>사용자 비활성화(소프트 삭제) | void | Public |
-|                   | isDeleted()<br>탈퇴 상태 확인 | boolean | Public |
+| Class Name        | UserEntity                         |         |            |
+| ----------------- | ---------------------------------- | ------- | ---------- |
+| Class Description | GitHub 계정 기반 사용자 정보를 저장하고 관리하는 엔티티 |         |            |
+| 구분        | Name        | Type    | Visibility | Description                                   |
+| --------- | ----------- | ------- | ---------- | --------------------------------------------- |
+| Attribute | userId      | Long    | Private    | PK, 자동 증가(`IDENTITY`), ERD: `user_id`         |
+| Attribute | githubId    | String  | Private    | GitHub 로그인 ID, 고유값, ERD: `github_id`          |
+| Attribute | isAdmin     | boolean | Private    | 관리자 여부, ERD: `is_admin`                       |
+| Attribute | createdAt   | Instant | Private    | 생성 시간, 최초 생성 시 자동 세팅, ERD: `created_at`       |
+| Attribute | deletedAt   | Instant | Private    | 소프트 삭제 시간, 삭제되지 않은 경우 null, ERD: `deleted_at` |
+| Attribute | commitCount | int     | Private    | 커밋 횟수, ERD: `commit_count`                    |
+| Attribute | issueCount  | int     | Private    | 이슈 개수, ERD: `issue_count`                     |
+| Attribute | prCount     | int     | Private    | PR 개수, ERD: `pr_count`                        |
+| 구분       | Name       | Description                                   |
+| -------- | ---------- | --------------------------------------------- |
+| Callback | onCreate() | `@PrePersist` — createdAt 자동 세팅 및 통계 필드 0 초기화 |
+| 구분     | Name                                                      | Return Type | Description                      |
+| ------ | --------------------------------------------------------- | ----------- | -------------------------------- |
+| Method | changeAdmin(boolean isAdmin)                              | void        | 사용자의 관리자 여부 변경                   |
+| Method | softDelete()                                              | void        | 현재 시간을 deletedAt에 기록하여 소프트 삭제 처리 |
+| Method | isDeleted()                                               | boolean     | deletedAt이 null이 아니면 탈퇴한 사용자로 판단 |
+| Method | updateStats(int commitCount, int issueCount, int prCount) | void        | GitHub 통계 일괄 업데이트                |
+
 
 
 #### DTO Class
 
-| Class Name        | UserRegisterDto             |          |            |
-| ----------------- | --------------------------- | -------- | ---------- |
-| Class Description | 회원가입 시 입력받은 데이터를 전달하는 DTO |          |            |
-| 구분                | Name                        | Type     | Visibility |
-| Attribute         | email<br>이메일 주소            | String   | Private    |
-|                   | password<br>비밀번호            | String   | Private    |
-|                   | nickname<br>닉네임             | String   | Private    |
-|                   | bio<br>자기소개               | String   | Private    |
+| Class Name        | AuthTokens                             |        |            |
+| ----------------- | ----------------------------------------- | ------ | ---------- |
+| Class Description | 인증 후 발급되는 Access Token / Refresh Token 묶음 DTO |        |            |
+| 구분        | Name         | Type   | Visibility | Description                        |
+| --------- | ------------ | ------ | ---------- | ---------------------------------- |
+| Attribute | accessToken  | String | Private    | 클라이언트 요청에 사용되는 JWT Access Token    |
+| Attribute | refreshToken | String | Private    | Access Token 갱신용 JWT Refresh Token |
 
-| Class Name        | UserLoginDto                |          |            |
-| ----------------- | --------------------------- | -------- | ---------- |
-| Class Description | 로그인 시 입력받은 아이디와 비밀번호를 전달하는 DTO |          |            |
-| 구분                | Name                        | Type     | Visibility |
-| Attribute         | email<br>이메일 주소            | String   | Private    |
-|                   | password<br>비밀번호            | String   | Private    |
 
-| Class Name        | GithubAuthDto               |          |            |
-| ----------------- | --------------------------- | -------- | ---------- |
-| Class Description | 깃허브 OAuth 인증 시 전달되는 인증 코드 및 액세스 토큰 DTO |          |            |
-| 구분                | Name                        | Type     | Visibility |
-| Attribute         | code<br>인증 코드              | String   | Private    |
-|                   | state<br>상태 값              | String   | Private    |
-|                   | accessToken<br>액세스 토큰     | String   | Private    |
+| Class Name        | GithubAuthDto                             |        |            |
+| ----------------- | ----------------------------------------- | ------ | ---------- |
+| Class Description | 깃허브 OAuth 인증 시 전달되는 인증 코드 및 상태 정보를 담는 DTO |        |            |
+| 구분        | Name        | Type   | Visibility | Description                          |
+| --------- | ----------- | ------ | ---------- | ------------------------------------ |
+| Attribute | code        | String | Private    | GitHub 인증 과정에서 받은 authorization code |
+| Attribute | state       | String | Private    | CSRF 방지용 state 값                     |
+| Attribute | accessToken | String | Private    | GitHub에서 발급한 OAuth Access Token      |
 
-| Class Name        | UserUpdateDto               |          |            |
-| ----------------- | --------------------------- | -------- | ---------- |
-| Class Description | 마이페이지에서 프로필 수정 시 전달되는 DTO |          |            |
-| 구분                | Name                        | Type     | Visibility |
-| Attribute         | nickname<br>닉네임             | String   | Private    |
-|                   | profileImg<br>프로필 이미지     | String   | Private    |
-|                   | bio<br>자기소개               | String   | Private    |
 
-| Class Name        | UserResponseDto             |          |            |
-| ----------------- | --------------------------- | -------- | ---------- |
-| Class Description | 사용자 정보를 클라이언트로 반환할 때 사용하는 DTO |          |            |
-| 구분                | Name                        | Type     | Visibility |
-| Attribute         | id<br>사용자 식별자           | String   | Private    |
-|                   | email<br>이메일              | String   | Private    |
-|                   | nickname<br>닉네임            | String   | Private    |
-|                   | githubLinked<br>깃허브 연동 여부 | boolean | Private    |
-|                   | profileImg<br>프로필 이미지 URL | String | Private    |
-|                   | bio<br>자기소개              | String   | Private    |
-|                   | role<br>권한 (USER/ADMIN)    | Role     | Private    |
-|                   | createdAt<br>가입 일시        | Instant  | Private    |
+
+| Class Name        | GithubProfileDto              |         |            |
+| ----------------- | ----------------------------- | ------- | ---------- |
+| Class Description | GitHub 사용자 프로필 정보를 담는 DTO |         |            |
+| 구분        | Name      | Type   | Visibility | Description                |
+| --------- | --------- | ------ | ---------- | -------------------------- |
+| Attribute | id        | Long   | Private    | GitHub numeric id (고유 번호)  |
+| Attribute | login     | String | Private    | GitHub username (로그인 ID)   |
+| Attribute | avatarUrl | String | Private    | GitHub 프로필 이미지 URL         |
+| Attribute | bio       | String | Private    | GitHub 프로필 소개 문구           |
+| Attribute | email     | String | Private    | GitHub 이메일 (비공개 시 null 가능) |
+
+
+
+| Class Name        | UserLoginDto                           |        |            |
+| ----------------- | ------------------------------------- | ------ | ---------- |
+| Class Description | 일반 이메일/비밀번호 기반 로그인 요청 DTO |        |            |
+| 구분        | Name     | Type   | Visibility | Description               |
+| --------- | -------- | ------ | ---------- | ------------------------- |
+| Attribute | email    | String | Private    | 사용자 로그인 이메일               |
+| Attribute | password | String | Private    | 사용자 비밀번호(평문, 서버에서 암호화 처리) |
+
+| Class Name        | UserRegisterDto                           |        |            |
+| ----------------- | ------------------------------------- | ------ | ---------- |
+| Class Description | 일반 이메일/비밀번호 기반 로그인 요청 DTO |        |            |
+| 구분        | Name     | Type   | Visibility | Description            |
+| --------- | -------- | ------ | ---------- | ---------------------- |
+| Attribute | email    | String | Private    | 회원가입 이메일(로그인 ID)       |
+| Attribute | password | String | Private    | 회원 비밀번호(저장 전 해시 처리 예정) |
+| Attribute | nickname | String | Private    | 서비스 내에서 사용할 닉네임        |
+| Attribute | bio      | String | Private    | 한 줄 소개 / 자기소개          |
+
+
+| Class Name        | UserResponseDto                           |        |            |
+| ----------------- | ------------------------------------- | ------ | ---------- |
+| Class Description | 클라이언트로 반환하는 사용자 정보 응답 DTO |        |            |
+| 구분        | Name        | Type    | Visibility | Description              |
+| --------- | ----------- | ------- | ---------- | ------------------------ |
+| Attribute | userId      | Long    | Private    | 사용자 PK                   |
+| Attribute | githubId    | String  | Private    | 사용자 GitHub ID (연동 계정)    |
+| Attribute | admin       | boolean | Private    | 관리자 여부                   |
+| Attribute | commitCount | int     | Private    | 누적 커밋 수                  |
+| Attribute | issueCount  | int     | Private    | 누적 이슈 개수                 |
+| Attribute | prCount     | int     | Private    | 누적 PR 개수                 |
+| Attribute | createdAt   | Instant | Private    | 계정 생성 시각                 |
+| Attribute | deletedAt   | Instant | Private    | 계정 삭제(탈퇴) 시각, 미탈퇴 시 null |
+| 구분     | Name                  | Return Type     | Description                              |
+| ------ | --------------------- | --------------- | ---------------------------------------- |
+| Method | from(UserEntity user) | UserResponseDto | UserEntity를 기반으로 응답 DTO로 변환하는 정적 팩토리 메서드 |
+
+| Class Name        | UserUpdateDto                           |        |            |
+| ----------------- | ------------------------------------- | ------ | ---------- |
+| Class Description | 마이페이지 등에서 사용자 프로필 수정 요청에 사용하는 DTO |        |            |
+| 구분        | Name       | Type   | Visibility | Description     |
+| --------- | ---------- | ------ | ---------- | --------------- |
+| Attribute | nickname   | String | Private    | 변경할 닉네임         |
+| Attribute | profileImg | String | Private    | 변경할 프로필 이미지 URL |
+| Attribute | bio        | String | Private    | 변경할 자기소개/한 줄 소개 |
+
 
 
 #### Repository Class
 
-| Class Name        | UserRepository                                              |                             |            |
-| ----------------- | ----------------------------------------------------------- | --------------------------- | ---------- |
-| Class Description | 사용자 데이터를 조회, 저장, 삭제하는 데이터 접근 인터페이스 |                             |            |
-| 구분                | Name                                                        | Type                        | Visibility |
-| Operations        | findById(Long id)<br>사용자 식별자로 조회                       | Optional<UserEntity>        | Public     |
-|                   | findByEmail(String email)<br>이메일로 사용자 조회                | Optional<UserEntity>        | Public     |
-|                   | existsByEmail(String email)<br>이메일 중복 여부 확인            | boolean                     | Public     |
-|                   | existsById(Long id)<br>아이디 존재 여부 확인                    | boolean                     | Public     |
-|                   | save(UserEntity user)<br>사용자 정보 저장                       | UserEntity                  | Public     |
+| Class Name        | UserRepository                                           |                      |            |
+| ----------------- | -------------------------------------------------------- | -------------------- | ---------- |
+| Class Description | UserEntity에 대한 CRUD 및 사용자 검색용 JPA Repository |                      |            |
+| 구분     | Name                              | Return Type          | Description        |
+| ------ | --------------------------------- | -------------------- | ------------------ |
+| Method | findByGithubId(String githubId)   | Optional<UserEntity> | github_id로 사용자 조회  |
+| Method | existsByGithubId(String githubId) | boolean              | github_id 존재 여부 확인 |
+
 
 #### Security Class
 
-| Class Name        | JwtTokenProvider                          |                  |            |
-| ----------------- | ------------------------------------------ | ---------------- | ---------- |
-| Class Description | JWT 액세스/리프레시 토큰 생성·검증·파싱을 담당 |                  |            |
-| 구분                | Name                                       | Type             | Visibility |
-| Attribute         | —                                           | —                | —          |
-| 구분                | Name                                       | Type             | Visibility |
-| Operations        | generateAccessToken(Long userId, String role)<br>액세스 토큰 생성 | String          | Public     |
-|                   | generateRefreshToken(Long userId)<br>리프레시 토큰 생성          | String          | Public     |
-|                   | validateToken(String token)<br>토큰 유효성 검증                  | boolean         | Public     |
-|                   | getUserIdFromToken(String token)<br>토큰에서 사용자 ID 추출       | Long            | Public     |
-|                   | getAuthentication(String token)<br>Spring Security 인증 객체 생성 | Authentication  | Public     |
+| Class Name        | JwtTokenProvider                          |        |            |
+| ----------------- | ----------------------------------------- | ------ | ---------- |
+| Class Description | JWT Access/Refresh 토큰 생성·검증·파싱 담당         |        |            |
+| 구분        | Name                     | Type | Visibility | Description      |
+| --------- | ------------------------ | ---- | ---------- | ---------------- |
+| Attribute | key                      | Key  | Private    | 서명 검증용 Key 객체    |
+| Attribute | accessTokenValidityInMs  | long | Private    | 액세스토큰 유효 시간(ms)  |
+| Attribute | refreshTokenValidityInMs | long | Private    | 리프레시토큰 유효 시간(ms) |
+| 구분     | Name                                          | Return Type    | Description                            |
+| ------ | --------------------------------------------- | -------------- | ---------------------------------------- |
+| Method | generateAccessToken(Long userId, String role) | String         | Access Token 생성                          |
+| Method | generateRefreshToken(Long userId)             | String         | Refresh Token 생성                         |
+| Method | validateToken(String token)                   | boolean        | JWT 서명 및 만료 검증                           |
+| Method | getUserIdFromToken(String token)              | Long           | JWT Payload에서 userId(subject) 추출         |
+| Method | getAuthentication(String token)               | Authentication | SecurityContext에 넣을 Authentication 객체 생성 |
 
 
-| Class Name        | JwtAuthenticationFilter                     |                  |            |
-| ----------------- | ------------------------------------------- | ---------------- | ---------- |
-| Class Description | HTTP 요청 헤더에서 JWT를 추출·검증하고 SecurityContext에 인증 등록하는 필터 |                  |            |
-| 구분                | Name                                        | Type             | Visibility |
-| Attribute         | —                                            | —                | —          |
-| 구분                | Name                                        | Type             | Visibility |
-| Operations        | doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) | void | Public     |
+
+| Class Name        | JwtAuthenticationFilter                                              |                  |            |
+| ----------------- | -------------------------------------------------------------------- | ---------------- | ---------- |
+| 구분        | Name          | Type             | Visibility    | Description   |
+| --------- | ------------- | ---------------- | ------------- | ------------- |
+| Attribute | tokenProvider | JwtTokenProvider | Private/Final | JWT 생성·검증 제공자 |
+| 구분     | Name                                 | Return Type | Description                                 |
+| ------ | ------------------------------------ | ----------- | ------------------------------------------- |
+| Method | doFilterInternal(...)                | void        | JWT 검증 후 SecurityContext에 Authentication 저장 |
+| Method | resolveToken(HttpServletRequest req) | String      | Authorization 헤더에서 Bearer Token 추출          |
 
 
-| Class Name        | CustomUserDetails                           |                    |            |
-| ----------------- | ------------------------------------------- | ------------------ | ---------- |
-| Class Description | Spring Security에서 인증 주체(사용자)를 표현하는 상세 정보 객체 |                    |            |
-| 구분                | Name                                        | Type               | Visibility |
-| Attribute         | userId<br>사용자 식별자                       | Long               | Private    |
-|                   | username<br>로그인 ID(이메일)                 | String             | Private    |
-|                   | password<br>비밀번호 해시                     | String             | Private    |
-|                   | authorities<br>권한 목록                      | List<GrantedAuthority> | Private |
-| 구분                | Name                                        | Type               | Visibility |
-| Operations        | getUsername()                                 | String             | Public     |
-|                   | getPassword()                                 | String             | Public     |
-|                   | getAuthorities()                              | List<GrantedAuthority> | Public |
-|                   | isAccountNonExpired()                         | boolean            | Public     |
-|                   | isAccountNonLocked()                          | boolean            | Public     |
-|                   | isCredentialsNonExpired()                     | boolean            | Public     |
-|                   | isEnabled()                                   | boolean            | Public     |
 
 
-| Class Name        | CustomUserDetailsService                    |                  |            |
-| ----------------- | ------------------------------------------- | ---------------- | ---------- |
-| Class Description | DB에서 사용자를 조회하여 `UserDetails`로 변환해 인증에 사용하는 서비스 |                  |            |
-| 구분                | Name                                        | Type             | Visibility |
-| Attribute         | —                                            | —                | —          |
-| 구분                | Name                                        | Type             | Visibility |
-| Operations        | loadUserByUsername(String email)<br>이메일로 사용자 로드 | UserDetails | Public     |
+| Class Name        | JwtAuthenticationEntryPoint                                     |                        |            |
+| ----------------- | -------------------------------------------------------- | ---------------------- | ---------- |
+| 구분                    | Name                            | Type | Visibility |
+| --------------------- | ------------------------------- | ---- | ---------- |
+| **Class Name**        | JwtAuthenticationEntryPoint     |      |            |
+| **Class Description** | 인증 실패(401 Unauthorized) 시 처리 담당 |      |            |
+| 구분     | Name          | Return Type | Description       |
+| ------ | ------------- | ----------- | ----------------- |
+| Method | commence(...) | void        | 인증 실패 시 401 응답 전송 |
 
 
-| Class Name        | SecurityConfig                               |                  |            |
-| ----------------- | -------------------------------------------- | ---------------- | ---------- |
-| Class Description | 전체 보안 설정: 필터 체인, 인가 규칙, 예외 핸들러, CORS/CSRF 설정 |                  |            |
-| 구분                | Name                                         | Type             | Visibility |
-| Attribute         | —                                             | —                | —          |
-| 구분                | Name                                         | Type             | Visibility |
-| Operations        | filterChain(HttpSecurity http)<br>필터 체인 및 인가 정책 구성 | SecurityFilterChain | Public  |
+| Class Name        | JwtAccessDeniedHandler                                           |                             |            |
+| ----------------- | --------------------------------------------------------- | --------------------------- | ---------- |
+| 구분                    | Name                         | Type | Visibility |
+| --------------------- | ---------------------------- | ---- | ---------- |
+| **Class Name**        | JwtAccessDeniedHandler       |      |            |
+| **Class Description** | 인가 실패(403 Forbidden) 시 처리 담당 |      |            |
+| 구분     | Name        | Return Type | Description       |
+| ------ | ----------- | ----------- | ----------------- |
+| Method | handle(...) | void        | 권한 부족 시 403 응답 전송 |
 
 
-| Class Name        | JwtAuthenticationEntryPoint                 |                  |            |
-| ----------------- | ------------------------------------------- | ---------------- | ---------- |
-| Class Description | 인증 실패(미인증) 시 401 Unauthorized 응답 처리 |                  |            |
-| 구분                | Name                                        | Type             | Visibility |
-| Attribute         | —                                            | —                | —          |
-| 구분                | Name                                        | Type             | Visibility |
-| Operations        | commence(HttpServletRequest req, HttpServletResponse res, AuthenticationException ex) | void | Public |
+
+| Class Name        | CustomUserDetailsService            |      |            |
+| ----------------- | -------------------------------------- | ---- | ---------- |
+| 구분                    | Name                                       | Type | Visibility |
+| --------------------- | ------------------------------------------ | ---- | ---------- |
+| **Class Name**        | CustomUserDetailsService                   |      |            |
+| **Class Description** | GitHub ID 기반 사용자 조회(UserDetailsService 구현) |      |            |
+| 구분        | Name           | Type           | Visibility    | Description        |
+| --------- | -------------- | -------------- | ------------- | ------------------ |
+| Attribute | userRepository | UserRepository | Private/Final | 사용자 조회용 Repository |
+| 구분     | Name                                | Return Type | Description                             |
+| ------ | ----------------------------------- | ----------- | --------------------------------------- |
+| Method | loadUserByUsername(String githubId) | UserDetails | github_id로 유저 조회 후 CustomUserDetails 생성 |
 
 
-| Class Name        | JwtAccessDeniedHandler                      |                  |            |
-| ----------------- | ------------------------------------------- | ---------------- | ---------- |
-| Class Description | 인가 실패(권한 없음) 시 403 Forbidden 응답 처리 |                  |            |
-| 구분                | Name                                        | Type             | Visibility |
-| Attribute         | —                                            | —                | —          |
-| 구분                | Name                                        | Type             | Visibility |
-| Operations        | handle(HttpServletRequest req, HttpServletResponse res, AccessDeniedException ex) | void | Public |
+| Class Name        | CustomUserDetails                |      | ---------- |
+| ----------------- | ------------------------------------- | ---- | ---------- |
+| 구분                    | Name                                             | Type | Visibility |
+| --------------------- | ------------------------------------------------ | ---- | ---------- |
+| **Class Name**        | CustomUserDetails                                |      |            |
+| **Class Description** | UserEntity를 Spring Security의 UserDetails로 변환한 객체 |      |            |
+| 구분        | Name                  | Type                                   | Visibility | Description             |
+| --------- | --------------------- | -------------------------------------- | ---------- | ----------------------- |
+| Attribute | userId                | Long                                   | Private    | 사용자 PK                  |
+| Attribute | githubId              | String                                 | Private    | GitHub ID (username 대체) |
+| Attribute | admin                 | boolean                                | Private    | 관리자 여부                  |
+| Attribute | authorities           | Collection<? extends GrantedAuthority> | Private    | 역할/권한                   |
+| Attribute | accountNonLocked      | boolean                                | Private    | 계정 잠김 여부                |
+| Attribute | accountNonExpired     | boolean                                | Private    | 계정 만료 여부                |
+| Attribute | credentialsNonExpired | boolean                                | Private    | 자격 만료 여부                |
+| Attribute | enabled               | boolean                                | Private    | 활성화 여부(탈퇴 user=false)   |
+| 구분     | Name                      | Return Type       | Description          |
+| ------ | ------------------------- | ----------------- | -------------------- |
+| Method | from(UserEntity user)     | CustomUserDetails | 엔티티 → UserDetails 변환 |
+| Method | getAuthorities()          | Collection        | 권한 반환                |
+| Method | getUsername()             | String            | GitHub ID 반환         |
+| Method | getPassword()             | String            | (OAuth만 사용 → null)   |
+| Method | isAccountNonLocked()      | boolean           | 잠김 여부                |
+| Method | isAccountNonExpired()     | boolean           | 만료 여부                |
+| Method | isCredentialsNonExpired() | boolean           | 자격증명 만료 여부           |
+| Method | isEnabled()               | boolean           | 계정 활성 여부             |
+
+| Class Name        | SecurityConfig                                      |                        |            |
+| ----------------- | -------------------------------------------------------- | ---------------------- | ---------- |
+| 구분                    | Name                               | Type | Visibility |
+| --------------------- | ---------------------------------- | ---- | ---------- |
+| **Class Name**        | SecurityConfig                     |      |            |
+| **Class Description** | Spring Security 설정(필터, 권한, CORS 등) |      |            |
+| 구분        | Name                     | Type                        | Visibility    | Description  |
+| --------- | ------------------------ | --------------------------- | ------------- | ------------ |
+| Attribute | jwtTokenProvider         | JwtTokenProvider            | Private/Final | JWT Provider |
+| Attribute | authenticationEntryPoint | JwtAuthenticationEntryPoint | Private/Final | 401 에러 처리    |
+| Attribute | accessDeniedHandler      | JwtAccessDeniedHandler      | Private/Final | 403 에러 처리    |
+| 구분     | Name                           | Return Type             | Description            |
+| ------ | ------------------------------ | ----------------------- | ---------------------- |
+| Method | corsConfigurationSource()      | CorsConfigurationSource | CORS 설정 생성             |
+| Method | passwordEncoder()              | PasswordEncoder         | BCrypt PasswordEncoder |
+| Method | filterChain(HttpSecurity http) | SecurityFilterChain     | 전체 Security 설정 로직      |
+
+| Class Name        | SecurityUtil                                    |                        |            |
+| ----------------- | -------------------------------------------------------- | ---------------------- | ---------- |
+| 구분                    | Name                                          | Type | Visibility |
+| --------------------- | --------------------------------------------- | ---- | ---------- |
+| **Class Name**        | SecurityUtil                                  |      |            |
+| **Class Description** | SecurityContext에서 현재 로그인한 userId를 가져오는 유틸 클래스 |      |            |
+| 구분     | Name               | Return Type | Description                            |
+| ------ | ------------------ | ----------- | -------------------------------------- |
+| Method | getCurrentUserId() | Long        | SecurityContext의 principal에서 userId 추출 |
 
 
 #### Service Class
 
-| Class Name        | AuthService                                        |                        |            |
-| ----------------- | -------------------------------------------------- | ---------------------- | ---------- |
-| Class Description | 회원가입, 로그인, 로그아웃, 토큰 재발급 등 인증 관련 핵심 로직 담당 |                        |            |
-| 구분                | Name                                               | Type                   | Visibility |
-| Operations        | register(UserRegisterDto dto)<br>회원가입 처리       | UserResponseDto        | Public     |
-|                   | login(UserLoginDto dto)<br>로그인 처리              | AuthTokens             | Public     |
-|                   | logout(Long userId)<br>로그아웃 처리               | void                   | Public     |
-|                   | refresh(String refreshToken)<br>토큰 재발급         | AuthTokens             | Public     |
+| Class Name        | AuthService                                                        |            |            |
+| ----------------- | ------------------------------------------------------------------ | ---------- | ---------- |
+| Class Description | GitHub 로그인, 로그아웃, 토큰 재발급 등 인증 관련 핵심 로직 담당                          |            |            |
+| 구분        | Name             | Type             | Visibility      | Description         |
+| --------- | ---------------- | ---------------- | --------------- | ------------------- |
+| Attribute | userRepository   | UserRepository   | Private / Final | 사용자 조회용 JPA 리포지토리   |
+| Attribute | jwtTokenProvider | JwtTokenProvider | Private / Final | JWT 생성 및 검증 담당 컴포넌트 |
+| 구분     | Name                                | Return Type | Description                                                                      |
+| ------ | ----------------------------------- | ----------- | -------------------------------------------------------------------------------- |
+| Method | issueTokensForUser(UserEntity user) | AuthTokens  | GitHub OAuth 등을 통해 확보된 UserEntity 기반으로 역할(is_admin) 확인 후 Access/Refresh 토큰 세트 발급 |
+| Method | refresh(String refreshToken)        | AuthTokens  | 전달받은 Refresh Token을 검증 후, 유저 상태를 확인하고 새 Access/Refresh Token 재발급                 |
+| Method | logout(Long userId)                 | void        | 현재 구조에서는 stateless JWT 이므로 별도 처리 없이 로그아웃 훅 제공(추후 블랙리스트/저장소 도입 시 확장 가능)           |
 
-| Class Name        | GithubAuthService                                  |                        |            |
-| ----------------- | -------------------------------------------------- | ---------------------- | ---------- |
-| Class Description | 깃허브 OAuth 인증 절차 및 사용자 정보 연동 로직 수행 |                        |            |
-| 구분                | Name                                               | Type                   | Visibility |
-| Operations        | buildAuthorizeUrl()<br>깃허브 인증 URL 생성           | String                 | Public     |
-|                   | exchangeCodeForAccessToken(String code)<br>토큰 발급 | String                 | Public     |
-|                   | fetchGithubProfile(String token)<br>깃허브 유저 정보 조회 | GithubProfileDto     | Public     |
-|                   | loginWithGithub(GithubAuthDto dto)<br>깃허브 로그인 처리 | AuthTokens           | Public     |
 
-| Class Name        | UserService                                        |                        |            |
-| ----------------- | -------------------------------------------------- | ---------------------- | ---------- |
-| Class Description | 사용자 정보 조회, 수정, 탈퇴 등 일반 사용자 관리 로직 담당 |                        |            |
-| 구분                | Name                                               | Type                   | Visibility |
-| Operations        | getProfile(Long userId)<br>프로필 조회               | UserResponseDto        | Public     |
-|                   | updateProfile(UserUpdateDto dto)<br>프로필 수정      | void                   | Public     |
-|                   | changePassword(String newPassword)<br>비밀번호 변경  | void                   | Public     |
-|                   | deleteAccount(Long userId)<br>회원 탈퇴             | void                   | Public     |
+| Class Name        | GithubAuthService                                                           |            |            |
+| ----------------- | --------------------------------------------------------------------------- | ---------- | ---------- |
+| Class Description | 깃허브 OAuth 인증 절차 및 GitHub 사용자 정보 연동 로직 수행                                    |            |            |
+| 구분        | Name           | Type           | Visibility      | Description                               |
+| --------- | -------------- | -------------- | --------------- | ----------------------------------------- |
+| Attribute | clientId       | String         | Private         | GitHub OAuth Client ID (환경설정에서 주입)        |
+| Attribute | clientSecret   | String         | Private         | GitHub OAuth Client Secret (환경설정에서 주입)    |
+| Attribute | redirectUri    | String         | Private         | GitHub OAuth Redirect URI                 |
+| Attribute | userRepository | UserRepository | Private / Final | GitHub 로그인(github_id) 기준 사용자 조회/저장용 리포지토리 |
+| Attribute | authService    | AuthService    | Private / Final | 인증 토큰 발급 로직(AuthTokens 생성) 담당 서비스         |
+| Attribute | restTemplate   | RestTemplate   | Private / Final | GitHub API 호출용 HTTP 클라이언트                 |
+| 구분     | Name                                          | Return Type | Description                                                                                    |
+| ------ | --------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
+| Method | buildAuthorizeUrl()                           | String      | 프론트에서 GitHub 로그인 버튼 클릭 시 사용할 `https://github.com/login/oauth/authorize` URL 생성                 |
+| Method | exchangeCodeForAccessToken(String code)       | String      | GitHub가 넘겨준 인가 코드(code)를 이용해 Access Token으로 교환                                                 |
+| Method | fetchGithubLogin(String accessToken)          | String      | GitHub API(`/user`) 호출로 프로필 조회 후 `login` 값을 github_id로 사용                                      |
+| Method | loginWithGithub(GithubAuthDto dto)            | AuthTokens  | ① accessToken 없으면 code로 교환 → ② GitHub login 조회 → ③ 기존 유저 조회 or 신규 생성 → ④ AuthService 통해 JWT 발급 |
+| Method | createUserFromGithubLogin(String githubLogin) | UserEntity  | GitHub로 처음 로그인한 사용자를 ERD 규칙에 맞게 생성 후 저장 (is_admin=false, 통계 0, createdAt=now 등)                |
+
+| Class Name        | UserService                                        |                 |            |
+| ----------------- | -------------------------------------------------- | --------------- | ---------- |
+| Class Description | 사용자 정보 조회, 탈퇴(소프트 삭제) 등 일반 사용자 관리 로직 담당            |                 |            |
+| 구분        | Name           | Type           | Visibility      | Description          |
+| --------- | -------------- | -------------- | --------------- | -------------------- |
+| Attribute | userRepository | UserRepository | Private / Final | 사용자 조회/저장용 JPA 리포지토리 |
+| 구분     | Name                           | Return Type     | Description                                                     |
+| ------ | ------------------------------ | --------------- | --------------------------------------------------------------- |
+| Method | getMyProfile()                 | UserResponseDto | SecurityContext의 userId를 기준으로 내 프로필과 GitHub 통계 정보를 조회하여 DTO로 반환 |
+| Method | getByGithubId(String githubId) | UserResponseDto | github_id 기준 사용자 정보를 조회하여 DTO로 반환(관리자/내부용)                      |
+| Method | deleteMyAccount()              | void            | 현재 로그인한 사용자를 조회 후 soft delete(`user.softDelete()`) 수행           |
 
 
 #### Controller Class
 
-| Class Name        | AuthController                                      |                        |            |
-| ----------------- | --------------------------------------------------- | ---------------------- | ---------- |
-| Class Description | 회원가입, 로그인, 로그아웃, 토큰 재발급 요청을 처리하는 컨트롤러 |                        |            |
-| 구분                | Name                                                | Type                   | Visibility |
-| Operations        | register(UserRegisterDto dto)<br>회원가입 요청          | ResponseEntity<?>      | Public     |
-|                   | login(UserLoginDto dto)<br>로그인 요청                 | ResponseEntity<?>      | Public     |
-|                   | logout(Long userId)<br>로그아웃 요청                 | ResponseEntity<Void>   | Public     |
-|                   | refresh(String refreshToken)<br>토큰 재발급 요청     | ResponseEntity<?>      | Public     |
+| Class Name        | AuthController                                                  |                            |            |
+| ----------------- | --------------------------------------------------------------- | -------------------------- | ---------- |
+| Class Description | GitHub 로그인, 로그아웃, 토큰 재발급 요청을 처리하는 컨트롤러                          |                            |            |
+| 구분        | Name              | Type              | Visibility      | Description                   |
+| --------- | ----------------- | ----------------- | --------------- | ----------------------------- |
+| Attribute | githubAuthService | GithubAuthService | Private / Final | GitHub OAuth 및 로그인 처리 서비스     |
+| Attribute | authService       | AuthService       | Private / Final | 토큰 재발급, 로그아웃 등 인증 비즈니스 로직 서비스 |
+| 구분     | Name                                      | Return Type                | Description                                                                                 |
+| ------ | ----------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------- |
+| Method | getGithubAuthorizeUrl()                   | ResponseEntity<String>     | 프론트에서 GitHub 로그인 버튼 클릭 시, GitHub 인증 페이지로 이동할 authorize URL 반환 (`GET /github/authorize-url`) |
+| Method | githubCallback(String code, String state) | ResponseEntity<AuthTokens> | GitHub에서 콜백으로 넘겨준 code/state로 GitHub 인증 및 JWT 발급 수행 (`GET /github/callback`)                |
+| Method | loginWithGithub(GithubAuthDto dto)        | ResponseEntity<AuthTokens> | SPA 환경 등에서 code를 body로 받아 GitHub 로그인 처리 (`POST /github/login`)                              |
+| Method | refresh(Map<String,String> body)          | ResponseEntity<AuthTokens> | 리프레시 토큰을 이용해 Access/Refresh 토큰 재발급 (`POST /refresh`)                                        |
+| Method | logout(Map<String,Object> body)           | ResponseEntity<Void>       | 로그아웃 요청 처리, 필요 시 userId 기반 후처리 가능 (`POST /logout`)                                          |
 
-| Class Name        | GithubAuthController                                |                        |            |
-| ----------------- | --------------------------------------------------- | ---------------------- | ---------- |
-| Class Description | 깃허브 로그인 URL 요청 및 콜백 처리 담당 컨트롤러     |                        |            |
-| 구분                | Name                                                | Type                   | Visibility |
-| Operations        | getAuthorizeUrl()<br>깃허브 로그인 URL 요청           | ResponseEntity<String> | Public     |
-|                   | callback(String code, String state)<br>깃허브 콜백 처리 | ResponseEntity<?>     | Public     |
-|                   | loginWithGitHub(GithubAuthDto dto)<br>깃허브 로그인 요청 | ResponseEntity<?>     | Public     |
+| Class Name        | GithubAuthController                                                  |                            |            |
+| ----------------- | --------------------------------------------------------------- | -------------------------- | ---------- |
+| Class Description | GitHub OAuth 로그인 전용 엔드포인트를 제공하는 컨트롤러                          |                            |            |
+| 구분        | Name              | Type              | Visibility      | Description                  |
+| --------- | ----------------- | ----------------- | --------------- | ---------------------------- |
+| Attribute | githubAuthService | GithubAuthService | Private / Final | GitHub OAuth 인증 및 로그인 처리 서비스 |
+| 구분     | Name                                | Return Type                | Description                                                                |
+| ------ | ----------------------------------- | -------------------------- | -------------------------------------------------------------------------- |
+| Method | getAuthorizeUrl()                   | ResponseEntity<String>     | GitHub 로그인 버튼 클릭 시 사용할 authorize URL 반환 (`GET /authorize-url`)             |
+| Method | callback(String code, String state) | ResponseEntity<AuthTokens> | GitHub OAuth 콜백 처리, code/state로 로그인 후 JWT 토큰 반환 (`GET /callback`)          |
+| Method | loginWithGithub(GithubAuthDto dto)  | ResponseEntity<AuthTokens> | 프론트에서 이미 code → accessToken 교환 완료 후 accessToken만 보내는 경우 처리 (`POST /login`) |
 
-| Class Name        | UserController                                      |                        |            |
-| ----------------- | --------------------------------------------------- | ---------------------- | ---------- |
-| Class Description | 사용자 프로필 조회, 수정, 삭제 요청을 처리하는 컨트롤러 |                        |            |
-| 구분                | Name                                                | Type                   | Visibility |
-| Operations        | getProfile(Long userId)<br>사용자 정보 조회           | ResponseEntity<UserResponseDto> | Public |
-|                   | updateProfile(UserUpdateDto dto)<br>프로필 수정 요청   | ResponseEntity<Void>   | Public     |
-|                   | deleteAccount(Long userId)<br>회원 탈퇴 요청          | ResponseEntity<Void>   | Public     |
+
+| Class Name        | UserController                                 |                                 |            |
+| ----------------- | ---------------------------------------------- | ------------------------------- | ---------- |
+| Class Description | 현재 사용자 정보 조회, 계정 탈퇴 요청을 처리하는 컨트롤러              |                                 |            |
+| 구분        | Name        | Type        | Visibility      | Description                    |
+| --------- | ----------- | ----------- | --------------- | ------------------------------ |
+| Attribute | userService | UserService | Private / Final | 사용자 정보 조회 및 계정 삭제 로직을 처리하는 서비스 |
+| 구분     | Name                           | Return Type                     | Description                                                       |
+| ------ | ------------------------------ | ------------------------------- | ----------------------------------------------------------------- |
+| Method | getMyProfile()                 | ResponseEntity<UserResponseDto> | 현재 로그인한 사용자의 프로필 정보 조회 (`GET /me`)                                |
+| Method | getByGithubId(String githubId) | ResponseEntity<UserResponseDto> | github_id 기준 특정 사용자 정보 조회 (관리자용 예시) (`GET /by-github/{githubId}`) |
+| Method | deleteMyAccount()              | ResponseEntity<Void>            | 현재 로그인한 사용자의 소프트 삭제(탈퇴) 처리 (`DELETE /me`)                         |
+
 
 
 ### 스터디 관리
