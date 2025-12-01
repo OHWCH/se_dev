@@ -8,17 +8,22 @@ public record PostResponse(
         String title,
         String content,
         Long userId, // 인증 시스템이 없으므로 ID를 노출합니다.
+        // String userName, // ❌ 제거: 주석 처리된 부분 포함
         int viewCount,
+        int commentCount, // ✅ 추가: 댓글 개수 필드
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static PostResponse from(Post post) {
+    // ✅ 변경: 댓글 개수를 매개변수로 받도록 수정
+    public static PostResponse from(Post post, int commentCount) {
         return new PostResponse(
                 post.getPostId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getUserId(),
+                // "임시 사용자 이름", // ❌ 제거: 임시 사용자 이름 필드 제거
                 post.getViewCount(),
+                commentCount, // ✅ 댓글 개수 주입
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );

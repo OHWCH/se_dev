@@ -16,23 +16,31 @@ public record PostDetailResponse(
         String content,
         @Schema(description = "작성자 사용자 ID", example = "100")
         Long userId, // ✅ userId만 사용
+        // @Schema(description = "작성자 닉네임", example = "닉네임_1234") // ❌ 제거됨
+        // String nickname, // 작성자 닉네임 // ❌ 제거됨
         @Schema(description = "조회수", example = "10")
         int viewCount,
+        @Schema(description = "댓글 개수", example = "5") // ✅ 추가: 댓글 개수
+        int commentCount,
         @Schema(description = "생성 일시", example = "2024-01-01T10:00:00")
         LocalDateTime createdAt,
         @Schema(description = "수정 일시", example = "2024-01-01T10:30:00")
         LocalDateTime updatedAt,
 
         @Schema(description = "댓글 목록")
-        List<CommentResponse> comments // 🌟 상세 조회용: 댓글 리스트
+        List<CommentResponse> comments // 🌟 상세 조회용: 댓글 리스트 추가
 ) {
-    public static PostDetailResponse from(Post post, List<CommentResponse> commentResponses) {
+    // ✅ 변경: 댓글 개수 필드 추가
+    public static PostDetailResponse from(Post post, int commentCount, List<CommentResponse> commentResponses) {
+        // String nickname = (post.getAuthor() != null) ? post.getAuthor().getNickname() : "탈퇴한 사용자"; // ❌ 닉네임 로직
+
         return new PostDetailResponse(
                 post.getPostId(),
                 post.getTitle(),
                 post.getContent(),
-                post.getUserId(), // Post 엔티티에서 userId 직접 사용
+                post.getUserId(),
                 post.getViewCount(),
+                commentCount, // ✅ 댓글 개수 주입
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 commentResponses

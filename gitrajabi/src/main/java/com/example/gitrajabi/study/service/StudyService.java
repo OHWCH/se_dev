@@ -12,6 +12,8 @@ import com.example.gitrajabi.study.repository.StudyScheduleRepository;
 import com.example.gitrajabi.user.domain.entity.UserEntity;
 import com.example.gitrajabi.user.domain.repository.UserRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -67,34 +69,29 @@ public class StudyService {
 
 
     /** 스터디 리스트 */
-    public List<StudyListResponse> getStudyList(Long userId) {
+    public Page<StudyListResponse> getStudyList(Long userId, Pageable pageable) {
 
-        List<Study> studies = studyRepository.findAllByIsDeletedFalse();
+        Page<Study> studyPage = studyRepository.findAllByIsDeletedFalse(pageable);
 
-        return studies.stream()
-                .map(study -> {
+        return studyPage.map(study -> {
 
-                    int currentMembers =
-                            studyMemberRepository.countByStudy_StudyIdAndJoinStatus(
-                                    study.getStudyId(), JoinStatus.APPROVED
-                            );
+            int currentMembers = studyMemberRepository
+                    .countByStudy_StudyIdAndJoinStatus(study.getStudyId(), JoinStatus.APPROVED);
 
-                    JoinStatus userJoinStatus =
-                            studyMemberRepository
-                                    .findByStudy_StudyIdAndUser_UserId(study.getStudyId(), userId)
-                                    .map(StudyMember::getJoinStatus)
-                                    .orElse(null);
+            JoinStatus userJoinStatus = studyMemberRepository
+                    .findByStudy_StudyIdAndUser_UserId(study.getStudyId(), userId)
+                    .map(StudyMember::getJoinStatus)
+                    .orElse(null);
 
-                    return StudyListResponse.builder()
-                            .studyId(study.getStudyId())
-                            .name(study.getName())
-                            .description(study.getDescription())
-                            .currentMembers(currentMembers)
-                            .maxMembers(study.getMaxMemberCount())
-                            .userJoinStatus(userJoinStatus)
-                            .build();
-
-                }).toList();
+            return StudyListResponse.builder()
+                    .studyId(study.getStudyId())
+                    .name(study.getName())
+                    .description(study.getDescription())
+                    .currentMembers(currentMembers)
+                    .maxMembers(study.getMaxMemberCount())
+                    .userJoinStatus(userJoinStatus)
+                    .build();
+        });
     }
 
 
