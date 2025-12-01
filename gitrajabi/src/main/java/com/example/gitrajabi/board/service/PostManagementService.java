@@ -22,7 +22,7 @@ public class PostManagementService {
 
     // Use Case #14: 게시글 작성
     public Post createPost(Long currentUserId, PostCreationRequest request) {
-        //  Post 생성자에 Long currentUserId를 전달
+        // Post 생성자에 Long currentUserId를 전달
         Post post = new Post(currentUserId, request.title(), request.content());
         return postRepository.save(post);
     }
@@ -37,6 +37,7 @@ public class PostManagementService {
             throw new AccessDeniedException("수정 권한이 없습니다. 본인 글만 수정 가능합니다.");
         }
 
+        // Post 엔티티의 update 메서드를 사용하여 수정 (Auditing 필드 자동 업데이트)
         post.update(request.title(), request.content());
         return post;
     }
@@ -51,7 +52,7 @@ public class PostManagementService {
             throw new AccessDeniedException("삭제 권한이 없습니다. 본인 글만 삭제 가능합니다.");
         }
 
-        post.softDelete(); // 소프트 삭제 플래그 설정
-        // @Transactional에 의해 자동 저장 처리됨
+        post.softDelete(); // ⭐️ @SQLDelete에 의해 deletedAt이 자동 업데이트됩니다.
+        postRepository.save(post); // 변경 사항 저장 (Auditing과 SQLDelete를 함께 사용하기 위해 save 호출)
     }
 }

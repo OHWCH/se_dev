@@ -86,8 +86,20 @@ public class SecurityConfig {
                         .requestMatchers("/api/github/**").permitAll()
                         .requestMatchers("/studies/**").permitAll()
 
+                        // --- ✅ 게시판 조회 기능 허용 경로 추가 (GET 요청만 허용) ---
+                        // GET /api/posts (목록 조회)
+                        .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
+                        // GET /api/posts/{postId} (상세 조회)
+                        .requestMatchers(HttpMethod.GET, "/api/posts/{postId}").permitAll()
+
                         // --- OPTIONS 프리플라이트 허용 ---
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // --- 🔐 인증이 필요한 경로 (게시글/댓글 작성, 수정, 삭제) ---
+                        // POST, PUT, DELETE /api/posts/** (게시글 CRUD)
+                        .requestMatchers("/api/posts/**").authenticated()
+                        // POST, DELETE /api/posts/{postId}/comments/** (댓글 작성, 삭제)
+                        .requestMatchers("/api/posts/{postId}/comments/**").authenticated()
 
                         // --- ADMIN ---
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
