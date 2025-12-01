@@ -1,162 +1,254 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../components/ui/Header'; // 헤더 컴포넌트 (가정)
-import MaterialSymbol from '../components/ui/MaterialSymbol'; // Material Symbol 컴포넌트 (가정)
-
-// 시안에 사용된 데이터를 기반으로 Mock 데이터 정의
-const mockPost = {
-    id: 1,
-    title: "제목 (Post Title)",
-    author: "DevUser123",
-    views: 1204,
-    createdAt: "2023-10-27",
-    content: `내용 (Content) - This is the main body of the post, formatted with markdown. It can contain paragraphs, lists, and other text formatting to provide a rich reading experience for developers and other users of the application.
-
-            Code blocks are an essential part of a developer-focused platform. They should be clearly distinguishable and support syntax highlighting.
-
-            \`\`\`javascript
-            function helloWorld() {
-            console.log("Hello, Git-ra-jab-i!");
-            }
-            helloWorld();
-            \`\`\`
-
-            The layout is designed to be clean and readable, with ample white space to prevent visual clutter. This ensures that the focus remains on the content itself.
-
-            * List item one.
-            * List item two.
-            * List item three with a bit more text.
-
-            End of post content.`,
-};
-
-const mockComments = [
-    { id: 1, author: "Commenter1", date: "2023-10-27", text: "This is a great post! Very helpful information, thank you for sharing." },
-    { id: 2, author: "AnotherDev", date: "2023-10-28", text: "I had a question about the code block. Is there a reason you chose that specific method over another one?" },
-    { id: 3, author: "CodeNinja", date: "2023-10-29", text: "Thanks for the write-up. Looking forward to more content like this." },
-];
-
+// src/pages/PostDetailPage.jsx
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import Header from '../components/ui/Header';
+import MaterialSymbol from '../components/ui/MaterialSymbol';
+import { getPostDetail, deletePost, createComment, deleteComment } from '../services/boardApi';
+import { showToast } from '../utils/toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const PostDetailPage = () => {
-    // 실제 사용 시에는 URL 파라미터(id)를 사용하여 API에서 데이터를 fetch해야 합니다.
-    const post = mockPost;
-    const comments = mockComments;
+  const { postId } = useParams(); // URL에서 postId 가져오기
+  const navigate = useNavigate();
 
-    // 시안의 스타일을 그대로 유지하기 위해 Link 컴포넌트 사용 (Tailwind CSS 포함)
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [commentText, setCommentText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 현재 로그인한 사용자 ID (예: oauthUser.id)
+  // 실제로는 localStorage나 context에서 가져와야 함
+  const currentUserId = localStorage.getItem('userId'); // 임시로 예시
+
+  useEffect(() => {
+    fetchPostDetail();
+  }, [postId]);
+
+  const fetchPostDetail = async () => {
+    setLoading(true);
+    try {
+      const data = await getPostDetail(postId);
+      setPost(data);
+      setComments(data.comments || []); // 백엔드가 comments 포함해서 줌
+    } catch (err) {
+      showToast.error('게시글을 불러오지 못했습니다');
+      console.error(err);
+      navigate('/community');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+
+    try {
+      await deletePost(postId);
+      showToast.success('게시글이 삭제되었습니다');
+      navigate('/community');
+    } catch (err) {
+      showToast.error('삭제 권한이 없거나 실패했습니다');
+    }
+  };
+
+  const handleCreateComment = async () => {
+    if (!commentText.trim()) {
+      showToast.error('댓글 내용을 입력해주세요');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const newComment = await createComment(postId, commentText.trim());
+      setComments(prev => [newComment, ...prev]);
+      setCommentText('');
+      showToast.success('댓글이 작성되었습니다');
+    } catch (err) {
+      showToast.error('댓글 작성에 실패했습니다');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
+
+    try {
+      await deleteComment(postId, commentId);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      showToast.success('댓글이 삭제되었습니다');
+    } catch (err) {
+      showToast.error('삭제 권한이 없습니다');
+    }
+  };
+
+  if (loading) {
     return (
-        <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark font-display text-text-light-primary dark:text-text-dark-primary antialiased">
-            {/* Header 컴포넌트 */}
-            <Header /> 
-            
-            <main className="layout-container flex h-full grow flex-col">
-                <div className="container mx-auto px-4 flex flex-1 justify-center py-8">
-                    <div className="layout-content-container flex flex-col max-w-4xl w-full flex-1 gap-6">
-                        
-                        {/* Breadcrumbs (경로) */}
-                        <div className="flex flex-wrap gap-2 items-center text-sm">
-                            <Link className="text-primary hover:underline font-medium leading-normal" to="/">Home</Link>
-                            <span className="text-slate-400 dark:text-slate-500">/</span>
-                            <Link className="text-primary hover:underline font-medium leading-normal" to="/community">Post List</Link>
-                            <span className="text-slate-400 dark:text-slate-500">/</span>
-                            <span className="text-slate-800 dark:text-slate-300 font-medium leading-normal">Post Detail</span>
-                        </div>
-                        
-                        {/* Post Content Card */}
-                        <div className="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl border border-border-light dark:border-slate-800 shadow-sm">
-                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                                <div className="flex-1">
-                                    {/* 제목 */}
-                                    <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">{post.title}</h1>
-                                    {/* 메타데이터 */}
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal pt-2">
-                                        작성자: {post.author} · 조회수: {post.views.toLocaleString()} · 생성일: {post.createdAt}
-                                    </p>
-                                </div>
-                                
-                                {/* 수정/삭제 버튼 */}
-                                <div className="flex flex-shrink-0 gap-2">
-                                    <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/20 dark:bg-primary/30 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/30 dark:hover:bg-primary/40 transition-colors">
-                                        <span className="truncate">수정</span>
-                                    </button>
-                                    <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-transparent text-red-500 dark:text-red-400 hover:bg-red-500/10 text-sm font-bold leading-normal tracking-[0.015em] transition-colors">
-                                        <span className="truncate">삭제</span>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <hr className="my-6 border-border-light dark:border-slate-800"/>
-                            
-                            {/* 게시글 본문 (Markdown 처리 시 'prose' 클래스 사용) */}
-                            {/* 시안의 HTML 구조를 따르기 위해 임시로 div와 pre를 사용합니다. */}
-                            <article className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed">
-                                {/* 실제 애플리케이션에서는 post.content를 Markdown Renderer로 변환해야 합니다. */}
-                                <p>내용 (Content) - This is the main body of the post, formatted with markdown. It can contain paragraphs, lists, and other text formatting to provide a rich reading experience for developers and other users of the application.</p>
-                                <p>Code blocks are an essential part of a developer-focused platform. They should be clearly distinguishable and support syntax highlighting.</p>
-                                <pre><code className="language-javascript">function helloWorld() {'\n'}  console.log("Hello, Git-ra-jab-i!");{'\n'}{'\n'}helloWorld();</code></pre>
-                                <p>The layout is designed to be clean and readable, with ample white space to prevent visual clutter. This ensures that the focus remains on the content itself.</p>
-                                <ul>
-                                    <li>List item one.</li>
-                                    <li>List item two.</li>
-                                    <li>List item three with a bit more text.</li>
-                                </ul>
-                                <p>End of post content.</p>
-                            </article>
-                        </div>
-                        
-                        {/* Comment Area Card */}
-                        <div className="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl border border-border-light dark:border-slate-800 shadow-sm">
-                            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">댓글 목록 (Comment List)</h2>
-                            <div className="flex flex-col gap-6">
-                                
-                                {/* 댓글 작성 폼 */}
-                                <div className="flex gap-4 items-start">
-                                    {/* 아바타 아이콘 */}
-                                    <div className="flex items-center justify-center size-10 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex-shrink-0" data-alt="Current user icon">
-                                        <MaterialSymbol name="person" className="user-icon" />
-                                    </div>
-                                    {/* 입력 필드 */}
-                                    <div className="flex-1">
-                                        <textarea 
-                                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark p-3 text-sm text-slate-800 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-primary" 
-                                            placeholder="Add a comment..." 
-                                            rows="3"
-                                        />
-                                        <button className="mt-2 flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
-                                            <span>Submit</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <hr className="border-border-light dark:border-slate-800"/>
-                                
-                                {/* 댓글 목록 */}
-                                <ul className="flex flex-col gap-6">
-                                    {comments.map(comment => (
-                                        <li key={comment.id} className="comment-card flex gap-4 items-start">
-                                            {/* 아바타 아이콘 */}
-                                            <div className="flex items-center justify-center size-10 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex-shrink-0" data-alt="Commenter icon">
-                                                <MaterialSymbol name="person" className="user-icon" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    {/* 작성자 및 날짜 */}
-                                                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{comment.author}</p>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">·</p>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{comment.date}</p>
-                                                </div>
-                                                {/* 댓글 내용 */}
-                                                <p className="text-sm text-slate-700 dark:text-slate-300">{comment.text}</p>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+      <div className="min-h-screen bg-background-light dark:bg-background-dark">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <p className="text-xl">게시글을 불러오는 중...</p>
         </div>
+      </div>
     );
+  }
+
+  if (!post) return null;
+
+  return (
+    <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-text-light-primary dark:text-text-dark-primary antialiased">
+      <Header />
+
+      <main className="layout-container flex h-full grow flex-col">
+        <div className="container mx-auto px-4 flex flex-1 justify-center py-8">
+          <div className="layout-content-container flex flex-col max-w-4xl w-full flex-1 gap-6">
+
+            {/* Breadcrumbs */}
+            <div className="flex flex-wrap gap-2 items-center text-sm">
+              <Link to="/" className="text-primary hover:underline">Home</Link>
+              <span className="text-slate-400 dark:text-slate-500">/</span>
+              <Link to="/community" className="text-primary hover:underline">커뮤니티</Link>
+              <span className="text-slate-400 dark:text-slate-500">/</span>
+              <span className="text-slate-800 dark:text-slate-300 font-medium">게시글</span>
+            </div>
+
+            {/* Post Content */}
+            <div className="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl border border-border-light dark:border-slate-800 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                    {post.title}
+                  </h1>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    작성자: {post.authorName || '익명'} · 조회수: {post.views?.toLocaleString() || 0} · {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+                  </p>
+                </div>
+
+                {/* 수정/삭제 버튼 (본인 글일 때만 표시) */}
+                {currentUserId && post.authorId == currentUserId && (
+                  <div className="flex gap-2">
+                    <Link
+                      to={`/community/edit/${postId}`}
+                      className="px-4 py-2 bg-primary/20 dark:bg-primary/30 text-primary rounded-lg hover:bg-primary/30 transition"
+                    >
+                      수정
+                    </Link>
+                    <button
+                      onClick={handleDeletePost}
+                      className="px-4 py-2 bg-transparent text-red-500 hover:bg-red-500/10 rounded-lg transition"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <hr className="my-8 border-border-light dark:border-slate-800" />
+
+              {/* 마크다운 본문 렌더링 */}
+              <article className="prose prose-lg prose-slate dark:prose-invert max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    code({ node, inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || '');
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={vscDarkPlus}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-sm" {...props}>
+                          {children}
+                        </code>
+                      );
+                    }
+                  }}
+                >
+                  {post.content}
+                </ReactMarkdown>
+              </article>
+            </div>
+
+            {/* 댓글 영역 */}
+            <div className="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl border border-border-light dark:border-slate-800 shadow-sm">
+              <h2 className="text-xl font-bold mb-6">댓글 {comments.length}개</h2>
+
+              {/* 댓글 작성 */}
+              <div className="flex gap-4 items-start mb-8">
+                <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                  <MaterialSymbol name="person" />
+                </div>
+                <div className="flex-1">
+                  <textarea
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="댓글을 작성하세요..."
+                    rows="3"
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark p-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  />
+                  <button
+                    onClick={handleCreateComment}
+                    disabled={isSubmitting || !commentText.trim()}
+                    className="mt-3 px-5 py-2.metadata2 bg-primary text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition"
+                  >
+                    {isSubmitting ? '작성 중...' : '댓글 작성'}
+                  </button>
+                </div>
+              </div>
+
+              <hr className="my-6 border-border-light dark:border-slate-800" />
+
+              {/* 댓글 목록 */}
+              <div className="space-y-6">
+                {comments.length === 0 ? (
+                  <p className="text-center text-slate-500 py-8">아직 댓글이 없습니다. 첫 댓글을 작성해보세요!</p>
+                ) : (
+                  comments.map(comment => (
+                    <div key={comment.id} className="flex gap-4">
+                      <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                        <MaterialSymbol name="person" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-semibold text-sm">{comment.authorName || '익명'}</span>
+                            <span className="text-xs text-slate-500 ml-2">
+                              {new Date(comment.createdAt).toLocaleString('ko-KR')}
+                            </span>
+                          </div>
+                          {/* 본인 댓글일 때만 삭제 버튼 */}
+                          {currentUserId && comment.authorId == currentUserId && (
+                            <button
+                              onClick={() => handleDeleteComment(comment.id)}
+                              className="text-red-500 text-sm hover:underline"
+                            >
+                              삭제
+                            </button>
+                          )}
+                        </div>
+                        <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                          {comment.content}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 };
 
 export default PostDetailPage;
