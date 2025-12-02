@@ -12,19 +12,20 @@ const StudyListPage = () => {
     const [loading, setLoading] = useState(true); // 로딩 상태
     const [error, setError] = useState(null); // 에러 메시지
     const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 (0부터 시작)
-    const [hasNextPage, setHasNextPage] = useState(false);
+    const [totalPages, setTotalPages] = useState(0);
     const [activeCategory, setActiveCategory] = useState('전체');
 
     const PAGE_SIZE = 6;
 
-    const generatePaginationLinks = useCallback((current) => {
-        // ... (페이지네이션 링크 생성 로직은 동일하게 유지)
+   const generatePaginationLinks = useCallback((current, total) => {
+        // 🌟 전체 페이지 수(total)를 기준으로 페이지네이션 링크 생성
         const links = [];
-        const totalLoadedPages = current + 1; 
         const maxPagesToShow = 5;
+
+        if (total === 0) return [];
         
         let startPage = Math.max(0, current - Math.floor(maxPagesToShow / 2));
-        let endPage = Math.min(totalLoadedPages - 1, startPage + maxPagesToShow - 1);
+        let endPage = Math.min(total - 1, startPage + maxPagesToShow - 1);
 
         if (endPage - startPage < maxPagesToShow - 1) {
             startPage = Math.max(0, endPage - maxPagesToShow + 1);
@@ -39,10 +40,17 @@ const StudyListPage = () => {
         
         for (let i = startPage; i <= endPage; i++) {
             links.push({ 
-                label: String(i + 1), 
+                label: String(i + 0), // 사용자에게는 1부터 보이도록 +1
                 onClick: () => handlePageChange(i), 
                 current: i === current 
             });
+        }
+
+        if (endPage < total - 1) {
+            if (endPage < total - 2) {
+                links.push({ label: '...', disabled: true });
+            }
+            links.push({ label: String(total), onClick: () => handlePageChange(total - 1), current: false });
         }
         
         return links;
@@ -51,48 +59,47 @@ const StudyListPage = () => {
     const fetchStudies = useCallback(async (page) => {
         setLoading(true); 
         try {
+            // API는 1부터 시작하는 페이지를 기대한다고 가정하고 요청: page + 1
             const response = await getStudyList(page); 
 
-            if (page > 0 && response && Array.isArray(response) && response.length === 0) {
-                 alert("마지막 페이지입니다.");
-                 return; 
-            }
+            // 🌟 API 응답에서 content, currentPage, totalPages 추출
+            const { content, currentPage: fetchedPage, totalPages: fetchedTotalPages } = response || { 
+                content: [], 
+                currentPage: 0, 
+                totalPages: 1 
+            };
             
-            const nextExists = response && Array.isArray(response) && response.length === PAGE_SIZE;
-            
-            console.log(`현재 페이지: ${page}, 받은 아이템 수: ${response.length}, 다음 페이지 존재: ${nextExists}`);
-
-            setStudies(response || []); 
-            // 업데이트
-            setHasNextPage(nextExists); 
-            setCurrentPage(page);
+            // API가 응답으로 준 currentPage와 totalPages를 사용하여 상태 업데이트
+            setStudies(content || []); 
+            setCurrentPage(fetchedPage); // 🌟 API가 준 0 기반 페이지 번호 사용
+            setTotalPages(fetchedTotalPages); // 🌟 전체 페이지 수 사용
             setError(null);
 
         } catch (err) {
             console.error("스터디 목록 조회 실패:", err);
             setError("스터디 목록을 불러오는 데 실패했습니다.");
             setStudies([]);
-            setHasNextPage(false); // 오류 발생 시 다음 페이지는 없다고 가정
+            setCurrentPage(0);
+            setTotalPages(1); // 오류 발생 시 기본값으로 설정
         } finally {
             setLoading(false); 
         }
-    }, [PAGE_SIZE]); //
+    }, []);
 
     const handlePageChange = useCallback((page) => {
-        // 이전 페이지로의 이동(page < currentPage)은 항상 가능
-        // 다음 페이지로의 이동(page === currentPage + 1)은 hasNextPage가 true일 때만 허용
-        if (page >= 0 && (page < currentPage || (page === currentPage + 1 && hasNextPage))) {
+        // totalPages를 사용하여 페이지 이동 가능 여부 확인
+        if (page >= 0 && page < totalPages) {
             fetchStudies(page);
         }
-    }, [currentPage, hasNextPage, fetchStudies]);
+    }, [totalPages, fetchStudies]);
 
     useEffect(() => {
-        fetchStudies(0); // 컴포넌트 마운트 시 첫 페이지(0) 로드
+        fetchStudies(0); 
     }, [fetchStudies]);
 
     const paginationLinks = useMemo(() => {
-        return generatePaginationLinks(currentPage);
-    }, [currentPage, generatePaginationLinks]);
+        return generatePaginationLinks(currentPage, totalPages);
+    }, [currentPage, totalPages, generatePaginationLinks]);
 
 
     return (
@@ -168,13 +175,12 @@ const StudyListPage = () => {
                 )}
 
                 {/* 🌟 페이지네이션 */}
-                {studies.length > 0 && ( 
+                {totalPages > 1 && ( 
                     <div className="max-w-4xl mx-auto mt-10">
                         <Pagination 
                             links={paginationLinks} 
                             currentPage={currentPage}
-                            // 🚨 수정: totalPages 대신 hasNextPage 전달
-                            hasNextPage={hasNextPage} 
+                            hasNextPage={currentPage < totalPages - 1} 
                             onPageChange={handlePageChange}
                         /> 
                     </div>
