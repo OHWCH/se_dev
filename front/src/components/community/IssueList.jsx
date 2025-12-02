@@ -51,13 +51,6 @@ const IssueList = ({ title, issues = [] }) => {
                     </div>
                 )}
             </div>
-            
-            {/* 더 보기 링크 */}
-            <div className="mt-4 flex justify-end">
-                <Link to="#" className="text-primary hover:text-primary-dark font-medium text-sm transition-colors">
-                    더 보기 <MaterialSymbol name="open_in_new" className="text-base ml-1 inline-block align-text-bottom" />
-                </Link>
-            </div>
         </section>
     );
 };

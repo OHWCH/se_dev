@@ -2,7 +2,7 @@ import axios from "axios";
 
 const ISSUE_API_URL = 'http://localhost:8080/api/issues'; // API URL 확인
 
-export async function getGoodFirstIssues(keyword = '') {
+export async function getGoodFirstIssues(keyword = '', page = 3) {
     const accessToken = localStorage.getItem("accessToken");
     
     // 🚨 Access Token이 없으면 요청을 보내지 않거나, 에러를 발생시킵니다.
@@ -11,7 +11,7 @@ export async function getGoodFirstIssues(keyword = '') {
     }
 
     try {
-        const response = await axios.get(`${ISSUE_API_URL}/good-first?keyword=${keyword}`, {
+        const response = await axios.get(`${ISSUE_API_URL}/good-first?keyword=${keyword}page=${page}`, {
             headers: {
                 // 🌟 FIX: Authorization 헤더에 토큰을 'Bearer ' 형식으로 추가
                 Authorization: `Bearer ${accessToken}`
