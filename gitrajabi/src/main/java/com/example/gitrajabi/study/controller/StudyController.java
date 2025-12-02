@@ -32,16 +32,24 @@ public class StudyController {
 
     // 전체 스터디 목록 조회 (로그인 유저의 가입 여부 포함)
     @GetMapping
-    public ResponseEntity<List<StudyListResponse>> getStudyList(@RequestParam(defaultValue = "0") int page) {
+
+    public ResponseEntity<StudyPageResponse> getStudyList(@RequestParam(defaultValue = "0") int page) {
+
         Long userId = SecurityUtil.getCurrentUserId();
 
         Pageable pageable = PageRequest.of(page, 6);
         Page<StudyListResponse> pageResult = studyService.getStudyList(userId, pageable);
 
-        List<StudyListResponse> contentOnly = pageResult.getContent();
+        StudyPageResponse response = StudyPageResponse.builder()
+                .content(pageResult.getContent())
+                .currentPage(pageResult.getNumber())
+                .totalPages(pageResult.getTotalPages())
+                .totalElements(pageResult.getTotalElements())
+                .build();
 
-        return ResponseEntity.ok(contentOnly);
+        return ResponseEntity.ok(response);
     }
+
 
 
 
