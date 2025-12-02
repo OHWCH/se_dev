@@ -23,6 +23,7 @@ const mapToUpdatePayload = (detailData) => {
 };
 
 const StudyInfoTab = ({ study, studyId }) => {
+    const navigate = useNavigate();
 
     const initialDataForHook = useMemo(() => ({
         studyInfo: study // study prop은 부모에서 이미 안정화됨 (newPayload)
@@ -47,7 +48,7 @@ const StudyInfoTab = ({ study, studyId }) => {
         if (window.confirm('🚨 정말로 스터디를 삭제하시겠습니까? 삭제된 스터디는 복구할 수 없습니다.')) {
             try {
                 // deleteStudy API 호출
-                await deleteStudy(studyId, studyData); 
+                await deleteStudy(studyId); 
                 alert(`스터디가 성공적으로 삭제되었습니다.`);
                 
                 // 삭제 후 메인 페이지 또는 마이 스터디 목록 페이지로 이동

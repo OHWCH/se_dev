@@ -115,14 +115,15 @@ export async function quitStudy(studyId) {
     }
 }
 
-export async function deleteStudy(studyId, studyData) {
-    conso
+export async function deleteStudy(studyId) {
+    console.log(JSON.stringify(studyId, null, 2));
     try {
-        const res = await axios.delete(`${STUDY_API_URL}/${studyId}`, studyData, {
+        const res = await axios.delete(`${STUDY_API_URL}/${studyId}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
             }
         })
+        console.log(JSON.stringify(res.data, null, 2));
     } catch (e) {
 
     }
