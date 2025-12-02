@@ -77,7 +77,7 @@ const ProfileSummary = () => {
                     <MaterialSymbol name="code" className="text-4xl text-white" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">nickname</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{localStorage.getItem("currentGithubId")}</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">닉네임</p>
                     
                 </div>

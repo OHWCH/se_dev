@@ -20,7 +20,7 @@ export async function getStudyList(page = 0) {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
             }
         });
-        
+        console.log(JSON.stringify(response.data, null, 2));
         // 응답 데이터는 스터디 목록 배열 (content: [...])
         return response.data; 
     } catch (error) {

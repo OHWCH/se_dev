@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'; // 🌟 useState, useEffect 임포트 추가
+import React, { useState, useEffect, useCallback } from 'react'; // 🌟 useState, useEffect 임포트 추가
 import { useParams } from 'react-router-dom';
 import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 // mockStudyDetail는 더 이상 사용하지 않음
 import { Link } from 'react-router-dom';
-import { getStudyDetail, getStudyMember, getStudySchedule, getStudyMain, joinStudySchedule } from '../services/studyApi'; // API 함수는 비동기 함수로 가정
+import { getStudySchedule, getStudyMain, joinStudySchedule } from '../services/studyApi'; // API 함수는 비동기 함수로 가정
 
 
 const formatTime = (isoString) => {
@@ -18,41 +18,38 @@ const formatTime = (isoString) => {
     return `${month}/${day} ${timeOnly}`;
 };
 
-const TaskItem = ({ task, studyId }) => {
+const TaskItem = ({ task, studyId, onParticipationSuccess }) => { // 🌟 currentUserId prop 제거
     // 🌟 로컬 상태 관리: 참여 여부와 참여 인원
     const [isParticipated, setIsParticipated] = useState(task.participated);
     const [currentCount, setCurrentCount] = useState(task.participateCount);
     const [isToggling, setIsToggling] = useState(false);
     
-    // task prop이 변경될 때마다 로컬 상태 동기화 (재로드 시)
+    // task prop이 변경될 때마다 로컬 상태 동기화 (상위 컴포넌트에서 데이터 재로드 시)
     useEffect(() => {
         setIsParticipated(task.participated);
         setCurrentCount(task.participateCount);
     }, [task.participated, task.participateCount]);
     
-    // 🌟 참가/취소 토글 핸들러
+    // 🌟 참가 핸들러 (참가 취소 로직 제거)
     const handleParticipationToggle = async () => {
-        if (isToggling) return;
+        // 🌟 이미 참가 중이거나, 처리 중이면 무시
+        if (isToggling || isParticipated) return; 
         setIsToggling(true);
         
         try {
-            if (isParticipated) {
-                // 참가 취소
-                await cancelSchedule(studyId, task.scheduleId); // 🚨 API 호출
-                setIsParticipated(false);
-                setCurrentCount(prev => prev - 1);
-                alert(`'${task.comment}' 일정 참가를 취소했습니다.`);
-            } else {
-                // 참가
-                await joinStudySchedule(studyId, task.scheduleId, task); // 🚨 API 호출
-                setIsParticipated(true);
-                setCurrentCount(prev => prev + 1);
-                alert(`'${task.comment}' 일정에 참가했습니다.`);
-            }
+            await joinStudySchedule(studyId, task.scheduleId, task); // API 호출
             
+            // 🌟 상태 즉시 업데이트 (UI 반응성 개선)
+            setIsParticipated(true);
+            setCurrentCount(prev => prev + 1);
+            alert(`'${task.comment}' 일정에 참가했습니다.`);
+            
+            // 🌟 상위 컴포넌트의 데이터 재패치 요청 (안정적인 최신 데이터 반영)
+            onParticipationSuccess(); 
+
         } catch (error) {
-            console.error("일정 참여 토글 실패:", error);
-            alert(error.message || "일정 참여 상태 변경에 실패했습니다.");
+            console.error("일정 참여 실패:", error);
+            alert(error.message || "일정 참가에 실패했습니다.");
         } finally {
             setIsToggling(false);
         }
@@ -61,6 +58,11 @@ const TaskItem = ({ task, studyId }) => {
     const startTimeFormatted = formatTime(task.startedAt);
     const endTimeFormatted = formatTime(task.endAt);
     
+    // 🌟 버튼 클래스 및 텍스트 정의
+    const buttonClass = isParticipated
+        ? 'bg-gray-400 text-white cursor-not-allowed' // 참가 중: 비활성화
+        : 'bg-primary text-white hover:bg-primary-dark'; // 미참가: 참가 가능
+
     return (
         <div className="flex items-center justify-between py-3 border-b border-border-light dark:border-border-dark last:border-b-0">
             <div className="flex-1 min-w-0 pr-4">
@@ -83,24 +85,20 @@ const TaskItem = ({ task, studyId }) => {
                     <span className="text-text-light-secondary dark:text-text-dark-secondary">{task.totalMemberCount}</span>
                 </div>
                 
-                {/* 참가/취소 버튼 */}
+                {/* 🌟 2. participated 여부에 따라 버튼 렌더링 (단순화) */}
                 <button 
                     onClick={handleParticipationToggle}
-                    disabled={isToggling}
-                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${
-                        isParticipated
-                            ? 'bg-red-500 text-white hover:bg-red-600' // 취소 버튼 (참가 상태)
-                            : 'bg-primary text-white hover:bg-primary-dark' // 참가 버튼 (미참가 상태)
-                    }`}
+                    disabled={isToggling || isParticipated} // 🌟 이미 참가 중이면 비활성화
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${buttonClass}`}
                 >
-                    {isToggling ? '처리 중' : (isParticipated ? '참가 취소' : '참가')}
+                    {isToggling ? '처리 중' : (isParticipated ? '참가 중' : '참가')}
                 </button>
             </div>
         </div>
     );
 };
 
-const TaskList = ({ tasks, studyId }) => {
+const TaskList = ({ tasks, studyId, refetch }) => { // 🌟 currentUserId prop 제거
     if (!tasks || tasks.length === 0) {
         return (
             <div className="py-6 text-center text-sm text-text-light-secondary dark:text-text-dark-secondary">
@@ -112,8 +110,13 @@ const TaskList = ({ tasks, studyId }) => {
     return (
         <div>
             {tasks.map((task) => (
-                // 🚨 TaskItem에 studyId 전달
-                <TaskItem key={task.scheduleId} task={task} studyId={studyId} />
+                <TaskItem 
+                    key={task.scheduleId} 
+                    task={task} 
+                    studyId={studyId} 
+                    onParticipationSuccess={refetch}
+                    // 🌟 currentUserId 전달 제거
+                />
             ))}
         </div>
     );
@@ -141,67 +144,62 @@ const MemberItem = ({ member }) => {
 
 
 const StudyDetailPage = () => {
-    const { id } = useParams(); // 라우팅 파라미터에서 ID를 가져옵니다.
-
-    // 🌟 상태 정의
+    const { id } = useParams();
     const [study, setStudy] = useState(null);
-    const [membersData, setMembersData] = useState([]); // 멤버 데이터 배열로 가정
-    const [loading, setLoading] = useState(true); // 로딩 상태
+    const [membersData, setMembersData] = useState([]); 
+    const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(false);
     
-    
-    // 🌟 데이터 패칭 및 가공 로직
-    useEffect(() => {
-        const fetchStudyData = async () => {
-            setLoading(true);
-            setError(false);
-            
-            try {
-                // 1. API 호출 (비동기 처리)
-                const [mainData, scheduleData] = await Promise.all([
-                    getStudyMain(id), 
-                    getStudySchedule(id), // 일정 정보는 여전히 필요
-                ]);
+    // 🌟 데이터 패칭 및 가공 로직을 useCallback으로 감싸서 재사용성 확보
+    const fetchStudyData = useCallback(async () => { // 🌟 useCallback 사용
+        setLoading(true);
+        setError(false);
+        
+        try {
+            // 1. API 호출 (비동기 처리)
+            // 🚨 getStudyMember는 사용하지 않고 getStudyMain의 members 사용
+            const [mainData, scheduleData] = await Promise.all([
+                getStudyMain(id), 
+                getStudySchedule(id), 
+            ]);
 
-                if (!mainData) {
-                    throw new Error("스터디 상세 정보를 불러오지 못했습니다.");
-                }
-                
-                const formattedData = {
-                    ...mainData, 
-                    title: mainData.studyName,
-                    description: mainData.studyDescription,
-                    id: mainData.studyId, 
-                    
-                    // 리더 닉네임 찾기 (mainData.members 사용)
-                    leaderNickname: mainData.members.find(m => m.studyRole === "LEADER")?.nickname || '리더 정보 없음', 
-                    
-                    // schedules를 upcomingTasks로 포맷
-                    upcomingTasks: (scheduleData || [])
-                        .map(s => ({ 
-                            ...s,
-                            participated: s.participated || false, 
-                            participateCount: s.participateCount || 0, 
-                        }))
-                        .sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt)),
-                };
-
-                setStudy(formattedData);
-                setMembersData(mainData.members || []); // 🚨 getStudyMain의 members 필드 사용
-                setLoading(false);
-                
-            } catch (error) {
-                console.error("스터디 상세 정보 로드 오류:", error);
-                
-                // 🚨 5. catch 블록 내에서 detailResponse 같은 정의되지 않은 변수 제거
-                
-                setError(true);
-                setLoading(false);
+            if (!mainData) {
+                throw new Error("스터디 상세 정보를 불러오지 못했습니다.");
             }
-        };
+            
+            const formattedData = {
+                ...mainData, 
+                title: mainData.studyName,
+                description: mainData.studyDescription,
+                id: mainData.studyId, 
+                
+                // 리더 닉네임 찾기 (mainData.members 사용)
+                leaderNickname: mainData.members.find(m => m.studyRole === "LEADER")?.nickname || '리더 정보 없음', 
+                
+                // schedules를 upcomingTasks로 포맷
+                upcomingTasks: (scheduleData || [])
+                    .map(s => ({ 
+                        ...s,
+                        participated: s.participated || false, 
+                        participateCount: s.participateCount || 0, 
+                    }))
+                    .sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt)),
+            };
 
+            setStudy(formattedData);
+            setMembersData(mainData.members || []); 
+            
+        } catch (error) {
+            console.error("스터디 상세 정보 로드 오류:", error);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
+    }, [id]); // id가 변경될 때만 fetchStudyData 함수 재생성
+
+    useEffect(() => {
         fetchStudyData();
-    }, [id]);
+    }, [fetchStudyData]); // fetchStudyData가 변경될 때마다 호출
 
     if (loading) {
         return <div className="p-8 text-center">스터디 정보를 불러오는 중입니다...</div>;
@@ -252,7 +250,7 @@ const StudyDetailPage = () => {
                                 </p>
                                 <p className="flex items-center text-text-light-secondary dark:text-text-dark-secondary mt-1">
                                     <MaterialSymbol name="star" className="mr-2 text-base" />
-                                    리더: {study.leaderGithubId}
+                                    리더: {study.leaderGithubId} {/* 🌟 leaderNickname 사용 */}
                                 </p>
                             </div>
                         </div>
@@ -263,7 +261,7 @@ const StudyDetailPage = () => {
                            <h2 className="text-xl font-bold mb-4 text-text-light-primary dark:text-text-dark-primary">구성원 ({study.currentMembers}명)</h2> 
                             <div className="space-y-1">
                                 {/* 🌟 membersData 맵핑 */}
-                                {membersData.map((member, index) => (
+                                {membersData.map((member) => (
                                     <MemberItem key={member.userId} member={member} />
                                 ))}
                             </div>
@@ -277,8 +275,11 @@ const StudyDetailPage = () => {
                         <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark h-full">
                             <h2 className="text-xl font-bold mb-4 text-text-light-primary dark:text-text-dark-primary">일정</h2>
                             <div className="divide-y divide-border-light dark:divide-border-dark">
-                                {/* 🚨 study.id를 studyId로 전달 */}
-                                <TaskList tasks={study.upcomingTasks} studyId={study.id} />
+                                <TaskList 
+                                    tasks={study.upcomingTasks} 
+                                    studyId={study.id} 
+                                    refetch={fetchStudyData} 
+                                />
                             </div>
                         </div>
                     </div>
