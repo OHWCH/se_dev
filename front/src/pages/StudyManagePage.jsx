@@ -175,7 +175,13 @@ const MemberManageTab = ({ members, studyId }) => {
                             
                             {/* 리더가 아닐 때만 추방 버튼 표시 */}
                             {!isLeader && (
-                                <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" onClick={() => deleteMember(studyId, member.userId)}>
+                                <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-500 rounded-md border border-red-500/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" 
+                                onClick={async () => {
+                                        await deleteMember(studyId, member.userId);
+                                        //임시방편: 페이지 전체 새로고침
+                                        window.location.reload(); 
+                                    }}
+                                    >
                                     추방
                                 </button>
                             )}

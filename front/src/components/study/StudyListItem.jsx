@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { joinStudy } from '../../services/studyApi';
 
-const StudyListItem = ({ study }) => {
+const StudyListItem = ({ study, onJoinSuccess }) => {
     //const isClosed = study.userJoinStatus === '';
 
     const navigate = useNavigate();
@@ -58,8 +58,10 @@ const StudyListItem = ({ study }) => {
 
         try {
             await joinStudy(study.studyId);   // API 호출 (참여 신청)
-            // 성공 후 목록 페이지로 리다이렉트
-            navigate('/studylist');        
+            if (onJoinSuccess) {
+                onJoinSuccess(); 
+            }
+          
         } catch (error) {
             console.error("스터디 가입 실패:", error);
             alert("스터디 가입 신청에 실패했습니다.");

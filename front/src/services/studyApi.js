@@ -2,16 +2,8 @@ import axios from "axios";
 import { mockStudies } from "../data/studyData";
 import { showToast } from "../utils/toast"; 
 
-// 실제 백엔드 연동을 위한 POST 요청을 담당하는 함수
-// fetch 또는 axios를 사용합니다. (여기서는 fetch 사용 예시)
-
 const STUDY_API_URL = 'http://localhost:8080/studies'; // 백엔드 스터디 생성 엔드포인트
 
-/**
- * 새로운 스터디 데이터를 백엔드 서버에 생성 요청합니다.
- * @param {object} studyData - 폼에서 넘어온 가공된 스터디 데이터
- * @returns {Promise<object>} - 생성된 스터디 객체 (서버 응답)
- */
 
 export async function getStudyList(page = 0) { 
     try {
@@ -20,8 +12,6 @@ export async function getStudyList(page = 0) {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
             }
         });
-        console.log(JSON.stringify(response.data, null, 2));
-        // 응답 데이터는 스터디 목록 배열 (content: [...])
         return response.data; 
     } catch (error) {
         console.error("스터디 목록 조회 실패:", error);
@@ -33,12 +23,11 @@ export async function getStudyMain(studyId) {
     try {
         const res = await axios.get(`${STUDY_API_URL}/${studyId}/main`, {
             headers: {
-                // 🌟 Authorization 헤더에 토큰을 "Bearer " 형식으로 추가
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
                 
             }
         });
-        console.log(JSON.stringify(res.data, null, 2));
+        //console.log(JSON.stringify(res.data, null, 2));
         return res.data;
     } catch (e) {
         throw e;
@@ -52,7 +41,6 @@ export async function getMyStudy() {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
             }
         })
-        console.log(JSON.stringify(res.data, null, 2));
         return res.data;
     } catch (e) {
         // alert(`${e.response}`);  
@@ -81,8 +69,6 @@ export async function createStudy(studyData) {
             }
         });
 
-        // const responseData = res.data.message;
-        // alert(`${responseData}`); // alert 팝업 표시  
         showToast.success("스터디가 생성되었습니다!");
         return res.data;
 
@@ -116,14 +102,12 @@ export async function quitStudy(studyId) {
 }
 
 export async function deleteStudy(studyId) {
-    console.log(JSON.stringify(studyId, null, 2));
     try {
         const res = await axios.delete(`${STUDY_API_URL}/${studyId}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
             }
         })
-        console.log(JSON.stringify(res.data, null, 2));
     } catch (e) {
 
     }
@@ -146,7 +130,6 @@ export async function joinStudy(studyId) {  //가입신청
             }
         });
 
-        // alert(`${response.data.message}`)
         showToast.success("가입 신청이 완료되었습니다!");
         return response;
 
@@ -175,7 +158,6 @@ export async function getStudyDetail(studyId) { //스터디 상세정보
             }
         })
 
-        console.log(JSON.stringify(response.data, null, 2));
         return response.data;
 
     } catch (e) {

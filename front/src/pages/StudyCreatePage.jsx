@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import Header from '../components/ui/Header';
 import { useStudyForm } from '../hooks/useStudyForm';
-import { mockStudies, mockCategories } from '../data/studyData'; // 카테고리 재사용
-
-const addStudyToMockData = (newStudy) => {
-    mockStudies.push(newStudy);
-    console.log("새 스터디가 추가되었습니다:", newStudy);
-    console.log("현재 Mock 스터디 목록:", mockStudies);
-};
+import {mockCategories } from '../data/studyData'; // 카테고리 재사용
+import { useNavigate } from 'react-router-dom';
 
 const StudyCreatePage = () => {
+    const navigate = useNavigate();
 
     const { 
         formData, 
@@ -114,6 +110,7 @@ const StudyCreatePage = () => {
                         <div className="flex justify-end space-x-3 pt-4">
                             <button 
                                 type="button" 
+                                onClick={() => navigate('/studylist')}
                                 className="px-6 py-2 text-sm font-semibold border border-border-light dark:border-border-dark rounded-md text-text-light-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                             >
                                 취소

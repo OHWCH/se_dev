@@ -14,7 +14,6 @@ export async function getMyProfile() {
             // 🚨 FIX: "currentUserId" -> "currentGithubId"로 키 이름 통일
             localStorage.setItem("currentGithubId", githubId); 
         }
-        console.log(JSON.stringify(res.data, null, 2));
         return res.data;
     } catch (e) {
         throw e;
@@ -27,7 +26,6 @@ export async function getContribution() { //스터디 상세정보
                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             }
         })
-        console.log(JSON.stringify(response.data, null, 2));
         return response.data;
     } catch (e) {
         console.log(e.response);
@@ -45,7 +43,6 @@ export async function getTodoList(page = 0) {
                  Authorization: `Bearer ${accessToken}`,
             }
         });
-        console.log(JSON.stringify(response.data, null, 2));
         return response.data;
     } catch (e) {
         console.error("할 일 목록 조회 실패:", e.response ? e.response.data : e);
@@ -72,7 +69,6 @@ export async function createTodo(content) {
             }
         );
         
-        // 🌟 요청사항 1: 생성된 할 일 객체 반환
         return response.data; 
         
     } catch (error) {

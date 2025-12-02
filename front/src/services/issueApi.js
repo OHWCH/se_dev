@@ -18,7 +18,6 @@ export async function getGoodFirstIssues(keyword = '', page = 3) {
             }
         });
 
-        console.log(JSON.stringify(response.data, null, 2));
         return response.data;
 
     } catch (error) {
