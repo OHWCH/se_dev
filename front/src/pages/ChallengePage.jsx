@@ -9,17 +9,19 @@ import { getContribution } from '../services/userApi';
 // ====================================================================
 const ALL_CHALLENGES_GOALS = [
     // 초급 - 커밋
-    { id: 'b1', type: 'commit', level: 'BEGINNER', title: '커밋 1회 완료', description: '첫 번째 커밋을 성공적으로 완료하세요.', total: 1 },
-    { id: 'b2', type: 'commit', level: 'BEGINNER', title: '커밋 5회 완료', description: '총 5개의 커밋을 완료하세요.', total: 5 },
-    { id: 'b3', type: 'commit', level: 'BEGINNER', title: '커밋 10회 완료', description: '총 10개의 커밋을 완료하세요.', total: 10 },
+    { id: 'b1', type: 'commit', level: 'BEGINNER', title: '커밋 100회 완료', description: '총 100번의 커밋을 완료해보세요!', total: 100 },
+    { id: 'b2', type: 'commit', level: 'BEGINNER', title: '커밋 300회 완료', description: '총 300번의 커밋을 완료해보세요!', total: 300 },
+    { id: 'b3', type: 'commit', level: 'BEGINNER', title: '커밋 500회 완료', description: '총 500개의 커밋을 완료해보세요!', total: 500 },
 
     // 중급 - PR (Pull Request)
-    { id: 'i1', type: 'pr', level: 'INTERMEDIATE', title: 'PR 1회 완료', description: '첫 번째 Pull Request를 생성하고 머지하세요.', total: 1 },
-    { id: 'i2', type: 'pr', level: 'INTERMEDIATE', title: 'PR 5회 완료', description: '총 5개의 Pull Request를 완료하세요.', total: 5 },
-    { id: 'i3', type: 'pr', level: 'INTERMEDIATE', title: 'PR 10회 완료', description: '총 10개의 Pull Request를 완료하세요.', total: 10 },
+    { id: 'i1', type: 'pr', level: 'INTERMEDIATE', title: 'PR 10회 완료', description: '총 10번의 Pull Request를 완료해보세요!', total: 10 },
+    { id: 'i2', type: 'pr', level: 'INTERMEDIATE', title: 'PR 30회 완료', description: '총 30번의 Pull Request를 완료해보세요!', total: 30 },
+    { id: 'i3', type: 'pr', level: 'INTERMEDIATE', title: 'PR 50회 완료', description: '총 50번의 Pull Request를 완료해보세요!', total: 50 },
     
     // 중급 - 이슈
-    { id: 'i4', type: 'issue', level: 'INTERMEDIATE', title: '이슈 1회 등록', description: '프로젝트에 첫 이슈를 등록하고 닫으세요.', total: 1 },
+    { id: 'i4', type: 'issue', level: 'INTERMEDIATE', title: '이슈 5회 등록', description: '총 5번의 이슈를 완료해보세요!', total: 5 },
+    { id: 'i5', type: 'issue', level: 'INTERMEDIATE', title: '이슈 30회 등록', description: '총 30번의 이슈를 완료해보세요!', total: 30 },
+    { id: 'i6', type: 'issue', level: 'INTERMEDIATE', title: '이슈 50회 등록', description: '총 50번의 이슈를 완료해보세요!', total: 50 },
 ];
 
 // ====================================================================
