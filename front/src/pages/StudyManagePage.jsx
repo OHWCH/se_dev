@@ -5,7 +5,7 @@ import Header from '../components/ui/Header';
 import MaterialSymbol from '../components/ui/MaterialSymbol';
 import { mockCategories } from '../data/studyData';
 import { Link } from 'react-router-dom';
-import { getStudyMember, approveApplicant, rejectApplicant, deleteMember, createStudySchedule, getStudyMain, getStudyDetail } from '../services/studyApi';
+import { getStudyMember, approveApplicant, rejectApplicant, deleteMember, createStudySchedule, getStudyMain, getStudyDetail, deleteStudy } from '../services/studyApi';
 
 // ---------------------------------------------------------------------
 // 탭 컴포넌트 1: 스터디 정보 수정 폼
@@ -18,7 +18,7 @@ const mapToUpdatePayload = (detailData) => {
         studyName: studyInfo.studyName,
         studyDescription: studyInfo.studyDescription,
         studyCategory: studyInfo.studyCategory,
-        maxMembers: String(studyInfo.maxMemberCount), // 🌟 폼 필드에 맞게 문자열로 변환하여 전달
+        maxMembers: studyInfo.maxMemberCount, // 🌟 폼 필드에 맞게 문자열로 변환하여 전달
     };
 };
 
@@ -36,14 +36,22 @@ const StudyInfoTab = ({ study, studyId }) => {
         } = patchStudyForm(initialDataForHook, studyId);
 
         const handleDeleteStudy = async () => {
+
+            const studyData = {
+            "studyName": study.studyName,
+            "studyDescription": study.studyDescription,
+            "studyCategory": study.studyCategory,
+            "maxMembers": study.maxMemberCount, 
+            };
+
         if (window.confirm('🚨 정말로 스터디를 삭제하시겠습니까? 삭제된 스터디는 복구할 수 없습니다.')) {
             try {
                 // deleteStudy API 호출
-                await deleteStudy(studyId); 
+                await deleteStudy(studyId, studyData); 
                 alert(`스터디가 성공적으로 삭제되었습니다.`);
                 
                 // 삭제 후 메인 페이지 또는 마이 스터디 목록 페이지로 이동
-                navigate('/my-studies'); 
+                navigate('/studylist'); 
                 
             } catch (error) {
                 console.error("스터디 삭제 실패:", error);

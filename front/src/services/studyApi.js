@@ -115,8 +115,17 @@ export async function quitStudy(studyId) {
     }
 }
 
-export async function deleteStudy(studyId) {
-    //스터디 삭제 미구현
+export async function deleteStudy(studyId, studyData) {
+    conso
+    try {
+        const res = await axios.delete(`${STUDY_API_URL}/${studyId}`, studyData, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
+            }
+        })
+    } catch (e) {
+
+    }
 }
 
 export async function joinStudy(studyId) {  //가입신청
@@ -282,8 +291,11 @@ export async function deleteMember(studyId, memberId) {
 
 export async function getStudySchedule(studyId) {
     try {
-        const response = await axios.get(`${STUDY_API_URL}/${studyId}/schedules`)
-        console.log(JSON.stringify(response.data, null, 2));
+        const response = await axios.get(`${STUDY_API_URL}/${studyId}/schedules`, {
+            headers: {
+                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            }
+        })
         return response.data;
     } catch (e) {
         console.log(e.response)
