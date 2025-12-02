@@ -16,8 +16,8 @@ public record PostDetailResponse(
         String content,
         @Schema(description = "작성자 사용자 ID", example = "100")
         Long userId, // ✅ userId만 사용
-        // @Schema(description = "작성자 닉네임", example = "닉네임_1234") // ❌ 제거됨
-        // String nickname, // 작성자 닉네임 // ❌ 제거됨
+        @Schema(description = "작성자 깃허브 아이디", example = "github_user_1234") // ✅ 추가
+        String authorGithubId, // ✅ 추가
         @Schema(description = "조회수", example = "10")
         int viewCount,
         @Schema(description = "생성 일시", example = "2024-01-01T10:00:00")
@@ -28,16 +28,15 @@ public record PostDetailResponse(
         @Schema(description = "댓글 목록")
         List<CommentResponse> comments // 🌟 상세 조회용: 댓글 리스트 추가
 ) {
-    // ✅ 수정: PostQueryService의 호출에 맞게 인자를 Post와 List<CommentResponse> 2개만 받도록 변경
-    public static PostDetailResponse from(Post post, List<CommentResponse> commentResponses) {
-        // String nickname = (post.getAuthor() != null) ? post.getAuthor().getNickname() : "탈퇴한 사용자"; // ❌ 닉네임 로직
-
+    // ✅ 수정: 깃허브 아이디를 인자로 받도록 변경
+    public static PostDetailResponse from(Post post, String authorGithubId, List<CommentResponse> commentResponses) {
         return new PostDetailResponse(
                 post.getPostId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getUserId(),
-                post.getViewCount(), // ✅ Post 엔티티의 최신 viewCount 사용
+                authorGithubId, // ✅ 깃허브 아이디
+                post.getViewCount(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 commentResponses
