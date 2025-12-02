@@ -10,18 +10,24 @@ import { getContribution } from '../services/userApi';
 const ALL_CHALLENGES_GOALS = [
     // 초급 - 커밋
     { id: 'b1', type: 'commit', level: 'BEGINNER', title: '커밋 100회 완료', description: '총 100번의 커밋을 완료해보세요!', total: 100 },
-    { id: 'b2', type: 'commit', level: 'BEGINNER', title: '커밋 300회 완료', description: '총 300번의 커밋을 완료해보세요!', total: 300 },
-    { id: 'b3', type: 'commit', level: 'BEGINNER', title: '커밋 500회 완료', description: '총 500개의 커밋을 완료해보세요!', total: 500 },
-
-    // 중급 - PR (Pull Request)
-    { id: 'i1', type: 'pr', level: 'INTERMEDIATE', title: 'PR 10회 완료', description: '총 10번의 Pull Request를 완료해보세요!', total: 10 },
-    { id: 'i2', type: 'pr', level: 'INTERMEDIATE', title: 'PR 30회 완료', description: '총 30번의 Pull Request를 완료해보세요!', total: 30 },
-    { id: 'i3', type: 'pr', level: 'INTERMEDIATE', title: 'PR 50회 완료', description: '총 50번의 Pull Request를 완료해보세요!', total: 50 },
-    
+    // 중급 - PR
+    { id: 'b2', type: 'pr', level: 'BEGINNER', title: 'PR 10회 완료', description: '총 10번의 Pull Request를 완료해보세요!', total: 10 },
     // 중급 - 이슈
-    { id: 'i4', type: 'issue', level: 'INTERMEDIATE', title: '이슈 5회 등록', description: '총 5번의 이슈를 완료해보세요!', total: 5 },
-    { id: 'i5', type: 'issue', level: 'INTERMEDIATE', title: '이슈 30회 등록', description: '총 30번의 이슈를 완료해보세요!', total: 30 },
-    { id: 'i6', type: 'issue', level: 'INTERMEDIATE', title: '이슈 50회 등록', description: '총 50번의 이슈를 완료해보세요!', total: 50 },
+    { id: 'b3', type: 'issue', level: 'BEGINNER', title: '이슈 5회 등록', description: '총 5번의 이슈를 완료해보세요!', total: 5 },
+
+    // 초급 - 커밋
+    { id: 'i1', type: 'commit', level: 'INTERMEDIATE', title: '커밋 300회 완료', description: '총 300번의 커밋을 완료해보세요!', total: 300 },
+    // 중급 - PR
+    { id: 'i2', type: 'pr', level: 'INTERMEDIATE', title: 'PR 30회 완료', description: '총 30번의 Pull Request를 완료해보세요!', total: 30 },
+    // 중급 - 이슈
+    { id: 'i3', type: 'issue', level: 'INTERMEDIATE', title: '이슈 30회 등록', description: '총 30번의 이슈를 완료해보세요!', total: 30 },
+    
+    // 초급 - 커밋
+    { id: 'm1', type: 'commit', level: 'ADVANCED', title: '커밋 500회 완료', description: '총 500개의 커밋을 완료해보세요!', total: 500 },
+    // 중급 - PR
+    { id: 'm2', type: 'pr', level: 'ADVANCED', title: 'PR 50회 완료', description: '총 50번의 Pull Request를 완료해보세요!', total: 50 },
+    // 중급 - 이슈
+    { id: 'm3', type: 'issue', level: 'ADVANCED', title: '이슈 50회 등록', description: '총 50번의 이슈를 완료해보세요!', total: 50 },
 ];
 
 // ====================================================================
@@ -34,12 +40,34 @@ const ChallengeItem = ({ challenge }) => {
     const progressWidth = `${progressPercentage}%`;
     const isCompleted = progressPercentage >= 100; // 완료 여부
 
+    // 🌟 난이도별 색상 및 텍스트 설정 (고급 추가)
+    let levelClass = '';
+    let levelText = '';
+    
+    switch (challenge.level) {
+        case 'BEGINNER':
+            levelClass = 'text-green-500';
+            levelText = '초급';
+            break;
+        case 'INTERMEDIATE':
+            levelClass = 'text-yellow-500';
+            levelText = '중급';
+            break;
+        case 'ADVANCED': // 🌟 고급 난이도: 빨간색
+            levelClass = 'text-red-500';
+            levelText = '고급';
+            break;
+        default:
+            levelClass = 'text-gray-500';
+            levelText = '미지정';
+    }
+
     return (
         <div className={`bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 border ${isCompleted ? 'border-green-500' : 'border-border-light dark:border-border-dark'}`}>
             <div className="p-5">
-                {/* 레벨 표시 (선택사항) */}
-                <p className={`text-xs font-semibold mb-1 ${challenge.level === 'BEGINNER' ? 'text-green-500' : 'text-yellow-500'}`}>
-                    {challenge.level === 'BEGINNER' ? '초급' : '중급'}
+                {/* 🌟 난이도별 색상 적용 */}
+                <p className={`text-xs font-semibold mb-1 ${levelClass}`}>
+                    {levelText}
                 </p>
                 <p className="text-lg font-semibold text-text-light-primary dark:text-text-dark-primary">{challenge.title}</p>
                 <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary mt-1 mb-4">{challenge.description}</p>
@@ -128,11 +156,16 @@ const ChallengePage = () => {
         fetchChallenges();
     }, []);
 
-    // 🌟 난이도별 분류를 useMemo로 처리하여 렌더링 최적화
-    const { beginnerChallenges, intermediateChallenges } = useMemo(() => {
+    // 🌟 난이도별 분류를 useMemo로 처리하여 렌더링 최적화 (고급(ADVANCED) 추가)
+    const { beginnerChallenges, intermediateChallenges, advancedChallenges } = useMemo(() => {
         const beginner = challenges.filter(c => c.level === 'BEGINNER');
         const intermediate = challenges.filter(c => c.level === 'INTERMEDIATE');
-        return { beginnerChallenges: beginner, intermediateChallenges: intermediate };
+        const advanced = challenges.filter(c => c.level === 'ADVANCED');
+        return { 
+            beginnerChallenges: beginner, 
+            intermediateChallenges: intermediate,
+            advancedChallenges: advanced
+        };
     }, [challenges]);
 
 
@@ -209,7 +242,6 @@ const ChallengePage = () => {
                             난이도 - 초급
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {/* 🌟 업데이트된 API 데이터 맵핑 */}
                             {beginnerChallenges.map(challenge => (
                                 <ChallengeItem key={challenge.id} challenge={challenge} />
                             ))}
@@ -219,14 +251,28 @@ const ChallengePage = () => {
 
                 {/* 중급 섹션 */}
                 {intermediateChallenges.length > 0 && (
-                    <section>
+                    <section className="mb-12">
                         <h2 className="text-2xl font-semibold text-text-light-primary dark:text-text-dark-primary mb-6 flex items-center gap-3">
                             <MaterialSymbol name="local_fire_department" className="text-yellow-500 text-3xl" />
                             난이도 - 중급
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {/* 🌟 업데이트된 API 데이터 맵핑 */}
                             {intermediateChallenges.map(challenge => (
+                                <ChallengeItem key={challenge.id} challenge={challenge} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* 🌟 고급 섹션 추가 */}
+                {advancedChallenges.length > 0 && (
+                    <section>
+                        <h2 className="text-2xl font-semibold text-text-light-primary dark:text-text-dark-primary mb-6 flex items-center gap-3">
+                            <MaterialSymbol name="rocket_launch" className="text-red-500 text-3xl" />
+                            난이도 - 고급
+                        </h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {advancedChallenges.map(challenge => (
                                 <ChallengeItem key={challenge.id} challenge={challenge} />
                             ))}
                         </div>
