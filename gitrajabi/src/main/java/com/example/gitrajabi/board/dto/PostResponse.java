@@ -1,30 +1,45 @@
 package com.example.gitrajabi.board.dto;
 
-import org.springframework.http.ResponseEntity;
-
-import java.time.LocalDateTime;
 import com.example.gitrajabi.board.domain.Post;
+import java.time.LocalDateTime;
+
 // Post 응답 시 사용 (UI 출력용)
 public record PostResponse(
         Long postId,
         String title,
-        String content,
-        Long userId, // 인증 시스템이 없으므로 ID를 노출합니다.
-        // String userName, // ❌ 제거: 주석 처리된 부분 포함
+        String content, // ✅ content 필드 재추가 (생성/수정 응답에 필요)
+        Long userId,
+        String authorGithubId, // ✅ 작성자 깃허브 아이디
         int viewCount,
-        // int commentCount, // 게시글 상세 조회에서 처리하거나 추후 연관 관계 매핑 시 추가
+        int commentCount, // ✅ 댓글 수
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    // ✅ Post 엔티티만 인자로 받도록 수정합니다. viewCount는 Post 엔티티에서 가져옵니다.
+    // 1. ✅ 목록 조회용 from 메서드 (깃허브 아이디, 댓글 수 포함, Content는 null/빈 문자열 처리)
+    public static PostResponse from(Post post, String githubId, int commentCount) {
+        return new PostResponse(
+                post.getPostId(),
+                post.getTitle(),
+                "", // 목록 조회 시에는 content를 비웁니다.
+                post.getUserId(),
+                githubId,
+                post.getViewCount(),
+                commentCount,
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        );
+    }
+
+    // 2. ✅ 게시글 생성/수정 응답용 from 메서드 (Content 포함, 깃허브 아이디, 댓글 수 없이 기본값 처리)
     public static PostResponse from(Post post) {
         return new PostResponse(
                 post.getPostId(),
                 post.getTitle(),
-                post.getContent(),
+                post.getContent(), // Content 포함
                 post.getUserId(),
-                // "임시 사용자 이름", // ❌ 제거: 임시 사용자 이름 필드 제거
-                post.getViewCount(), // ✅ Post 엔티티에서 viewCount를 직접 가져옵니다.
+                "익명", // 임시 깃허브 아이디
+                post.getViewCount(),
+                0, // 댓글 수 0으로 초기화
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
