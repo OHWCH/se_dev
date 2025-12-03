@@ -111,4 +111,20 @@ public class StudyController {
         return ResponseEntity.ok(new MessageResponse("스터디가 삭제되었습니다."));
     }
 
+    // 스터디 검색
+    @GetMapping("/search")
+    public ResponseEntity<Page<StudyListResponse>> searchStudies(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Pageable pageable = PageRequest.of(page, 6);
+
+        Page<StudyListResponse> result =
+                studyService.searchStudies(keyword, category, userId, pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
 }

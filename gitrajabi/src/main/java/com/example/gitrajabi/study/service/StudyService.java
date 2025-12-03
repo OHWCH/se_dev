@@ -5,6 +5,7 @@ import com.example.gitrajabi.study.entity.Study;
 import com.example.gitrajabi.study.entity.StudyMember;
 import com.example.gitrajabi.study.entity.StudySchedule;
 import com.example.gitrajabi.study.erum.JoinStatus;
+import com.example.gitrajabi.study.erum.StudyCategory;
 import com.example.gitrajabi.study.erum.StudyRole;
 import com.example.gitrajabi.study.repository.ScheduleParticipateRepository;
 import com.example.gitrajabi.study.repository.StudyMemberRepository;
@@ -251,6 +252,46 @@ public class StudyService {
 
         // 7) 스터디 삭제
         studyRepository.delete(study);
+    }
+
+    // 스터디 검색
+    @Transactional(readOnly = true)
+    public Page<StudyListResponse> searchStudies(
+            String keyword,
+            String category,
+            Long userId,
+            Pageable pageable
+    ) {
+
+        StudyCategory catEnum = null;
+        if (category != null && !category.isBlank()) {
+            catEnum = StudyCategory.valueOf(category.toUpperCase());
+        }
+
+        Page<Study> studyPage =
+                studyRepository.searchStudies(keyword, catEnum, pageable);
+
+        return studyPage.map(study -> {
+
+            // 승인된 인원 수
+            int currentMembers = studyMemberRepository
+                    .countByStudy_StudyIdAndJoinStatus(study.getStudyId(), JoinStatus.APPROVED);
+
+            // 현재 유저의 가입 여부
+            JoinStatus userJoinStatus = studyMemberRepository
+                    .findByStudy_StudyIdAndUser_UserId(study.getStudyId(), userId)
+                    .map(StudyMember::getJoinStatus)
+                    .orElse(null);
+
+            return StudyListResponse.builder()
+                    .studyId(study.getStudyId())
+                    .name(study.getName())
+                    .description(study.getDescription())
+                    .currentMembers(currentMembers)
+                    .maxMembers(study.getMaxMemberCount())
+                    .userJoinStatus(userJoinStatus)
+                    .build();
+        });
     }
 
 }
