@@ -21,10 +21,14 @@ const PostWritePage = () => {
     }
 
     try {
-      await createPost({
-        title: title.trim(),
-        content: content.trim()
-      });
+      const currentUserId = localStorage.getItem("userId");
+
+        await createPost({
+            title: title.trim(),
+            content: content.trim(),
+            userId: currentUserId ? Number(currentUserId) : null
+
+            });
 
       showToast.success('게시글이 작성되었습니다!');
       navigate('/community'); // 또는 '/posts', '/board' 등 목록 페이지로 이동

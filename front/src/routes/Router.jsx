@@ -8,7 +8,8 @@ import Homepage from "../pages/HomePage";
 import Mypage from "../pages/Mypage";
 import CommunityPage from "../pages/CommunityPage";
 import PostWritePage from "../pages/PostWritePage";
-import PostDetailPage from "../pages/PostDetailPage";        
+import PostDetailPage from "../pages/PostDetailPage";
+import PostEditPage from '../pages/PostEditPage';        
 import StudyListPage from "../pages/StudyListPage";
 import StudyCreatePage from '../pages/StudyCreatePage';
 import StudyDetailPage from "../pages/StudyDetailPage";
@@ -37,7 +38,7 @@ const Router = () => {
                 <Route path="/mypage" element={<Mypage />} />
                 
                 <Route path="/postwrite" element={<PostWritePage />} />
-                
+                <Route path="/community/edit/:postId" element={<PostEditPage />} />
                 <Route path="/study/create" element={<StudyCreatePage />} />
                 <Route path="/study/:id" element={<StudyDetailPage />} />
                 <Route path="/study/:id/manage" element={<StudyManagePage />} />

@@ -12,7 +12,8 @@ const PostListItem = ({ post }) => {
                             {post.title}
                         </p>
                         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-                            <span>{post.authorName || '익명'}</span>
+                            {/* ✅ 작성자 표시 수정 */}
+                            <span>{post.authorGithubId || '익명'}</span>
                             <span className="mx-2">·</span>
                             <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
                         </div>
