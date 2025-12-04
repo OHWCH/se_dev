@@ -35,7 +35,7 @@ public class GithubAuthController {
 
         // 🌟 프론트엔드 URL (브라우저 주소창에서 확인된 주소)
         // CallbackPage.jsx가 이 URL의 쿼리 파라미터를 읽어 토큰을 저장합니다.
-        String frontendBaseUrl = "http://localhost:5173";
+        String frontendBaseUrl = "http://3.35.246.234";
 
         // 🌟 토큰을 쿼리 파라미터로 담아 최종 리다이렉트 URL 생성
         String redirectUrl = frontendBaseUrl +

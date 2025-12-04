@@ -30,7 +30,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("http://localhost:5173"); // React 개발 서버
+        config.addAllowedOriginPattern("http://3.35.246.234"); // React 개발 서버
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
