@@ -1,7 +1,7 @@
 import axios from "axios";
 import { showToast } from "../utils/toast";
 
-const BOARD_API_URL = 'http://localhost:8080/api/posts';
+const BOARD_API_URL = 'http://3.35.246.234:8080/api/posts';
 
 // ✅ 헬퍼 함수: 깃허브 아이디 파라미터 생성
 const getAuthParams = () => {
