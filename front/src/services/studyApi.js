@@ -2,7 +2,7 @@ import axios from "axios";
 import { mockStudies } from "../data/studyData";
 import { showToast } from "../utils/toast"; 
 
-const STUDY_API_URL = 'http://localhost:8080/studies'; // 백엔드 스터디 생성 엔드포인트
+const STUDY_API_URL = 'http://3.35.246.234:8080/studies'; // 백엔드 스터디 생성 엔드포인트
 
 
 export async function getStudyList(page = 0) { 

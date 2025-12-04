@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const ISSUE_API_URL = 'http://localhost:8080/api/issues'; // API URL 확인
+const ISSUE_API_URL = 'http://3.35.246.234:8080/api/issues'; // API URL 확인
 
 export async function getGoodFirstIssues(keyword = '', page = 3) {
     const accessToken = localStorage.getItem("accessToken");
