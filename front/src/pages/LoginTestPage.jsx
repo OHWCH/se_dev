@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 // 백엔드 API 엔드포인트
-const GITHUB_AUTH_URL_API = 'http://localhost:8080/api/github/authorize-url';
+const GITHUB_AUTH_URL_API = 'http://3.35.246.234:8080/api/github/authorize-url';
 
 /**
  * GitHub 로그인을 위한 리다이렉션 버튼 컴포넌트

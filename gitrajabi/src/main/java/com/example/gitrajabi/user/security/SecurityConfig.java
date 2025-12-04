@@ -68,7 +68,10 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/static/**"
+                                "/static/**",
+                                "/index.html",
+                                "/callback",
+                                "/assets/**"
                         ).permitAll()
 
                         // --- 🔥 OAuth2 로그인 경로 허용 ---
@@ -79,6 +82,19 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-resources/**"
+                        ).permitAll()
+
+                        // 🔥 [추가됨] 리액트 페이지 경로 허용 (새로고침 401 에러 방지 핵심!)
+                        .requestMatchers(
+                                "/login",
+                                "/logintest",
+                                "/callback",
+                                "/community/**",
+                                "/studylist/**",
+                                "/study/**",
+                                "/mypage/**",
+                                "/postwrite/**",
+                                "/challenge/**"
                         ).permitAll()
 
                         // --- 🔥 기존 허용 경로 ---

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = `http://localhost:8080/api`
+const BASE_URL = `http://3.35.246.234:8080/api`
 
 export async function getMyProfile() {
     try {
