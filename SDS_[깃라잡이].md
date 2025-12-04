@@ -3576,6 +3576,151 @@ classDiagram
 | Method | deleteMyAccount()              | ResponseEntity<Void>            | 현재 로그인한 사용자의 소프트 삭제(탈퇴) 처리 (`DELETE /me`)                         |
 
 ### 스터디 관리
+```mermaid
+classDiagram
+    %% ===========================
+    %% Controller
+    %% ===========================
+    class StudyController {
+        +createStudy(request: StudyCreateDto) ResponseEntity~MessageResponse~
+        +getStudyList(page: int) ResponseEntity~StudyPageResponse~
+        +getMyStudyList() ResponseEntity~List~StudyListResponse~~
+        +getManagePageInfo(studyId: Long) ResponseEntity~StudyManageResponse~
+        +updateStudy(studyId: Long, request: StudyUpdateDto) ResponseEntity~MessageResponse~
+        +getStudyMainPage(studyId: Long) ResponseEntity~StudyMainPageResponse~
+        +deleteStudy(studyId: Long) ResponseEntity~MessageResponse~
+    }
+
+    %% ===========================
+    %% Service
+    %% ===========================
+    class StudyService {
+        +createStudy(request: StudyCreateDto, leaderId: Long) Long
+        +getStudyList(userId: Long, pageable: Pageable) Page~StudyListResponse~
+        +getMyStudyList(userId: Long) List~StudyListResponse~
+        +getManagePageInfo(studyId: Long, userId: Long) StudyManageResponse
+        +updateStudy(studyId: Long, userId: Long, request: StudyUpdateDto) void
+        +getStudyMainPage(studyId: Long) StudyMainPageResponse
+        +deleteStudy(studyId: Long, userId: Long) void
+    }
+
+    %% ===========================
+    %% Entity
+    %% ===========================
+    class Study {
+        Long studyId
+        UserEntity leader
+        String name
+        String description
+        StudyCategory category
+        Integer maxMemberCount
+        LocalDateTime createdAt
+        LocalDateTime updatedAt
+        Boolean isDeleted
+    }
+
+    %% ===========================
+    %% DTOs
+    %% ===========================
+    class StudyCreateDto {
+        String studyName
+        String studyDescription
+        StudyCategory studyCategory
+        int maxMembers
+    }
+
+    class StudyListResponse {
+        Long studyId
+        String name
+        String description
+        int currentMembers
+        int maxMembers
+        JoinStatus userJoinStatus
+    }
+
+    class StudyPageResponse {
+        List~StudyListResponse~ content
+        int currentPage
+        int totalPages
+        long totalElements
+    }
+
+    class StudyUpdateDto {
+        String studyName
+        String studyDescription
+        StudyCategory studyCategory
+        int maxMembers
+    }
+
+    class StudyInfoResponse {
+        Long studyId
+        String studyName
+        String studyDescription
+        StudyCategory studyCategory
+        int maxMemberCount
+    }
+
+    class StudyMainPageResponse {
+        Long studyId
+        String studyName
+        String studyDescription
+        String studyCategory
+        int currentMembers
+        int maxMembers
+        String leaderGithubId
+        List~StudyMemberResponse~ members
+        List~StudyMainScheduleResponse~ schedules
+    }
+
+    class StudyMainScheduleResponse {
+        Long scheduleId
+        String comment
+        String startedAt
+        String endAt
+    }
+
+    class StudyManageResponse {
+        StudyInfoResponse studyInfo
+        List~StudyMemberResponse~ members
+        List~StudyApplicantResponse~ applicants
+    }
+
+    %% ===========================
+    %% Repository
+    %% ===========================
+    class StudyRepository {
+        +findAllByIsDeletedFalse(pageable: Pageable) Page~Study~
+    }
+
+    %% ===========================
+    %% Relations
+    %% ===========================
+
+    %% Controller → Service
+    StudyController --> StudyService : uses
+
+    %% Service → Repository
+    StudyService --> StudyRepository : uses
+
+    %% Service → Entity
+    StudyService --> Study : creates/updates
+
+    %% Service → DTO outputs
+    StudyService --> StudyListResponse
+    StudyService --> StudyPageResponse
+    StudyService --> StudyManageResponse
+    StudyService --> StudyMainPageResponse
+
+    %% Create/Update inputs
+    StudyController --> StudyCreateDto
+    StudyController --> StudyUpdateDto
+
+    %% Response DTOs
+    StudyManageResponse --> StudyInfoResponse
+    StudyMainPageResponse --> StudyMainScheduleResponse
+
+```
+
 #### Entity Class
 | Class Name        | StudyEntity          |               |            |
 | ----------------- | -------------------- | ------------- | ---------- |
@@ -3710,6 +3855,121 @@ classDiagram
 |                   | endAt                         | String | Private    |
 
 ### 스터디 멤버 관리
+
+```mermaid
+classDiagram
+
+    %% ===========================
+    %% Controller
+    %% ===========================
+    class StudyMemberController {
+        +applyStudy(studyId: Long) ResponseEntity~MessageResponse~
+        +approveMember(studyId: Long, userId: Long) ResponseEntity~MessageResponse~
+        +rejectMember(studyId: Long, userId: Long) ResponseEntity~MessageResponse~
+        +getStudyMembers(studyId: Long) ResponseEntity~List~StudyMemberResponse~~
+        +leaveStudy(studyId: Long) ResponseEntity~MessageResponse~
+        +kickMember(studyId: Long, targetUserId: Long) ResponseEntity~MessageResponse~
+    }
+
+    %% ===========================
+    %% Service
+    %% ===========================
+    class StudyMemberService {
+        +applyToStudy(studyId: Long, userId: Long) void
+        +getApplicants(studyId: Long) List~StudyApplicantResponse~
+        +approveMember(studyId: Long, userId: Long) void
+        +rejectMember(studyId: Long, userId: Long) void
+        +getStudyMembers(studyId: Long) List~StudyMemberResponse~
+        +leaveStudy(studyId: Long, userId: Long) void
+        +kickMember(studyId: Long, leaderId: Long, targetUserId: Long) void
+
+        -studyRepository: StudyRepository
+        -studyMemberRepository: StudyMemberRepository
+        -userRepository: UserRepository
+    }
+
+    %% ===========================
+    %% Entity
+    %% ===========================
+    class StudyMember {
+        Long studyMemberId
+        Study study
+        UserEntity user
+        StudyRole studyRole
+        JoinStatus joinStatus
+    }
+
+    %% ===========================
+    %% DTOs
+    %% ===========================
+
+    class StudyApplicantResponse {
+        Long userId
+        String githubId
+        JoinStatus joinStatus
+    }
+
+    class StudyMemberResponse {
+        Long userId
+        String githubId
+        JoinStatus joinStatus
+        String studyRole
+    }
+
+    class StudyMemberApplyRequest {
+        Long studyId
+    }
+
+    %% ===========================
+    %% Repository
+    %% ===========================
+    class StudyMemberRepository {
+        +findByStudy_StudyIdAndJoinStatus(studyId: Long, status: JoinStatus) List~StudyMember~
+        +findByStudy_StudyIdAndUser_UserId(studyId: Long, userId: Long) Optional~StudyMember~
+        +existsByStudy_StudyIdAndUser_UserId(studyId: Long, userId: Long) boolean
+        +findByUser_UserIdAndJoinStatus(userId: Long, status: JoinStatus) List~StudyMember~
+        +countByStudy_StudyIdAndJoinStatus(studyId: Long, status: JoinStatus) int
+        +countByStudy_StudyIdAndJoinStatusIn(studyId: Long, statuses: List~JoinStatus~) int
+        +deleteByStudy_StudyId(studyId: Long) void
+    }
+
+    %% 외부 엔티티(관계만 표시)
+    class Study {
+        Long studyId
+        UserEntity leader
+    }
+
+    class UserEntity {
+        Long userId
+        String githubId
+    }
+
+    %% ===========================
+    %% Relationships
+    %% ===========================
+
+    %% Controller → Service
+    StudyMemberController --> StudyMemberService : uses
+
+    %% Service → Repository
+    StudyMemberService --> StudyMemberRepository : uses
+    StudyMemberService --> StudyRepository : uses
+    StudyMemberService --> UserRepository : uses
+
+    %% Service → Entity
+    StudyMemberService --> StudyMember : manages
+
+    %% DTO outputs
+    StudyMemberService --> StudyApplicantResponse
+    StudyMemberService --> StudyMemberResponse
+
+    %% Entity relations
+    StudyMember --> Study : belongs to
+    StudyMember --> UserEntity : refers to
+
+
+```
+
 #### Entity Class
 | Class Name        | StudyMemberEntity               |            |            |
 | ----------------- | ------------------------------- | ---------- | ---------- |
@@ -3794,6 +4054,124 @@ classDiagram
 
 
 #### 스터디 일정 관리
+
+```mermaid
+classDiagram
+
+    %% ===========================
+    %% Controller
+    %% ===========================
+    class StudyScheduleController {
+        +createSchedule(studyId: Long, request: StudyScheduleCreateRequest) ResponseEntity~MessageResponse~
+        +participate(studyId: Long, scheduleId: Long) ResponseEntity~MessageResponse~
+        +getSchedules(studyId: Long) ResponseEntity~List~ScheduleListResponse~~
+    }
+
+    %% ===========================
+    %% Service
+    %% ===========================
+    class StudyScheduleService {
+        +createSchedule(studyId: Long, userId: Long, request: StudyScheduleCreateRequest) Long
+        +participate(studyId: Long, scheduleId: Long, userId: Long) void
+        +getScheduleList(studyId: Long, userId: Long) List~ScheduleListResponse~
+
+        -studyRepository: StudyRepository
+        -studyMemberRepository: StudyMemberRepository
+        -studyScheduleRepository: StudyScheduleRepository
+        -scheduleParticipantRepository: ScheduleParticipateRepository
+    }
+
+    %% ===========================
+    %% Entities
+    %% ===========================
+    class StudySchedule {
+        Long scheduleId
+        Study study
+        String comment
+        LocalDateTime startedAt
+        LocalDateTime endAt
+        LocalDateTime createdAt
+        LocalDateTime deletedAt
+    }
+
+    class ScheduleParticipate {
+        Long participateId
+        StudySchedule schedule
+        UserEntity user
+    }
+
+    %% ===========================
+    %% DTOs
+    %% ===========================
+    class StudyScheduleCreateRequest {
+        String comment
+        LocalDateTime startedAt
+        LocalDateTime endAt
+    }
+
+    class ScheduleListResponse {
+        Long scheduleId
+        String comment
+        String startedAt
+        String endAt
+        int participateCount
+        int totalMemberCount
+        boolean isParticipated
+    }
+
+    %% ===========================
+    %% Repository
+    %% ===========================
+    class StudyScheduleRepository {
+        +findByStudy_StudyId(studyId: Long) List~StudySchedule~
+        +findAllByStudy_StudyId(studyId: Long) List~StudySchedule~
+        +deleteByStudy_StudyId(studyId: Long) void
+    }
+
+    class ScheduleParticipateRepository {
+        +existsBySchedule_ScheduleIdAndUser_UserId(scheduleId: Long, userId: Long) boolean
+        +countBySchedule_ScheduleId(scheduleId: Long) int
+        +deleteBySchedule_Study_StudyId(studyId: Long) void
+        +deleteBySchedule_ScheduleId(scheduleId: Long) void
+    }
+
+    %% 외부 엔티티 (참조만 표시)
+    class Study {
+        Long studyId
+        UserEntity leader
+    }
+
+    class UserEntity {
+        Long userId
+        String githubId
+    }
+
+    class StudyMember {
+        Long studyMemberId
+        Study study
+        UserEntity user
+        JoinStatus joinStatus
+    }
+
+    %% ===========================
+    %% Relationships
+    %% ===========================
+    StudyScheduleController --> StudyScheduleService : uses
+
+    StudyScheduleService --> StudyRepository : uses
+    StudyScheduleService --> StudyMemberRepository : uses
+    StudyScheduleService --> StudyScheduleRepository : uses
+    StudyScheduleService --> ScheduleParticipateRepository : uses
+
+    StudyScheduleService --> StudyScheduleCreateRequest
+    StudyScheduleService --> ScheduleListResponse
+
+    StudySchedule --* Study : belongs to
+    ScheduleParticipate --* StudySchedule : belongs to
+    ScheduleParticipate --> UserEntity : refers to
+    StudySchedule --> Study : refers to
+
+```
 
 #### Entity Class
 | Class Name        | StudyScheduleEntity      |               |            |
