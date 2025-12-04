@@ -3236,6 +3236,7 @@ classDiagram
     GithubAuthController --> AuthTokens : returns
 
 ```
+<img width="852" height="623" alt="image" src="https://github.com/user-attachments/assets/47cc41aa-e614-4474-9bde-6de8bdcd3d7d" />
 
 
 
