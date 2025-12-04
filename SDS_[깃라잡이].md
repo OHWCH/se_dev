@@ -3574,517 +3574,315 @@ classDiagram
 | Method | getByGithubId(String githubId) | ResponseEntity<UserResponseDto> | github_id 기준 특정 사용자 정보 조회 (관리자용 예시) (`GET /by-github/{githubId}`) |
 | Method | deleteMyAccount()              | ResponseEntity<Void>            | 현재 로그인한 사용자의 소프트 삭제(탈퇴) 처리 (`DELETE /me`)                         |
 
-
-
 ### 스터디 관리
-<img width="1173" height="1101" alt="image" src="https://github.com/user-attachments/assets/0e670c58-0c0f-4127-856c-497074bbde43" />
-
 #### Entity Class
-
-| Class Name        | StudyEntity               |               |            |
-| ----------------- | ------------------------- | ------------- | ---------- |
-| Class Description | 스터디 기본 정보를 표현하는 엔티티       |               |            |
-| 구분                | Name                      | Type          | Visibility |
-| Attribute         | study_id<br>스터디 식별자(PK)   | Long          | Private    |
-|                   | leader_id<br>스터디 리더       | UserEntity    | Private    |
-|                   | title<br>스터디 제목           | String        | Private    |
-|                   | description<br>스터디 설명     | String        | Private    |
-|                   | category<br>스터디 카테고리      | StudyCategory | Private    |
-|                   | max_member<br>최대 인원 수     | int           | Private    |
-|                   | current_member<br>현재 인원 수 | int           | Private    |
-|                   | status<br>스터디 상태          | StudyStatus   | Private    |
-|                   | created_at<br>생성 일시       | LocalDateTime | Private    |
-|                   | updated_at<br>수정 일시       | LocalDateTime | Private    |
-| 구분                | Name                      | Type          | Visibility |
-| Operations        |                           |               |            |
-
-#### Repository Class
-
-| Class Name        | StudyRepository                                     |                       |            |
-| ----------------- | --------------------------------------------------- | --------------------- | ---------- |
-| Class Description | StudyEntity에 대한 데이터 접근을 담당하는 인터페이스                  |                       |            |
-| 구분                | Name                                                | Type                  | Visibility |
-| Attribute         |                                                     |                       |            |
-| 구분                | Name                                                | Type                  | Visibility |
-| Operations        | findByCategory(category: String)<br>카테고리별 스터디 목록 조회 | List<StudyEntity>     | Public     |
-|                   | findByIdWithLeader(studyId: Long)<br>리더 포함 상세 조회    | Optional<StudyEntity> | Public     |
-|                   | existsByTitle(title: String)<br>스터디명 중복 여부 검사       | boolean               | Public     |
-|                   | save(entity: StudyEntity)<br>스터디 생성 및 수정            | StudyEntity           | Public     |
-|                   | deleteById(studyId: Long)<br>스터디 삭제                 | void                  | Public     |
-
-#### Service Class
-
-| Class Name        | StudyService                                                   |                            |            |
-| ----------------- | -------------------------------------------------------------- | -------------------------- | ---------- |
-| Class Description | 스터디 생성, 수정, 삭제등을 수정하는 클래스                                      |                            |            |
-| 구분                | Name                                                           | Type                       | Visibility |
-| Attribute         | studyRepository<br>스터디 DB 접근 객체                                | StudyRepository            | Private    |
-| 구분                | Name                                                           | Type                       | Visibility |
-| Operations        | createStudy(dto: StudyCreateDto, leaderId: String)<br>새 스터디 생성 | StudyDetailResponseDto     | Public     |
-|                   | updateStudy(studyId: Long, dto: StudyUpdateDto)<br>스터디 정보 수정   | StudyDetailResponseDto     | Public     |
-|                   | deleteStudy(studyId: Long)<br>스터디 삭제                           | void                       | Public     |
-|                   | getStudyList(category: String)<br>카테고리별 스터디 목록 조회              | List<StudyListResponseDto> | Public     |
-|                   | getStudyDetail(studyId: Long)<br>스터디 상세 조회                     | StudyDetailResponseDto     | Public     |
+| Class Name        | StudyEntity          |               |            |
+| ----------------- | -------------------- | ------------- | ---------- |
+| Class Description | 스터디의 기본 정보를 저장하는 엔티티 |               |            |
+| 구분                | Name                 | Type          | Visibility |
+| Attribute         | studyId              | Long          | Private    |
+|                   | leader               | UserEntity    | Private    |
+|                   | name                 | String        | Private    |
+|                   | description          | String        | Private    |
+|                   | category             | StudyCategory | Private    |
+|                   | maxMemberCount       | Integer       | Private    |
+|                   | createdAt            | LocalDateTime | Private    |
+|                   | updatedAt            | LocalDateTime | Private    |
+|                   | isDeleted            | Boolean       | Private    |
+| Operations        |                      |               |            |
 
 #### Controller Class
+| Class Name        | StudyController                                     |                                         |            |
+| ----------------- | --------------------------------------------------- | --------------------------------------- | ---------- |
+| Class Description | 스터디 생성, 수정, 삭제, 조회 등 스터디 관리 요청을 처리하는 REST 컨트롤러      |                                         |            |
+| 구분                | Name                                                | Type                                    | Visibility |
+| Attribute         | studyService                                        | StudyService                            | Private    |
+| 구분                | Name                                                | Type                                    | Visibility |
+| Operations        | createStudy(request: StudyCreateDto)                | ResponseEntity<MessageResponse>         | Public     |
+|                   | getStudyList(page: int)                             | ResponseEntity<StudyPageResponse>       | Public     |
+|                   | getMyStudyList()                                    | ResponseEntity<List<StudyListResponse>> | Public     |
+|                   | getManagePageInfo(studyId: Long)                    | ResponseEntity<StudyManageResponse>     | Public     |
+|                   | updateStudy(studyId: Long, request: StudyUpdateDto) | ResponseEntity<MessageResponse>         | Public     |
+|                   | getStudyMainPage(studyId: Long)                     | ResponseEntity<StudyMainPageResponse>   | Public     |
+|                   | deleteStudy(studyId: Long)                          | ResponseEntity<MessageResponse>         | Public     |
 
-| Class Name        | StudyController                                                 |                        |            |
-| ----------------- | --------------------------------------------------------------- | ---------------------- | ---------- |
-| Class Description | 클라이언트로부터 스터디 관련 요청을 받아 Service를 호출하고 처리하는 컨트롤러                  |                        |            |
-| 구분                | Name                                                            | Type                   | Visibility |
-| Attribute         | studyService<br>스터디 서비스 객체                                      | StudyService           | Private    |
-| 구분                | Name                                                            | Type                   | Visibility |
-| Operations        | getStudyList(category: String)<br>스터디 목록 요청 처리                  | List<StudyResponseDto> | Public     |
-|                   | getStudyDetail(studyId: Long)<br>스터디 상세 요청 처리                   | StudyDetailDto         | Public     |
-|                   | createStudy(dto: StudyCreateDto)<br>스터디 생성 요청 처리                | StudyResponseDto       | Public     |
-|                   | updateStudy(studyId: Long, dto: StudyUpdateDto)<br>스터디 수정 요청 처리 | StudyResponseDto       | Public     |
-|                   | deleteStudy(studyId: Long)<br>스터디 삭제 요청 처리                      | void                   | Public     |
+
+#### Service Class
+| Class Name        | StudyService                                                      |                               |            |
+| ----------------- | ----------------------------------------------------------------- | ----------------------------- | ---------- |
+| Class Description | 스터디 생성, 수정, 삭제, 조회 등 스터디 관리 전반의 비즈니스 로직 수행                        |                               |            |
+| 구분                | Name                                                              | Type                          | Visibility |
+| Attribute         | studyRepository                                                   | StudyRepository               | Private    |
+|                   | studyMemberRepository                                             | StudyMemberRepository         | Private    |
+|                   | userRepository                                                    | UserRepository                | Private    |
+|                   | studyMemberService                                                | StudyMemberService            | Private    |
+|                   | studyScheduleRepository                                           | StudyScheduleRepository       | Private    |
+|                   | scheduleParticipateRepository                                     | ScheduleParticipateRepository | Private    |
+| 구분                | Name                                                              | Type                          | Visibility |
+| Operations        | createStudy(request: StudyCreateDto, leaderId: Long)              | Long                          | Public     |
+|                   | getStudyList(userId: Long, pageable: Pageable)                    | Page<StudyListResponse>       | Public     |
+|                   | getMyStudyList(userId: Long)                                      | List<StudyListResponse>       | Public     |
+|                   | getManagePageInfo(studyId: Long, userId: Long)                    | StudyManageResponse           | Public     |
+|                   | updateStudy(studyId: Long, userId: Long, request: StudyUpdateDto) | void                          | Public     |
+|                   | getStudyMainPage(studyId: Long)                                   | StudyMainPageResponse         | Public     |
+|                   | deleteStudy(studyId: Long, userId: Long)                          | void                          | Public     |
+
+
+#### Repository Class
+| Class Name        | StudyRepository                                                    |             |            |
+| ----------------- | ------------------------------------------------------------------ | ----------- | ---------- |
+| Class Description | Study 엔티티에 대한 CRUD 및 조회 기능을 제공하는 인터페이스                             |             |            |
+| 구분                | Name                                                               | Type        | Visibility |
+| Operations        | findAllByIsDeletedFalse(Pageable pageable)<br>삭제되지 않은 전체 스터디 목록 조회 | Page<Study> | Public     |
+
 
 #### DTO Class
+| Class Name        | StudyCreateDto              |               |            |
+| ----------------- | --------------------------- | ------------- | ---------- |
+| Class Description | 스터디 생성 요청 시 전달되는 정보를 담는 DTO |               |            |
+| 구분                | Name                        | Type          | Visibility |
+| Attribute         | studyName<br>스터디 이름         | String        | Private    |
+|                   | studyDescription<br>스터디 설명  | String        | Private    |
+|                   | studyCategory<br>스터디 카테고리   | StudyCategory | Private    |
+|                   | maxMembers<br>최대 인원         | int           | Private    |
 
-| Class Name        | StudyCreateDto        |        |            |
-| ----------------- | --------------------- | ------ | ---------- |
-| Class Description | 스터디 생성 요청 시 전달되는 dto  |        |            |
-| 구분                | Name                  | Type   | Visibility |
-| Attribute         | title<br>스터디 제목       | String | Private    |
-|                   | description<br>스터디 설명 | String | Private    |
-|                   | category<br>스터디 카테고리  | String | Private    |
-|                   | maxMember<br>최대 인원    | int    | Private    |
-| 구분                | Name                  | Type   | Visibility |
-| Operations        |                       |        |            |
+| Class Name        | StudyListResponse            |            |            |
+| ----------------- | ---------------------------- | ---------- | ---------- |
+| Class Description | 스터디 목록 조회 시 개별 항목으로 사용되는 DTO |            |            |
+| 구분                | Name                         | Type       | Visibility |
+| Attribute         | studyId                      | Long       | Private    |
+|                   | name                         | String     | Private    |
+|                   | description                  | String     | Private    |
+|                   | currentMembers               | int        | Private    |
+|                   | maxMembers                   | int        | Private    |
+|                   | userJoinStatus               | JoinStatus | Private    |
 
-| Class Name        | StudyUpdateDto        |        |            |
-| ----------------- | --------------------- | ------ | ---------- |
-| Class Description | 스터디 수정 요청 시 전달되는 dto  |        |            |
-| 구분                | Name                  | Type   | Visibility |
-| Attribute         | title<br>스터디 제목       | String | Private    |
-|                   | description<br>스터디 설명 | String | Private    |
-|                   | category<br>스터디 카테고리  | String | Private    |
-|                   | status<br>스터디 상태      | String | Private    |
-| 구분                | Name                  | Type   | Visibility |
-| Operations        |                       |        |            |
+| Class Name        | StudyPageResponse         |                         |            |
+| ----------------- | ------------------------- | ----------------------- | ---------- |
+| Class Description | 페이징된 스터디 목록데이터를 담는 DTO    |                         |            |
+| 구분                | Name                      | Type                    | Visibility |
+| Attribute         | content<br>현재 페이지 스터디 리스트 | List<StudyListResponse> | Private    |
+|                   | currentPage               | int                     | Private    |
+|                   | totalPages                | int                     | Private    |
+|                   | totalElements             | long                    | Private    |
 
-| Class Name        | StudyListResponseDto    |        |            |
-| ----------------- | ----------------------- | ------ | ---------- |
-| Class Description | 스터디 목록 조회 시 반환되는 dto    |        |            |
-| 구분                | Name                    | Type   | Visibility |
-| Attribute         | study_id<br>스터디 식별자     | Long   | Private    |
-|                   | title<br>스터디 제목         | String | Private    |
-|                   | category<br>스터디 카테고리    | String | Private    |
-|                   | leader_name<br>리더 닉네임   | String | Private    |
-|                   | current_member<br>현재 인원 | int    | Private    |
-|                   | max_member<br>최대 인원     | int    | Private    |
-|                   | status<br>스터디 상태        | String | Private    |
-| 구분                | Name                    | Type   | Visibility |
-| Operations        |                         |        |            |
-
-| Class Name        | StudyDetailResponseDto   |                                |            |
-| ----------------- | ------------------------ | ------------------------------ | ---------- |
-| Class Description | 스터디 상세 조회 시 반환되는 dto     |                                |            |
-| 구분                | Name                     | Type                           | Visibility |
-| Attribute         | study_id<br>스터디 식별자      | Long                           | Private    |
-|                   | title<br>스터디 제목          | String                         | Private    |
-|                   | description<br>스터디 설명    | String                         | Private    |
-|                   | category<br>스터디 카테고리     | String                         | Private    |
-|                   | status<br>스터디 상태         | String                         | Private    |
-|                   | currentMember<br>현재 인원 수 | int                            | Private    |
-|                   | maxMember<br>최대 인원 수     | int                            | Private    |
-|                   | schedules<br>스터디 일정 목록   | List<StudyScheduleResponseDto> | Private    |
-|                   | members<br>스터디 멤버 목록     | List<StudyMemberResponseDto>   | Private    |
-|                   | myRole<br>현재 사용자 역할      | String                         | Private    |
-| 구분                | Name                     | Type                           | Visibility |
-| Operations        |                          |                                |            |
-
-#### Repository Class
-
-| Class Name        | StudyRepository |               |            |
-| ----------------- | ---------------- | ------------- | ---------- |
-| Class Description | 스터디 기본 정보(StudyEntity)에 대한 CRUD 및 검색 기능을 수행하는 Repository 인터페이스 |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | — | — | — |
-| Operations | save(study: StudyEntity) | StudyEntity | public |
-|  | findById(studyId: Long) | Optional<StudyEntity> | public |
-|  | findAll() | List<StudyEntity> | public |
-|  | findByCategory(category: StudyCategory) | List<StudyEntity> | public |
-|  | findByStatus(status: StudyStatus) | List<StudyEntity> | public |
-|  | delete(study: StudyEntity) | void | public |
-| Return | 스터디 엔티티 데이터 접근 계층 | — | — |
-
----
-
-#### Repository Class
-
-| Class Name        | StudyMemberRepository |               |            |
-| ----------------- | --------------------- | ------------- | ---------- |
-| Class Description | 스터디 멤버(참여자, 신청자)에 대한 데이터 접근 및 상태 관리 Repository |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | — | — | — |
-| Operations | findByStudyId(studyId: Long) | List<StudyMemberEntity> | public |
-|  | findByUserId(userId: Long) | List<StudyMemberEntity> | public |
-|  | existsByStudyIdAndUserId(studyId: Long, userId: Long) | boolean | public |
-|  | save(member: StudyMemberEntity) | StudyMemberEntity | public |
-|  | delete(member: StudyMemberEntity) | void | public |
-| Return | 스터디 참여자 데이터 접근 계층 | — | — |
-
----
-
-#### Repository Class
-
-| Class Name        | StudyScheduleRepository |               |            |
+| Class Name        | StudyUpdateDto          |               |            |
 | ----------------- | ----------------------- | ------------- | ---------- |
-| Class Description | 스터디 일정 등록, 수정, 삭제, 조회를 담당하는 Repository 인터페이스 |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | — | — | — |
-| Operations | findByStudyId(studyId: Long) | List<StudyScheduleEntity> | public |
-|  | findById(scheduleId: Long) | Optional<StudyScheduleEntity> | public |
-|  | save(schedule: StudyScheduleEntity) | StudyScheduleEntity | public |
-|  | delete(schedule: StudyScheduleEntity) | void | public |
-| Return | 일정 데이터 접근 계층 | — | — |
+| Class Description | 스터디 정보 수정 요청 시 전달되는 DTO |               |            |
+| 구분                | Name                    | Type          | Visibility |
+| Attribute         | studyName               | String        | Private    |
+|                   | studyDescription        | String        | Private    |
+|                   | studyCategory           | StudyCategory | Private    |
+|                   | maxMembers              | int           | Private    |
 
----
+| Class Name        | StudyInfoResponse                |               |            |
+| ----------------- | -------------------------------- | ------------- | ---------- |
+| Class Description | 스터디 관리 페이지에서 스터디 기본 정보를 제공하는 DTO |               |            |
+| 구분                | Name                             | Type          | Visibility |
+| Attribute         | studyId                          | Long          | Private    |
+|                   | studyName                        | String        | Private    |
+|                   | studyDescription                 | String        | Private    |
+|                   | studyCategory                    | StudyCategory | Private    |
+|                   | maxMemberCount                   | int           | Private    |
 
-#### Repository Class
+| Class Name        | StudyMainPageResponse               |                                 |            |
+| ----------------- | ----------------------------------- | ------------------------------- | ---------- |
+| Class Description | 스터디 메인 페이지 조회 시 필요한 모든 정보를 포함하는 DTO |                                 |            |
+| 구분                | Name                                | Type                            | Visibility |
+| Attribute         | studyId                             | Long                            | Private    |
+|                   | studyName                           | String                          | Private    |
+|                   | studyDescription                    | String                          | Private    |
+|                   | studyCategory                       | String                          | Private    |
+|                   | currentMembers                      | int                             | Private    |
+|                   | maxMembers                          | int                             | Private    |
+|                   | leaderGithubId                      | String                          | Private    |
+|                   | members                             | List<StudyMemberResponse>       | Private    |
+|                   | schedules                           | List<StudyMainScheduleResponse> | Private    |
 
-| Class Name        | NotificationRepository |               |            |
-| ----------------- | ---------------------- | ------------- | ---------- |
-| Class Description | 알림 생성, 조회, 읽음 상태 변경을 위한 데이터 접근 Repository |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | — | — | — |
-| Operations | findByUserId(userId: Long) | List<NotificationEntity> | public |
-|  | findUnreadByUserId(userId: Long) | List<NotificationEntity> | public |
-|  | save(notification: NotificationEntity) | NotificationEntity | public |
-|  | deleteById(notificationId: Long) | void | public |
-| Return | 알림 데이터 접근 계층 | — | — |
-
----
-
-#### Service Class
-
-| Class Name        | StudyService |               |            |
-| ----------------- | ------------- | ------------- | ---------- |
-| Class Description | 스터디 생성, 수정, 삭제, 상세 조회 등의 비즈니스 로직 담당 |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyRepository | StudyRepository | private |
-|  | userRepository | UserRepository | private |
-| Operations | createStudy(dto: StudyCreateDto, leaderId: Long) | StudyEntity | public |
-|  | updateStudy(studyId: Long, dto: StudyUpdateDto) | StudyEntity | pu러 |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyMemberService | StudyMemberService | private |
-| Operations | applyJoin(dto: StudyApplyRequestDto) | ResponseEntity<Void> | public |
-|  | approveJoin(dto: StudyApproveRequestDto) | ResponseEntity<Void> | public |
-|  | leaveStudy(studyId: Long) | ResponseEntity<Void> | public |
-|  | kickMember(studyId: Long, userId: Long) | ResponseEntity<Void> | public |
-| Return | 멤버 관련 요청 처리 컨트롤러 | — | — |
-
----
-
-#### Controller Class
-
-| Class Name        | StudyScheduleController |               |            |
-| ----------------- | ----------------------- | ------------- | ---------- |
-| Class Description | 스터디 일정 등록, 수정, 삭제, 조회 요청을 처리하는 컨트롤러 |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | studyScheduleService | StudyScheduleService | private |
-| Operations | createSchedule(dto: StudyScheduleCreateDto, studyId: Long) | ResponseEntity<Void> | public |
-|  | updateSchedule(scheduleId: Long, dto: StudyScheduleUpdateDto) | ResponseEntity<Void> | public |
-|  | deleteSchedule(scheduleId: Long) | ResponseEntity<Void> | public |
-|  | getSchedules(studyId: Long) | ResponseEntity<List<StudyScheduleResponseDto>> | public |
-| Return | 일정 요청 처리 컨트롤러 | — | — |
-
----
-
-#### Controller Class
-
-| Class Name        | NotificationController |               |            |
-| ----------------- | ---------------------- | ------------- | ---------- |
-| Class Description | 알림 목록 조회 및 읽음 처리 요청을 처리하는 REST Controller |               |            |
-| 구분 | Name | Type | Visibility |
-| Attribute | notificationService | NotificationService | private |
-| Operations | getNotifications(userId: Long) | ResponseEntity<List<NotificationResponseDto>> | public |
-|  | markAsRead(notificationId: Long) | ResponseEntity<Void> | public |
-|  | deleteNotification(notificationId: Long) | ResponseEntity<Void> | public |
-| Return | 알림 요청 처리 컨트롤러 | — | — |
-
+| Class Name        | StudyMainScheduleResponse     |        |            |
+| ----------------- | ----------------------------- | ------ | ---------- |
+| Class Description | 스터디 메인 페이지에서 일정 조회 시 사용하는 DTO |        |            |
+| 구분                | Name                          | Type   | Visibility |
+| Attribute         | scheduleId                    | Long   | Private    |
+|                   | comment                       | String | Private    |
+|                   | startedAt                     | String | Private    |
+|                   | endAt                         | String | Private    |
 
 ### 스터디 멤버 관리
-<img width="1628" height="1160" alt="image" src="https://github.com/user-attachments/assets/c8b0634b-0d50-4dc7-9b61-0a3a60f7a5ce" />
-
 #### Entity Class
+| Class Name        | StudyMemberEntity               |            |            |
+| ----------------- | ------------------------------- | ---------- | ---------- |
+| Class Description | 스터디에 참여하는 멤버의 역할 및 상태를 저장하는 엔티티 |            |            |
+| 구분                | Name                            | Type       | Visibility |
+| Attribute         | studyMemberId                   | Long       | Private    |
+|                   | study                           | Study      | Private    |
+|                   | user                            | UserEntity | Private    |
+|                   | studyRole                       | StudyRole  | Private    |
+|                   | joinStatus                      | JoinStatus | Private    |
+| Operations        |                                 |            |            |
 
-| Class Name        | StudyMemberEntity           |                 |            |
-| ----------------- | --------------------------- | --------------- | ---------- |
-| Class Description | 특정 스터디에 참여하는 회원 정보를 저장는 엔티티 |                 |            |
-| 구분                | Name                        | Type            | Visibility |
-| Attribute         | memberId<br>스터디 멤버 식별자(PK)  | Long            | Private    |
-|                   | study<br>소속 스터디 참조          | StudyEntity     | Private    |
-|                   | userId<br>회원 참조             | UserEntity      | Private    |
-|                   | role<br>스터디 내 역할            | StudyRole       | Private    |
-|                   | status<br>참여 상태             | StudyJoinStatus | Private    |
-|                   | joinedAt<br>가입일시            | LocalDateTime   | Private    |
-| 구분                | Name                        | Type            | Visibility |
-| Operations        |                             |                 |            |
+#### Contoller Class
+| Class Name        | StudyMemberController                         |                                           |            |
+| ----------------- | --------------------------------------------- | ----------------------------------------- | ---------- |
+| Class Description | 스터디 멤버 관련 기능(신청/승인/거절/탈퇴/강퇴)을 처리하는 REST 컨트롤러  |                                           |            |
+| 구분                | Name                                          | Type                                      | Visibility |
+| Attribute         | studyMemberService                            | StudyMemberService                        | Private    |
+| 구분                | Name                                          | Type                                      | Visibility |
+| Operations        | applyStudy(studyId: Long)                     | ResponseEntity<MessageResponse>           | Public     |
+|                   | approveMember(studyId: Long, userId: Long)    | ResponseEntity<MessageResponse>           | Public     |
+|                   | rejectMember(studyId: Long, userId: Long)     | ResponseEntity<MessageResponse>           | Public     |
+|                   | getStudyMembers(studyId: Long)                | ResponseEntity<List<StudyMemberResponse>> | Public     |
+|                   | leaveStudy(studyId: Long)                     | ResponseEntity<MessageResponse>           | Public     |
+|                   | kickMember(studyId: Long, targetUserId: Long) | ResponseEntity<MessageResponse>           | Public     |
+
+#### Service Class
+| Class Name        | StudyMemberService                                            |                              |            |
+| ----------------- | ------------------------------------------------------------- | ---------------------------- | ---------- |
+| Class Description | 스터디 멤버의 신청, 승인, 거절, 탈퇴, 강퇴 등 멤버 관리 로직을 처리                     |                              |            |
+| 구분                | Name                                                          | Type                         | Visibility |
+| Attribute         | studyRepository                                               | StudyRepository              | Private    |
+|                   | studyMemberRepository                                         | StudyMemberRepository        | Private    |
+|                   | userRepository                                                | UserRepository               | Private    |
+| 구분                | Name                                                          | Type                         | Visibility |
+| Operations        | applyToStudy(studyId: Long, userId: Long)                     | void                         | Public     |
+|                   | getApplicants(studyId: Long)                                  | List<StudyApplicantResponse> | Public     |
+|                   | approveMember(studyId: Long, userId: Long)                    | void                         | Public     |
+|                   | rejectMember(studyId: Long, userId: Long)                     | void                         | Public     |
+|                   | getStudyMembers(studyId: Long)                                | List<StudyMemberResponse>    | Public     |
+|                   | leaveStudy(studyId: Long, userId: Long)                       | void                         | Public     |
+|                   | kickMember(studyId: Long, leaderId: Long, targetUserId: Long) | void                         | Public     |
+
+#### Repository Class
+| Class Name        | StudyMemberRepository                                                                             |                       |            |
+| ----------------- | ------------------------------------------------------------------------------------------------- | --------------------- | ---------- |
+| Class Description | 스터디 멤버 정보를 저장·조회·삭제·검증하는 데이터 접근 레이어 인터페이스                                                         |                       |            |
+| 구분                | Name                                                                                              | Type                  | Visibility |
+| Operations        | countByStudy_StudyIdAndJoinStatus(studyId: Long, status: JoinStatus)<br>특정 스터디의 승인된 멤버 수 조회       | int                   | Public     |
+|                   | findByStudy_StudyIdAndUser_UserId(studyId: Long, userId: Long)<br>스터디-유저 관계 조회                    | Optional<StudyMember> | Public     |
+|                   | existsByStudy_StudyIdAndUser_UserId(studyId: Long, userId: Long)<br>가입 여부 확인                      | boolean               | Public     |
+|                   | findByStudy_StudyIdAndJoinStatus(studyId: Long, joinStatus: JoinStatus)<br>특정 상태(APPLIED 등) 멤버 조회 | List<StudyMember>     | Public     |
+|                   | findByStudy_StudyIdAndJoinStatusNot(studyId: Long, joinStatus: JoinStatus)<br>특정 상태를 제외한 멤버 조회    | List<StudyMember>     | Public     |
+|                   | countByStudy_StudyIdAndJoinStatusIn(studyId: Long, statuses: List<JoinStatus>)<br>여러 상태 멤버 수 조회   | int                   | Public     |
+|                   | findByUser_UserIdAndJoinStatus(userId: Long, joinStatus: JoinStatus)<br>특정 유저의 참여 스터디 목록 조회       | List<StudyMember>     | Public     |
+|                   | deleteByStudy_StudyId(studyId: Long)<br>특정 스터디 멤버 전체 삭제                                           | void                  | Public     |
 
 
 #### DTO Class
+| Class Name        | StudyApplicantResponse                 |            |            |
+| ----------------- | -------------------------------------- | ---------- | ---------- |
+| Class Description | 가입 대기중(APPLIED) 멤버의 목록을 조회할 때 응답하는 DTO |            |            |
+| 구분                | Name                                   | Type       | Visibility |
+| Attribute         | userId                                 | Long       | Private    |
+|                   | githubId                               | String     | Private    |
+|                   | joinStatus                             | JoinStatus | Private    |
 
-| Class Name        | StudyApplyRequestDto        |        |            |
-| ----------------- | --------------------------- | ------ | ---------- |
-| Class Description | 스터디 참여 신청 시 요청 정보를 전달하는 dto |        |            |
-| 구분                | Name                        | Type   | Visibility |
-| Attribute         | studyId<br>스터디 식별자          | Long   | Private    |
-|                   | leaderId<br>리더 식별자          | String | Private    |
-|                   | userId<br>신청자 식별자           | String | Private    |
+| Class Name        | StudyMemberResponse            |            |            |
+| ----------------- | ------------------------------ | ---------- | ---------- |
+| Class Description | 스터디의 승인된 멤버 목록을 조회할 때 사용되는 DTO |            |            |
+| 구분                | Name                           | Type       | Visibility |
+| Attribute         | userId                         | Long       | Private    |
+|                   | githubId                       | String     | Private    |
+|                   | joinStatus                     | JoinStatus | Private    |
+|                   | studyRole                      | String     | Private    |
 
-| Class Name        | StudyApproveRequestDto       |                |            |
-| ----------------- | ---------------------------- | -------------- | ---------- |
-| Class Description | 스터디장의 승인/거절 요청 데이터를 전달하는 dto |                |            |
-| 구분                | Name                         | Type           | Visibility |
-| Attribute         | memberId<br>신청 멤버 식별자        | Long           | Private    |
-|                   | action<br>처리 결과(승인/거절)       | String or Enum | Private    |
-
-| Class Name        | StudyKickRequestDto    |      |            |
-| ----------------- | ---------------------- | ---- | ---------- |
-| Class Description | 스터디 강퇴 요청 시 전달되는 dto   |      |            |
-| 구분                | Name                   | Type | Visibility |
-| Attribute         | memberId<br>강퇴할 멤버 식별자 | Long | Private    |
-
-| Class Name        | StudyLeaveRequestDto  |        |            |
-| ----------------- | --------------------- | ------ | ---------- |
-| Class Description | 스터디 탈퇴 요청 시 전달되는 dto  |        |            |
-| 구분                | Name                  | Type   | Visibility |
-| Attribute         | studyId<br>소속 스터디 식별자 | Long   | Private    |
-|                   | userId<br>탈퇴할 사용자 식별자 | String | Private    |
-
-| Class Name        | StudyMemberResponseDto         |        |            |
-| ----------------- | ------------------------------ | ------ | ---------- |
-| Class Description | 스터디 멤버 목록 조회 시 반환되는 응답 데이터 dto |        |            |
-| 구분                | Name                           | Type   | Visibility |
-| Attribute         | memberId                       | Long   | Private    |
-|                   | userId                         | String | Private    |
-|                   | nickname                       | String | Private    |
-|                   | role                           | String | Private    |
-|                   | status                         | String | Private    |
+| Class Name        | StudyMemberApplyRequest    |      |            |
+| ----------------- | -------------------------- | ---- | ---------- |
+| Class Description | 스터디 참여 신청 시 필요한 정보를 담는 DTO |      |            |
+| 구분                | Name                       | Type | Visibility |
+| Attribute         | studyId                    | Long | Private    |
 
 
-#### Repository Class
-
-| Class Name        | StudyMemberRepository                                                     |                             |            |
-| ----------------- | ------------------------------------------------------------------------- | --------------------------- | ---------- |
-| Class Description | 스터디 멤버 정보를 저장, 조회, 삭제하는 데이터 접근 인터페이스                                      |                             |            |
-| 구분                | Name                                                                      | Type                        | Visibility |
-| Operations        | findByStudyIdAndUserId(Long studyId, String userId)<br>특정 스터디 내 사용자 관계 조회 | Optional<StudyMemberEntity> | Public     |
-|                   | findByStudyId(Long studyId)<br>스터디 전체 멤버 목록 조회                            | List<StudyMemberEntity>     | Public     |
-|                   | countMembers(Long studyId)<br>현재 스터디 인원 수 반환                              | int                         | Public     |
-|                   | deleteByStudyIdAndUserId(Long studyId, String userId)<br>멤버 탈퇴/강퇴 시 관계 삭제 | void                        | Public     |
-
-
-#### Service Class
-
-| Class Name        | StudyMemberService                                     |                              |            |
-| ----------------- | ------------------------------------------------------ | ---------------------------- | ---------- |
-| Class Description | 스터디 멤버의 신청, 승인, 거절, 탈퇴, 강퇴 등 멤버 관리 로직을 수행              |                              |            |
-| 구분                | Name                                                   | Type                         | Visibility |
-| Attribute         | studyMemberRepository<br>스터디 멤버 데이터 접근 계층              | StudyMemberRepository        | Private    |
-|                   | notificationService<br>알림 기능 연동                        | NotificationService          | Private    |
-| 구분                | Name                                                   | Type                         | Visibility |
-| Operations        | applyStudy(StudyApplyRequestDto dto)<br>스터디 참여 신청 처리   | void                         | Public     |
-|                   | approveMember(StudyApproveRequestDto dto)<br>스터디 가입 승인 | void                         | Public     |
-|                   | rejectMember(StudyApproveRequestDto dto)<br>스터디 가입 거절  | void                         | Public     |
-|                   | leaveStudy(StudyLeaveRequestDto dto)<br>스터디 탈퇴         | void                         | Public     |
-|                   | kickMember(StudyKickRequestDto dto)<br>스터디 강퇴          | void                         | Public     |
-|                   | getMembers(Long studyId)<br>스터디 멤버 목록 조회               | List<StudyMemberResponseDto> | Public     |
-
-
-
-#### Controller Class
-
-| Class Name        | StudyMemberController                                          |                              |            |
-| ----------------- | -------------------------------------------------------------- | ---------------------------- | ---------- |
-| Class Description | 클라이언트로부터 스터디 멤버 관리 요청을 받아 Service를 호출하고 처리하는 컨트롤러              |                              |            |
-| 구분                | Name                                                           | Type                         | Visibility |
-| Attribute         | studyMemberService<br>스터디 멤버 서비스 계층                            | StudyMemberService           | Private    |
-| 구분                | Name                                                           | Type                         | Visibility |
-| Operations        | getMembers(Long studyId)<br>스터디 멤버 목록 조회                       | List<StudyMemberResponseDto> | Public     |
-|                   | checkDuplicateJoin(Long studyId, String userId)<br>중복 가입 여부 확인 | boolean                      | Public     |
-|                   | requestJoinStudy(StudyApplyRequestDto dto)<br>스터디 참여 신청        | StudyMemberResponseDto       | Public     |
-|                   | approveJoin(StudyApproveRequestDto dto)<br>스터디 참여 승인           | void                         | Public     |
-|                   | rejectJoin(StudyApproveRequestDto dto)<br>스터디 참여 거절            | void                         | Public     |
-|                   | leaveStudy(StudyLeaveRequestDto dto)<br>스터디 탈퇴                 | void                         | Public     |
-|                   | expelMember(StudyKickRequestDto dto)<br>스터디 강퇴                 | void                         | Public     |
-
-
-### 스터디 일정 관리
-
-<img width="1760" height="1061" alt="image" src="https://github.com/user-attachments/assets/c6896c2f-2005-47eb-91c5-93338c9596ae" />
-
+#### 스터디 일정 관리
 
 #### Entity Class
+| Class Name        | StudyScheduleEntity      |               |            |
+| ----------------- | ------------------------ | ------------- | ---------- |
+| Class Description | 특정 스터디에 등록된 일정을 저장하는 엔티티 |               |            |
+| 구분                | Name                     | Type          | Visibility |
+| Attribute         | scheduleId               | Long          | Private    |
+|                   | study                    | Study         | Private    |
+|                   | comment                  | String        | Private    |
+|                   | startedAt                | LocalDateTime | Private    |
+|                   | endAt                    | LocalDateTime | Private    |
+|                   | createdAt                | LocalDateTime | Private    |
+|                   | deletedAt                | LocalDateTime | Private    |
+| Operations        |                          |               |            |
 
-| Class Name            | StudyScheduleEntity                                                                                       |               |                |
-| --------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | -------------- |
-| **Class Description** | 스터디의 일정 정보를 저장하고 관리하는 엔티티                                                                                 |               |                |
-| **구분**                | **Name**                                                                                                  | **Type**      | **Visibility** |
-| **Attribute**         | scheduleId<br>스터디 일정 식별자(PK)                                                                              | Long          | Private        |
-|                       | study<br>소속 스터디 참조                                                                                        | StudyEntity   | Private        |
-|                       | title<br>일정 제목                                                                                            | String        | Private        |
-|                       | description<br>일정 설명                                                                                      | String        | Private        |
-|                       | startTime<br>시작 일시                                                                                        | LocalDateTime | Private        |
-|                       | endTime<br>종료 일시                                                                                          | LocalDateTime | Private        |
-|                       | createdAt<br>생성 일시                                                                                        | LocalDateTime | Private        |
-|                       | updatedAt<br>수정 일시                                                                                        | LocalDateTime | Private        |
-| **구분**                | **Name**                                                                                                  | **Type**      | **Visibility** |
-| **Operations**        | updateSchedule(String title, String description, LocalDateTime startTime, LocalDateTime endTime)<br>일정 수정 | void          | Public         |
-|                       | getDuration()<br>일정 기간 계산                                                                                 | Duration      | Public         |
-
-#### DTO Class
-
-| Class Name            | StudyScheduleCreateDto                      |                     |                |
-| --------------------- | ------------------------------------------- | ------------------- | -------------- |
-| **Class Description** | 일정 등록 시 클라이언트로부터 입력받는 데이터를 전달하는 DTO         |                     |                |
-| **구분**                | **Name**                                    | **Type**            | **Visibility** |
-| **Attribute**         | title<br>일정 제목                              | String              | Private        |
-|                       | description<br>일정 설명                        | String              | Private        |
-|                       | startTime<br>시작 일시                          | LocalDateTime       | Private        |
-|                       | endTime<br>종료 일시                            | LocalDateTime       | Private        |
-| **구분**                | **Name**                                    | **Type**            | **Visibility** |
-| **Operations**        | toEntity(StudyEntity study)<br>DTO를 엔티티로 변환 | StudyScheduleEntity | Public         |
-
-| Class Name            | StudyScheduleUpdateDto                                           |               |                |
-| --------------------- | ---------------------------------------------------------------- | ------------- | -------------- |
-| **Class Description** | 일정 수정 시 변경할 정보를 전달하는 DTO                                         |               |                |
-| **구분**                | **Name**                                                         | **Type**      | **Visibility** |
-| **Attribute**         | scheduleId<br>수정 대상 일정 식별자                                       | Long          | Private        |
-|                       | title<br>일정 제목                                                   | String        | Private        |
-|                       | description<br>일정 설명                                             | String        | Private        |
-|                       | startTime<br>시작 일시                                               | LocalDateTime | Private        |
-|                       | endTime<br>종료 일시                                                 | LocalDateTime | Private        |
-| **구분**                | **Name**                                                         | **Type**      | **Visibility** |
-| **Operations**        | applyToEntity(StudyScheduleEntity entity)<br>기존 일정 데이터에 수정 내용 반영 | void          | Public         |
-
-
-| Class Name            | StudyScheduleResponseDto                                   |                          |                |
-| --------------------- | ---------------------------------------------------------- | ------------------------ | -------------- |
-| **Class Description** | 일정 조회 시 클라이언트로 반환되는 응답 데이터 DTO                             |                          |                |
-| **구분**                | **Name**                                                   | **Type**                 | **Visibility** |
-| **Attribute**         | scheduleId<br>일정 식별자                                       | Long                     | Private        |
-|                       | title<br>일정 제목                                             | String                   | Private        |
-|                       | description<br>일정 설명                                       | String                   | Private        |
-|                       | startTime<br>시작 일시                                         | LocalDateTime            | Private        |
-|                       | endTime<br>종료 일시                                           | LocalDateTime            | Private        |
-|                       | createdAt<br>생성 일시                                         | LocalDateTime            | Private        |
-|                       | updatedAt<br>수정 일시                                         | LocalDateTime            | Private        |
-| **구분**                | **Name**                                                   | **Type**                 | **Visibility** |
-| **Operations**        | fromEntity(StudyScheduleEntity entity)<br>엔티티 데이터를 DTO로 변환 | StudyScheduleResponseDto | Public         |
-
-
-#### Repository Class
-
-| Class Name            | StudyScheduleRepository                                                    |                               |                |
-| --------------------- | -------------------------------------------------------------------------- | ----------------------------- | -------------- |
-| **Class Description** | 스터디 일정 데이터를 저장, 조회, 수정, 삭제하는 데이터 접근 인터페이스                                  |                               |                |
-| **구분**                | **Name**                                                                   | **Type**                      | **Visibility** |
-| **Operations**        | findByStudyId(Long studyId)<br>스터디별 일정 목록 조회                               | List<StudyScheduleEntity>     | Public         |
-|                       | findById(Long scheduleId)<br>단일 일정 조회                                      | Optional<StudyScheduleEntity> | Public         |
-|                       | save(StudyScheduleEntity entity)<br>일정 등록 및 수정                             | StudyScheduleEntity           | Public         |
-|                       | deleteByStudyIdAndScheduleId(Long studyId, Long scheduleId)<br>스터디 내 일정 삭제 | void                          | Public         |
-
-
-#### Service Class
-
-| Class Name            | StudyScheduleService                                                  |                                |                |
-| --------------------- | --------------------------------------------------------------------- | ------------------------------ | -------------- |
-| **Class Description** | 스터디 일정을 관리하느 ㄴ로직                                                      |                                |                |
-| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
-| **Attribute**         | studyScheduleRepository<br>일정 데이터 접근 계층                               | StudyScheduleRepository        | Private        |
-|                       | notificationService                                                   | NotificationService            | Private        |
-| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
-| **Operations**        | createSchedule(StudyScheduleCreateDto dto, Long studyId)<br>스터디 일정 등록 | StudyScheduleResponseDto       | Public         |
-|                       | updateSchedule(StudyScheduleUpdateDto dto)<br>스터디 일정 수정               | StudyScheduleResponseDto       | Public         |
-|                       | deleteSchedule(Long studyId, Long scheduleId)<br>스터디 일정 삭제            | void                           | Public         |
-|                       | getSchedules(Long studyId)<br>스터디 일정 목록 조회                            | List<StudyScheduleResponseDto> | Public         |
-|                       | getScheduleById(Long scheduleId)<br>스터디 일정 상세 조회                      | StudyScheduleResponseDto       | Public         |
+| Class Name        | ScheduleParticipateEntity   |               |            |
+| ----------------- | --------------------------- | ------------- | ---------- |
+| Class Description | 특정 일정에 참여한 유저의 정보를 저장하는 엔티티 |               |            |
+| 구분                | Name                        | Type          | Visibility |
+| Attribute         | participateId               | Long          | Private    |
+|                   | schedule                    | StudySchedule | Private    |
+|                   | user                        | UserEntity    | Private    |
+| Operations        |                             |               |            |
 
 
 #### Controller Class
+| Class Name        | StudyScheduleController                                                         |                                            |            |
+| ----------------- | ------------------------------------------------------------------------------- | ------------------------------------------ | ---------- |
+| Class Description | 스터디 일정 생성, 참여, 조회 등 일정 관련 요청을 처리하는 REST 컨트롤러                                    |                                            |            |
+| 구분                | Name                                                                            | Type                                       | Visibility |
+| Attribute         | studyScheduleService                                                            | StudyScheduleService                       | Private    |
+| 구분                | Name                                                                            | Type                                       | Visibility |
+| Operations        | createSchedule(studyId: Long, request: StudyScheduleCreateRequest)<br>스터디 일정 생성 | ResponseEntity<MessageResponse>            | Public     |
+|                   | participate(studyId: Long, scheduleId: Long)<br>일정 참여 요청 처리                     | ResponseEntity<MessageResponse>            | Public     |
+|                   | getSchedules(studyId: Long)<br>스터디 일정 목록 조회                                     | ResponseEntity<List<ScheduleListResponse>> | Public     |
 
-| Class Name            | StudyScheduleController                                               |                                |                |
-| --------------------- | --------------------------------------------------------------------- | ------------------------------ | -------------- |
-| **Class Description** | 클라이언트 요청을 받아 Service를 호출하고 일정 데이터를 반환하는 컨트롤러                          |                                |                |
-| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
-| **Attribute**         | studyScheduleService<br>스터디 일정 서비스 계층                                 | StudyScheduleService           | Private        |
-| **구분**                | **Name**                                                              | **Type**                       | **Visibility** |
-| **Operations**        | getSchedules(Long studyId)<br>스터디 일정 목록 조회                            | List<StudyScheduleResponseDto> | Public         |
-|                       | getSchedule(Long scheduleId)<br>스터디 일정 상세 조회                          | StudyScheduleResponseDto       | Public         |
-|                       | createSchedule(Long studyId, StudyScheduleCreateDto dto)<br>스터디 일정 등록 | StudyScheduleResponseDto       | Public         |
-|                       | updateSchedule(StudyScheduleUpdateDto dto)<br>스터디 일정 수정               | StudyScheduleResponseDto       | Public         |
-|                       | deleteSchedule(Long studyId, Long scheduleId)<br>스터디 일정 삭제            | void                           | Public         |
-
-
-### 알림
-<img width="2195" height="739" alt="image" src="https://github.com/user-attachments/assets/ce0628eb-2c0f-42fa-a92f-41e61457e281" />
-
-### Entity Class
-
-| Class Name        | NotificationEntity               |                  |            |
-| ----------------- | -------------------------------- | ---------------- | ---------- |
-| Class Description | 사용자에게 전달되는 시스템 알림 정보를 저장하는 엔티티   |                  |            |
-| 구분                | Name                             | Type             | Visibility |
-| Attribute         | notificationId<br>알림 고유 식별자 (PK) | Long             | Private    |
-|                   | user<br>수신자 정보                   | UserEntity       | Private    |
-|                   | message<br>알림 내용                 | String           | Private    |
-|                   | type<br>알림 유형                    | NotificationType | Private    |
-|                   | isRead<br>읽음 여부                  | Boolean          | Private    |
-|                   | createdAt<br>생성 시각               | LocalDateTime    | Private    |
-| Operations        | markAsRead()                     | void             | Public     |
-|                   | getMessageSummary()              | String           | Public     |
-
-### DTO Class
-
-| Class Name        | NotificationResponseDto       |                         |            |
-| ----------------- | ----------------------------- | ----------------------- | ---------- |
-| Class Description | 알림 데이터를 사용자에게 전달하기 위한 DTO     |                         |            |
-| 구분                | Name                          | Type                    | Visibility |
-| Attribute         | notificationId                | Long                    | Private    |
-|                   | message                       | String                  | Private    |
-|                   | type                          | String                  | Private    |
-|                   | isRead                        | Boolean                 | Private    |
-|                   | createdAt                     | LocalDateTime           | Private    |
-| Operations        | of(NotificationEntity entity) | NotificationResponseDto | Public     |
-#### Repository Class
-
-| Class Name        | NotificationRepository                    |                          |            |
-| ----------------- | ----------------------------------------- | ------------------------ | ---------- |
-| Class Description | 알림 엔티티에 대한 데이터베이스 접근을 담당                  |                          |            |
-| 구분                | Name                                      | Return Type              | Visibility |
-| Operations        | findByUser(UserEntity user)               | List<NotificationEntity> | Public     |
-|                   | findByUserAndIsReadFalse(UserEntity user) | List<NotificationEntity> | Public     |
-|                   | save(NotificationEntity entity)           | NotificationEntity       | Public     |
-|                   | deleteById(Long id)                       | void                     | Public     |
 #### Service Class
+| Class Name        | StudyScheduleService                                                                          |                               |            |
+| ----------------- | --------------------------------------------------------------------------------------------- | ----------------------------- | ---------- |
+| Class Description | 스터디 일정 생성, 참여, 목록 조회 등 스터디 일정 관련 핵심 비즈니스 로직 처리                                                |                               |            |
+| 구분                | Name                                                                                          | Type                          | Visibility |
+| Attribute         | studyRepository                                                                               | StudyRepository               | Private    |
+|                   | studyMemberRepository                                                                         | StudyMemberRepository         | Private    |
+|                   | studyScheduleRepository                                                                       | StudyScheduleRepository       | Private    |
+|                   | scheduleParticipantRepository                                                                 | ScheduleParticipateRepository | Private    |
+| 구분                | Name                                                                                          | Type                          | Visibility |
+| Operations        | createSchedule(studyId: Long, userId: Long, request: StudyScheduleCreateRequest)<br>스터디 일정 생성 | Long                          | Public     |
+|                   | participate(studyId: Long, scheduleId: Long, userId: Long)<br>스터디 일정 참여                       | void                          | Public     |
+|                   | getScheduleList(studyId: Long, userId: Long)<br>스터디 일정 목록 조회                                  | List<ScheduleListResponse>    | Public     |
 
-| Class Name        | NotificationService                           |                               |            |
-| ----------------- | --------------------------------------------- | ----------------------------- | ---------- |
-| Class Description | 알림 생성, 조회, 상태 변경 등 비즈니스 로직을 담당                |                               |            |
-| 구분                | Name                                          | Return Type                   | Visibility |
-| Operations        | notifyJoinRequest(Long studyId, Long userId)  | void                          | Public     |
-|                   | notifyJoinApproved(Long memberId)             | void                          | Public     |
-|                   | notifyJoinDenied(Long memberId)               | void                          | Public     |
-|                   | notifyMemberLeft(Long studyId, Long userId)   | void                          | Public     |
-|                   | notifyMemberKicked(Long memberId)             | void                          | Public     |
-|                   | notifyMembersNewSchedule(Long studyId)        | void                          | Public     |
-|                   | notifyMembersScheduleUpdated(Long scheduleId) | void                          | Public     |
-|                   | notifyMembersScheduleDeleted(Long scheduleId) | void                          | Public     |
-|                   | getNotifications(Long userId)                 | List<NotificationResponseDto> | Public     |
-|                   | markAsRead(Long notificationId)               | void                          | Public     |
-#### Controller Class
+#### Repository Class
+| Class Name        | StudyScheduleRepository                                  |                     |            |
+| ----------------- | -------------------------------------------------------- | ------------------- | ---------- |
+| Class Description | 스터디 일정 정보를 조회/삭제하는 데이터 접근 인터페이스                          |                     |            |
+| 구분                | Name                                                     | Type                | Visibility |
+| Operations        | findByStudy_StudyId(Long studyId)<br>특정 스터디의 전체 일정 조회    | List<StudySchedule> | Public     |
+|                   | deleteByStudy_StudyId(Long studyId)<br>스터디 삭제 시 일정 전체 삭제 | void                | Public     |
+|                   | findAllByStudy_StudyId(Long studyId)<br>전체 일정 조회         | List<StudySchedule> | Public     |
 
-| Class Name        | NotificationController                  |                                               |            |
-| ----------------- | --------------------------------------- | --------------------------------------------- | ---------- |
-| Class Description | 클라이언트 요청을 받아 알림을 조회하거나 읽음 처리하는 컨트롤러     |                                               |            |
-| 구분                | Name                                    | Return Type                                   | Visibility |
-| Operations        | getUserNotifications(Long userId)       | ResponseEntity<List<NotificationResponseDto>> | Public     |
-|                   | markAsRead(Long notificationId)         | ResponseEntity<Void>                          | Public     |
-|                   | deleteNotification(Long notificationId) | ResponseEntity<Void>                          | Public     |
+| Class Name        | ScheduleParticipateRepository                                             |         |            |
+| ----------------- | ------------------------------------------------------------------------- | ------- | ---------- |
+| Class Description | 일정 참여 여부 검증 및 참여자 수 조회/삭제 기능을 제공하는 Repository 인터페이스                       |         |            |
+| 구분                | Name                                                                      | Type    | Visibility |
+| Operations        | existsBySchedule_ScheduleIdAndUser_UserId(scheduleId, userId)<br>참여 여부 확인 | boolean | Public     |
+|                   | countBySchedule_ScheduleId(scheduleId)<br>일정 참여자 수 조회                     | int     | Public     |
+|                   | deleteBySchedule_Study_StudyId(studyId)<br>스터디 삭제 시 참여 기록 삭제              | void    | Public     |
+|                   | deleteBySchedule_ScheduleId(scheduleId)<br>일정 삭제 시 참여 기록 삭제               | void    | Public     |
+
+
+#### Dto Class
+| Class Name        | StudyScheduleCreateRequest |               |            |
+| ----------------- | -------------------------- | ------------- | ---------- |
+| Class Description | 스터디 일정 생성 요청 시 전달되는 요청 DTO |               |            |
+| 구분                | Name                       | Type          | Visibility |
+| Attribute         | comment                    | String        | Private    |
+|                   | startedAt                  | LocalDateTime | Private    |
+|                   | endAt                      | LocalDateTime | Private    |
+
+| Class Name        | ScheduleListResponse              |         |            |
+| ----------------- | --------------------------------- | ------- | ---------- |
+| Class Description | 스터디 일정 목록 조회 시 각 일정 정보를 담는 응답 DTO |         |            |
+| 구분                | Name                              | Type    | Visibility |
+| Attribute         | scheduleId                        | Long    | Private    |
+|                   | comment                           | String  | Private    |
+|                   | startedAt                         | String  | Private    |
+|                   | endAt                             | String  | Private    |
+|                   | participateCount                  | int     | Private    |
+|                   | totalMemberCount                  | int     | Private    |
+|                   | isParticipated                    | boolean | Private    |
+
 
 
 
