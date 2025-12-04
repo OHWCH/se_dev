@@ -4896,282 +4896,536 @@ Access Token이 만료되면 프론트엔드는 자동 또는 수동으로 저�
 컨트롤러에서 AuthService.refresh(refreshToken)이 호출되면, 서비스는 우선 JwtTokenProvider.validateToken(refreshToken)으로 토큰이 유효한지 검사한다. 유효하지 않다면 오류를 반환한다. 유효하다면 getUserIdFromToken(refreshToken)을 통해 userId를 추출하고, 해당 userId로 DB에서 사용자 엔터티를 조회한다. 탈퇴된 계정이면 예외를 던진다.
 
 정상 사용자라면 기존과 동일한 방식으로 Access Token과 Refresh Token을 새로 발급한다. 즉, userId와 역할 정보를 기반으로 JWT를 새롭게 생성하고 AuthTokens 형태로 반환한다. 프론트는 새 토큰을 저장한 후, 방금 실패했던 API 요청을 다시 보내어 무중단으로 서비스를 이용할 수 있게 된다.
-## 스터디디
-### 스터디 생성
 
+
+### 스터디
+
+#### 스터디 생성
 ```mermaid
 sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyRepository
+    actor User
+    User ->> StudyController: POST /studies (StudyCreateDto)
+    StudyController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyController: userId
+    StudyController ->> StudyService: createStudy(dto, userId)
 
-    User->>StudyController: 스터디 생성 요청 (createStudy)
-    StudyController->>StudyService: createStudy(studyRequestDto)
-    StudyService->>StudyRepository: save(studyEntity)
-    StudyRepository-->>StudyService: 저장 완료 (studyId 반환)
-    StudyService-->>StudyController: 생성 성공 (StudyResponseDto)
-    StudyController-->>User: "스터디가 성공적으로 생성되었습니다." (201 Created)
+    StudyService ->> UserRepository: findById(leaderId)
+    UserRepository -->> StudyService: UserEntity
+
+    StudyService ->> StudyRepository: save(Study)
+    StudyRepository -->> StudyService: Study(savedStudy)
+
+    StudyService ->> StudyMemberRepository: save(leaderMember)
+    StudyMemberRepository -->> StudyService: StudyMember
+
+    StudyService -->> StudyController: studyId
+    StudyController -->> User: MessageResponse("스터디 생성 완료")
 
 ```
-사용자가 스터디 생성 폼에서 ‘생성’ 버튼을 클릭하면 요청이 시작된다. 사용자가 입력한 스터디 정보(studyRequestDto)는 StudyController로 전달된다. Controller는 전달받은 요청 데이터를 StudyService에 넘기며 서비스 계층의 createStudy 메서드를 호출한다. StudyService는 전달된 데이터의 유효성을 검증하고 제목, 카테고리, 설명 등의 누락 여부를 확인한다. 검증이 통과되면 새로운 StudyEntity를 생성하고, StudyRepository를 통해 데이터베이스에 저장한다. 저장이 완료되면 StudyService는 생성된 스터디의 정보를 StudyResponseDto 형태로 반환하고, Controller는 이를 사용자에게 “스터디가 성공적으로 생성되었습니다.”라는 메시지와 함께 응답한다. 만약 유효성 검증 단계에서 오류가 발생하면 StudyService는 예외를 반환하고, Controller는 사용자에게 오류 메시지를 표시하며 프로세스를 종료한다.
+사용자가 새 스터디를 생성하면 StudyController는 전달받은 StudyCreateDto와 현재 로그인한 사용자 ID를 StudyService로 전달한다.
+StudyService는 리더 정보가 유효한지 UserRepository를 통해 조회하고, 새 Study 엔티티를 생성하여 StudyRepository에 저장한다.
+저장된 스터디 정보를 기반으로 해당 사용자(리더)를 StudyMember로 자동 등록한다.
+모든 처리 후 StudyService는 생성된 스터디의 ID를 반환하며, Controller는 최종적으로 “스터디 생성 완료”라는 메시지를 사용자에게 응답한다.
+만약 리더 유저 ID가 존재하지 않는다면 예외가 발생하며, Controller는 오류 메시지를 반환하고 요청을 종료한다.
 
-
-### 스터디 수정
-
+#### 전체 스터디 목록 조회
 ```mermaid
 sequenceDiagram
+    actor User
+    User ->> StudyController: GET /studies?page=0
+    StudyController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyController: userId
 
-    participant User
+    StudyController ->> StudyService: getStudyList(userId, pageable)
+    StudyService ->> StudyRepository: findAllByIsDeletedFalse(pageable)
+    StudyRepository -->> StudyService: Page<Study>
 
-    participant StudyController
+    loop 각 Study마다
+        StudyService ->> StudyMemberRepository: countByStudy_StudyIdAndJoinStatus(studyId, APPROVED)
+        StudyMemberRepository -->> StudyService: currentMembers
 
-    participant StudyService
-
-    participant StudyRepository
-
-  
-
-    User->>StudyController: 스터디 수정 요청 (updateStudy)
-
-    StudyController->>StudyService: updateStudy(studyId, studyRequestDto)
-
-    StudyService->>StudyRepository: findById(studyId)
-
-    StudyRepository-->>StudyService: 기존 StudyEntity 반환
-
-    StudyService-->>StudyRepository: save(수정된 StudyEntity)
-
-    StudyRepository-->>StudyService: 저장 완료
-
-    StudyService-->>StudyController: 수정 성공 (StudyResponseDto)
-
-    StudyController-->>User: "스터디 정보가 수정되었습니다." (200 OK)
-```
-사용자가 스터디 상세 페이지에서 ‘수정’ 버튼을 클릭하면 수정 요청이 시작된다. 사용자가 입력한 변경된 정보(studyRequestDto)는 StudyController로 전달된다. Controller는 이 데이터를 StudyService의 updateStudy 메서드에 전달하여 수정 처리를 요청한다. StudyService는 먼저 StudyRepository를 통해 전달된 studyId로 기존 스터디 엔티티를 조회한다. 조회된 데이터가 존재하면 입력된 내용으로 엔티티의 필드를 수정하고, 수정된 StudyEntity를 다시 StudyRepository의 save 메서드를 통해 데이터베이스에 저장한다. 저장이 성공적으로 완료되면 StudyService는 수정된 스터디 정보를 StudyResponseDto 형태로 반환하고, Controller는 “스터디 정보가 수정되었습니다.”라는 메시지를 사용자에게 응답한다. 만약 스터디가 존재하지 않거나 유효성 검증에 실패한 경우, StudyService는 오류를 반환하고 Controller는 사용자에게 오류 메시지를 표시하며 프로세스를 종료한다.
-
-### 스터디 삭제
-```mermaid
-sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyRepository
-
-    User->>StudyController: 스터디 삭제 요청 (deleteStudy)
-    StudyController->>StudyService: deleteStudy(studyId)
-    StudyService->>StudyRepository: findById(studyId)
-    StudyRepository-->>StudyService: StudyEntity 반환
-    StudyService->>StudyRepository: delete(studyEntity)
-    StudyRepository-->>StudyService: 삭제 완료
-    StudyService-->>StudyController: 삭제 성공
-    StudyController-->>User: "스터디가 삭제되었습니다." (200 OK)
-
-```
-사용자가 스터디 상세 화면에서 ‘삭제’ 버튼을 클릭하면 삭제 요청이 시작된다. 요청은 StudyController로 전달되며, Controller는 전달받은 스터디 식별자(studyId)를 이용해 StudyService의 deleteStudy 메서드를 호출한다. StudyService는 StudyRepository를 통해 해당 스터디의 존재 여부를 확인하고, 조회 결과가 존재할 경우 delete 메서드를 호출하여 데이터베이스에서 해당 스터디를 삭제한다. 삭제가 완료되면 StudyService는 처리 결과를 반환하고, Controller는 “스터디가 삭제되었습니다.”라는 메시지를 사용자에게 전송한다. 만약 존재하지 않는 스터디이거나 삭제 과정에서 오류가 발생하면, StudyService는 예외를 발생시키고 Controller는 사용자에게 오류 메시지를 표시하며 과정을 종료한다.
-
-
-### 스터디 목록 조회
-```mermaid
-sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyRepository
-
-    User->>StudyController: 스터디 목록 조회 요청 (getStudyList)
-    StudyController->>StudyService: getStudyList(filter or category)
-    StudyService->>StudyRepository: findAll() or findByCategory(category)
-    StudyRepository-->>StudyService: 스터디 목록(List<StudyEntity>) 반환
-    StudyService-->>StudyController: StudyListResponseDto 반환
-    StudyController-->>User: 스터디 목록 응답 (200 OK)
-
-```
-사용자가 스터디 목록 페이지에 접근하거나 필터를 선택하면 목록 조회 요청이 시작된다. 요청은 StudyController로 전달되며, Controller는 StudyService의 getStudyList 메서드를 호출하여 서비스 계층에 처리를 위임한다. StudyService는 전달받은 필터 조건이나 카테고리를 기반으로 StudyRepository의 findAll 또는 findByCategory 메서드를 호출한다. Repository는 조건에 맞는 스터디 엔티티 목록을 조회하여 Service로 반환한다. StudyService는 반환된 데이터를 StudyListResponseDto로 변환하고 Controller에 전달한다. Controller는 스터디 목록 데이터를 사용자 화면에 표시하며, 응답 결과가 없을 경우 빈 목록 또는 안내 메시지를 출력한다. 데이터베이스 오류나 통신 오류가 발생한 경우, Controller는 오류 메시지를 사용자에게 보여주고 흐름을 종료한다.
-
-### 스터디 상세조회
-```mermaid
-sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyRepository
-
-    User->>StudyController: 스터디 상세 조회 요청 (getStudyDetail)
-    StudyController->>StudyService: getStudyDetail(studyId)
-    StudyService->>StudyRepository: findById(studyId)
-    StudyRepository-->>StudyService: StudyEntity 반환
-    StudyService-->>StudyController: StudyDetailResponseDto 반환
-    StudyController-->>User: 스터디 상세 정보 응답 (200 OK)
-
-```
-사용자가 특정 스터디를 클릭하면 상세 조회 요청이 시작된다. StudyController는 전달받은 studyId를 StudyService의 getStudyDetail 메서드에 전달한다. StudyService는 StudyRepository를 통해 해당 ID의 스터디 엔티티를 조회하고, 조회 결과가 존재할 경우 이를 StudyDetailResponseDto로 변환한다. 변환된 DTO는 Controller에 전달되고, Controller는 이를 사용자에게 상세 정보 페이지 형태로 응답한다. 만약 요청한 스터디가 존재하지 않거나 이미 삭제된 경우 StudyService는 예외를 반환하며, Controller는 사용자에게 “요청하신 스터디 정보를 찾을 수 없습니다.”라는 오류 메시지를 표시하고 프로세스를 종료한다.
-
-
-### 스터디 참여 신청
-```mermaid
-sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyMemberRepository
-    participant StudyRepository
-
-    User->>StudyController: 스터디 참여 신청 요청 (applyToStudy)
-    StudyController->>StudyService: applyToStudy(studyId, userId)
-    StudyService->>StudyRepository: findById(studyId)
-    StudyRepository-->>StudyService: StudyEntity 반환
-    StudyService->>StudyMemberRepository: existsByStudyAndUser(studyId, userId)
-    StudyMemberRepository-->>StudyService: false (참여 이력 없음)
-    StudyService->>StudyMemberRepository: save(new StudyMemberEntity)
-    StudyMemberRepository-->>StudyService: 저장 완료
-    StudyService-->>StudyController: 신청 성공 (대기 상태)
-    StudyController-->>User: "스터디 참여 신청이 완료되었습니다." (201 Created)
-
-```
-사용자가 특정 스터디의 상세 페이지에서 ‘참여 신청’ 버튼을 클릭하면 참여 요청이 시작된다. 이 요청은 StudyController로 전달되며, Controller는 사용자 정보(userId)와 스터디 식별자(studyId)를 StudyService의 applyToStudy 메서드에 전달한다. StudyService는 먼저 StudyRepository를 통해 해당 스터디의 존재 여부를 확인하고, 존재할 경우 StudyMemberRepository를 통해 사용자의 기존 신청 여부를 조회한다. 만약 기존에 참여 이력이 없다면 새로운 StudyMemberEntity를 생성하고 상태를 ‘대기(PENDING)’로 설정하여 StudyMemberRepository의 save 메서드를 통해 저장한다. 저장이 완료되면 StudyService는 신청 결과를 반환하고, Controller는 “스터디 참여 신청이 완료되었습니다.”라는 메시지를 사용자에게 전달한다. 만약 이미 신청된 상태이거나 스터디가 존재하지 않을 경우 StudyService는 예외를 발생시키며, Controller는 사용자에게 오류 메시지를 표시하고 프로세스를 종료한다.
-
-### 스터디 참여 승인/거절
-```mermaid
-sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyMemberRepository
-    participant NotificationService
-
-    User->>StudyController: 스터디 참여 승인/거절 요청 (approveOrDenyJoin)
-    StudyController->>StudyService: approveOrDenyJoin(studyId, memberId, decision)
-    StudyService->>StudyMemberRepository: findByStudyAndUser(studyId, memberId)
-    StudyMemberRepository-->>StudyService: StudyMemberEntity 반환
-    alt 승인(decision == APPROVE)
-        StudyService-->>StudyMemberRepository: updateStatus(APPROVED)
-        StudyService->>NotificationService: notifyJoinApproved(memberId)
-    else 거절(decision == DENY)
-        StudyService-->>StudyMemberRepository: updateStatus(DENIED)
-        StudyService->>NotificationService: notifyJoinDenied(memberId)
+        StudyService ->> StudyMemberRepository: findByStudy_StudyIdAndUser_UserId(studyId, userId)
+        StudyMemberRepository -->> StudyService: Optional<StudyMember>
     end
-    StudyService-->>StudyController: 처리 결과 반환 (성공 메시지)
-    StudyController-->>User: "요청이 처리되었습니다." (200 OK)
+
+    StudyService -->> StudyController: Page<StudyListResponse>
+    StudyController -->> User: StudyPageResponse
 
 ```
-스터디 리더가 스터디 관리 화면에서 참여 신청자 목록을 확인하고 ‘승인’ 또는 ‘거절’ 버튼을 클릭하면 요청이 시작된다. 요청은 StudyController를 거쳐 StudyService의 approveOrDenyJoin 메서드로 전달되며, 스터디 ID와 신청자 ID, 그리고 승인 여부(decision)가 함께 전달된다. StudyService는 StudyMemberRepository를 통해 해당 신청자의 엔티티를 조회하고, 전달받은 decision 값이 승인일 경우 상태를 ‘승인(APPROVED)’으로, 거절일 경우 ‘거절(DENIED)’으로 변경한다. 변경된 상태는 save 메서드를 통해 데이터베이스에 반영되며, 이후 NotificationService를 호출하여 해당 사용자에게 승인 또는 거절 알림을 전송한다. 알림 전송이 완료되면 StudyService는 결과를 Controller에 반환하고, Controller는 “요청이 처리되었습니다.”라는 메시지를 리더에게 표시한다. 만약 존재하지 않는 신청자이거나 이미 처리된 요청일 경우 StudyService는 오류를 발생시키고, Controller는 오류 메시지를 출력한다.
-### 스터디 탈퇴
+사용자가 스터디 목록 페이지에 접근하면 Controller는 사용자 ID와 페이지 정보를 StudyService에 전달한다.
+StudyService는 StudyRepository로부터 삭제되지 않은 스터디 목록을 페이징 조회하고, 각 스터디마다 현재 승인된 멤버 수와 사용자 참여 상태를 조회한다.
+조회된 결과들은 StudyListResponse 형태로 변환된다.
+Controller는 이를 다시 StudyPageResponse로 구성해 사용자에게 반환한다.
+만약 조회된 스터디가 하나도 없더라도 정상적으로 빈 목록이 응답된다.
+
+#### 내가 가입한 스터디 목록 조회
 ```mermaid
 sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyMemberRepository
-    participant NotificationService
+    actor User
+    User ->> StudyController: GET /studies/me
+    StudyController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyController: userId
 
-    User->>StudyController: 스터디 탈퇴 요청 (leaveStudy)
-    StudyController->>StudyService: leaveStudy(studyId, userId)
-    StudyService->>StudyMemberRepository: findByStudyAndUser(studyId, userId)
-    StudyMemberRepository-->>StudyService: StudyMemberEntity 반환
-    StudyService->>StudyMemberRepository: delete(StudyMemberEntity)
-    StudyMemberRepository-->>StudyService: 삭제 완료
-    StudyService->>NotificationService: notifyLeaderMemberLeft(studyId, userId)
-    NotificationService-->>StudyService: 알림 전송 완료
-    StudyService-->>StudyController: 탈퇴 성공
-    StudyController-->>User: "스터디를 탈퇴했습니다." (200 OK)
+    StudyController ->> StudyService: getMyStudyList(userId)
+    StudyService ->> StudyMemberRepository: findByUser_UserIdAndJoinStatus(userId, APPROVED)
+    StudyMemberRepository -->> StudyService: List<StudyMember>
+
+    loop 각 StudyMember
+        StudyService ->> StudyMemberRepository: countByStudy_StudyIdAndJoinStatus(studyId, APPROVED)
+        StudyMemberRepository -->> StudyService: currentMembers
+    end
+
+    StudyService -->> StudyController: List<StudyListResponse>
+    StudyController -->> User: JSON(List)
 
 ```
-스터디에 참여 중인 사용자가 ‘스터디 탈퇴’ 버튼을 클릭하면 요청이 시작된다. 요청은 StudyController를 통해 StudyService의 leaveStudy 메서드로 전달되며, 스터디 식별자와 사용자 정보가 함께 전달된다. StudyService는 StudyMemberRepository를 통해 해당 사용자의 스터디 참여 정보를 조회하고, 조회 결과가 존재하면 delete 메서드를 호출하여 데이터베이스에서 해당 멤버 정보를 삭제한다. 삭제가 완료되면 StudyService는 NotificationService를 호출하여 스터디 리더에게 탈퇴 알림을 전송한다. 알림이 전송되면 StudyService는 결과를 반환하고, Controller는 사용자에게 “스터디를 탈퇴했습니다.”라는 메시지를 출력한다. 만약 스터디 참여 정보가 존재하지 않거나 삭제 중 오류가 발생할 경우, StudyService는 예외를 발생시키며 Controller는 사용자에게 오류 메시지를 표시하고 흐름을 종료한다.
-### 스터디 강퇴
+사용자가 자신의 스터디 목록을 조회하면 Controller는 사용자 ID를 StudyService로 전달한다.
+StudyService는 StudyMemberRepository를 통해 승인된 상태(APPROVED)의 사용자가 포함된 스터디 목록을 조회한다.
+각 스터디에 대해 현재 멤버 수 등을 계산한 뒤 StudyListResponse로 변환한다.
+최종적으로 Controller는 사용자가 소속된 스터디 목록을 JSON 형태로 응답한다.
+가입된 스터디가 하나도 없을 경우 빈 배열을 반환한다.
+
+#### 스터디 관리 페이지 조회
 ```mermaid
 sequenceDiagram
-    participant User
-    participant StudyController
-    participant StudyService
-    participant StudyMemberRepository
-    participant NotificationService
+    actor User
+    User ->> StudyController: GET /studies/{id}/manage
+    StudyController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyController: userId
 
-    User->>StudyController: 스터디 강퇴 요청 (kickMember)
-    StudyController->>StudyService: kickMember(studyId, targetMemberId)
-    StudyService->>StudyMemberRepository: findByStudyAndUser(studyId, targetMemberId)
-    StudyMemberRepository-->>StudyService: StudyMemberEntity 반환
-    StudyService->>StudyMemberRepository: delete(StudyMemberEntity)
-    StudyMemberRepository-->>StudyService: 삭제 완료
-    StudyService->>NotificationService: notifyMemberKicked(targetMemberId)
-    NotificationService-->>StudyService: 알림 전송 완료
-    StudyService-->>StudyController: 강퇴 처리 완료
-    StudyController-->>User: "해당 멤버를 강퇴했습니다." (200 OK)
+    StudyController ->> StudyService: getManagePageInfo(studyId, userId)
+    StudyService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyService: Study
+
+    StudyService ->> StudyMemberService: getApplicants(studyId)
+    StudyMemberService ->> StudyMemberRepository: findByStudy_StudyIdAndJoinStatus(APPLIED)
+    StudyMemberRepository -->> StudyMemberService: Applicants
+
+    StudyMemberService -->> StudyService: ApplicantResponseList
+
+    StudyService ->> StudyMemberService: getStudyMembers(studyId)
+    StudyMemberService ->> StudyMemberRepository: findByStudy_StudyIdAndJoinStatus(APPROVED)
+    StudyMemberRepository -->> StudyMemberService: Members
+
+    StudyMemberService -->> StudyService: MemberResponseList
+
+    StudyService -->> StudyController: StudyManageResponse
+    StudyController -->> User: JSON
 
 ```
-스터디 리더가 관리 화면에서 특정 멤버를 선택하고 ‘강퇴’ 버튼을 클릭하면 요청이 시작된다. 이 요청은 StudyController로 전달되어 StudyService의 kickMember 메서드로 전달된다. StudyService는 StudyMemberRepository를 통해 해당 멤버의 참여 정보를 조회하고, 조회 결과가 존재하면 delete 메서드를 호출하여 데이터베이스에서 해당 멤버의 정보를 삭제한다. 삭제가 완료되면 StudyService는 NotificationService를 호출하여 강퇴된 멤버에게 알림을 전송한다. 알림이 정상적으로 전송되면 StudyService는 처리 결과를 반환하고, Controller는 “해당 멤버를 강퇴했습니다.”라는 메시지를 리더에게 표시한다. 만약 강퇴 대상이 존재하지 않거나 이미 탈퇴한 사용자일 경우 StudyService는 예외를 발생시키고, Controller는 오류 메시지를 출력하며 과정을 종료한다.
+사용자가 스터디 관리 페이지를 열면 Controller는 studyId와 userId를 StudyService에 전달한다.
+StudyService는 StudyRepository로부터 스터디 존재 여부를 확인한 뒤, 스터디 정보와 가입 신청자 목록, 승인된 멤버 목록을 각각 조회한다.
+조회된 데이터들은 StudyInfoResponse, StudyApplicantResponse, StudyMemberResponse로 포장된다.
+StudyService는 이를 StudyManageResponse로 조합해 Controller로 반환한다.
+Controller는 최종적으로 관리 페이지 전체 정보를 사용자에게 응답한다.
 
-## 일정
-### 일정 등록
+#### 스터디 정보 수정
 ```mermaid
 sequenceDiagram
-    participant User
-    participant StudyScheduleController
-    participant StudyScheduleService
-    participant StudyRepository
-    participant StudyScheduleRepository
-    participant NotificationService
+    actor User
+    User ->> StudyController: PUT /studies/{id} (StudyUpdateDto)
+    StudyController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyController: userId
 
-    User->>StudyScheduleController: 스터디 일정 등록 요청 (createSchedule)
-    StudyScheduleController->>StudyScheduleService: createSchedule(studyId, scheduleRequestDto)
-    StudyScheduleService->>StudyRepository: findById(studyId)
-    StudyRepository-->>StudyScheduleService: StudyEntity 반환
-    StudyScheduleService->>StudyScheduleRepository: save(new StudyScheduleEntity)
-    StudyScheduleRepository-->>StudyScheduleService: 저장 완료
-    StudyScheduleService->>NotificationService: notifyMembersNewSchedule(studyId)
-    NotificationService-->>StudyScheduleService: 알림 전송 완료
-    StudyScheduleService-->>StudyScheduleController: 등록 성공 (StudyScheduleResponseDto)
-    StudyScheduleController-->>User: "스터디 일정이 등록되었습니다." (201 Created)
+    StudyController ->> StudyService: updateStudy(studyId, userId, dto)
+    StudyService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyService: Study
+
+    StudyService ->> StudyService: validate leader
+    StudyService ->> Study: update fields
+
+    StudyService -->> StudyController: void
+    StudyController -->> User: MessageResponse("수정 완료")
 
 ```
-스터디 리더가 일정 관리 화면에서 ‘일정 등록’ 버튼을 클릭하면 요청이 시작된다. 사용자가 입력한 일정 정보(scheduleRequestDto)는 StudyScheduleController로 전달된다. Controller는 전달받은 스터디 식별자와 일정 데이터를 StudyScheduleService의 createSchedule 메서드로 넘겨 일정 등록을 요청한다. StudyScheduleService는 StudyRepository를 통해 해당 스터디가 존재하는지 확인한 후, 새로운 StudyScheduleEntity를 생성하고 일정 제목, 내용, 시작일, 종료일 등을 초기화한다. 생성된 엔티티는 StudyScheduleRepository의 save 메서드를 통해 데이터베이스에 저장된다. 저장이 완료되면 StudyScheduleService는 NotificationService를 호출하여 스터디 멤버들에게 새로운 일정 알림을 전송한다. 알림 전송이 끝나면 StudyScheduleService는 결과를 Controller에 반환하고, Controller는 사용자에게 “스터디 일정이 등록되었습니다.”라는 메시지를 표시한다. 만약 스터디가 존재하지 않거나 필수 정보가 누락된 경우 StudyService는 예외를 반환하며, Controller는 사용자에게 오류 메시지를 출력하고 프로세스를 종료한다.
-### 일정 수정
+사용자가 스터디 정보를 수정하면 Controller는 studyId와 수정 요청 DTO, userId를 StudyService로 전달한다.
+StudyService는 스터디가 존재하는지 조회하고, 요청한 사용자가 스터디 리더인지 검증한다.
+검증이 완료되면 전달받은 DTO의 값으로 스터디 이름·설명·카테고리·정원 등을 업데이트한다.
+업데이트된 데이터는 StudyRepository를 통해 저장된다.
+Controller는 “스터디 정보가 수정되었습니다.”라는 메시지를 사용자에게 반환한다.
+
+#### 스터디 메인 페이지 조회
 ```mermaid
 sequenceDiagram
-    participant User
-    participant StudyScheduleController
-    participant StudyScheduleService
-    participant StudyScheduleRepository
-    participant NotificationService
+    actor User
+    User ->> StudyController: GET /studies/{id}/main
 
-    User->>StudyScheduleController: 스터디 일정 수정 요청 (updateSchedule)
-    StudyScheduleController->>StudyScheduleService: updateSchedule(scheduleId, scheduleRequestDto)
-    StudyScheduleService->>StudyScheduleRepository: findById(scheduleId)
-    StudyScheduleRepository-->>StudyScheduleService: StudyScheduleEntity 반환
-    StudyScheduleService->>StudyScheduleRepository: save(수정된 StudyScheduleEntity)
-    StudyScheduleRepository-->>StudyScheduleService: 저장 완료
-    StudyScheduleService->>NotificationService: notifyMembersScheduleUpdated(scheduleId)
-    NotificationService-->>StudyScheduleService: 알림 전송 완료
-    StudyScheduleService-->>StudyScheduleController: 수정 성공 (StudyScheduleResponseDto)
-    StudyScheduleController-->>User: "스터디 일정이 수정되었습니다." (200 OK)
+    StudyController ->> StudyService: getStudyMainPage(studyId)
+    StudyService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyService: Study
+
+    StudyService ->> StudyMemberRepository: countByStudy_StudyIdAndJoinStatus(APPROVED)
+    StudyMemberRepository -->> StudyService: currentMembers
+
+    StudyService ->> StudyMemberRepository: findByStudy_StudyIdAndJoinStatus(APPROVED)
+    StudyMemberRepository -->> StudyService: List<StudyMember>
+
+    StudyService ->> StudyScheduleRepository: findByStudy_StudyId(studyId)
+    StudyScheduleRepository -->> StudyService: List<StudySchedule>
+
+    StudyService -->> StudyController: StudyMainPageResponse
+    StudyController -->> User: JSON
 
 ```
-스터디 리더가 기존 일정을 수정하기 위해 일정 목록에서 수정 대상을 선택하고 ‘수정’ 버튼을 클릭하면 요청이 시작된다. 사용자가 변경한 일정 정보(scheduleRequestDto)는 StudyScheduleController로 전달되고, Controller는 이를 StudyScheduleService의 updateSchedule 메서드에 전달한다. StudyScheduleService는 StudyScheduleRepository를 통해 일정 ID로 기존 일정을 조회한다. 조회된 StudyScheduleEntity가 존재하면 전달된 데이터로 제목, 내용, 시간 등을 수정하고, 수정된 엔티티를 save 메서드를 통해 데이터베이스에 반영한다. 저장이 완료되면 StudyScheduleService는 NotificationService를 호출하여 스터디 멤버들에게 일정이 변경되었음을 알린다. 알림 전송이 끝나면 StudyScheduleService는 처리 결과를 반환하고, Controller는 사용자에게 “스터디 일정이 수정되었습니다.”라는 메시지를 표시한다. 만약 해당 일정이 존재하지 않거나 수정 권한이 없는 경우 StudyScheduleService는 예외를 발생시키고, Controller는 사용자에게 오류 메시지를 보여준다.
+사용자가 특정 스터디의 메인 페이지를 열면 Controller는 studyId를 StudyService로 전달한다.
+StudyService는 해당 스터디의 기본 정보와 현재 승인된 멤버 리스트를 조회한다.
+또한 스터디에 연결된 모든 일정 데이터를 가져와 StudyMainScheduleResponse 리스트로 변환한다.
+StudyService는 스터디 정보, 리더 깃허브 ID, 멤버 목록, 일정 목록을 포함한 StudyMainPageResponse를 생성하여 반환한다.
+Controller는 최종 페이지 데이터를 클라이언트에 응답한다.
 
-### 일정 삭제
+#### 스터디 삭제
 ```mermaid
 sequenceDiagram
-    participant User
-    participant StudyScheduleController
-    participant StudyScheduleService
-    participant StudyScheduleRepository
-    participant NotificationService
+    actor User
+    User ->> StudyController: DELETE /studies/{id}
+    StudyController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyController: userId
 
-    User->>StudyScheduleController: 스터디 일정 삭제 요청 (deleteSchedule)
-    StudyScheduleController->>StudyScheduleService: deleteSchedule(scheduleId)
-    StudyScheduleService->>StudyScheduleRepository: findById(scheduleId)
-    StudyScheduleRepository-->>StudyScheduleService: StudyScheduleEntity 반환
-    StudyScheduleService->>StudyScheduleRepository: delete(StudyScheduleEntity)
-    StudyScheduleRepository-->>StudyScheduleService: 삭제 완료
-    StudyScheduleService->>NotificationService: notifyMembersScheduleDeleted(scheduleId)
-    NotificationService-->>StudyScheduleService: 알림 전송 완료
-    StudyScheduleService-->>StudyScheduleController: 삭제 성공
-    StudyScheduleController-->>User: "스터디 일정이 삭제되었습니다." (200 OK)
+    StudyController ->> StudyService: deleteStudy(studyId, userId)
+
+    StudyService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyService: Study
+
+    StudyService ->> StudyScheduleRepository: findAllByStudy_StudyId(studyId)
+    StudyScheduleRepository -->> StudyService: schedules
+
+    loop 각 Schedule
+        StudyService ->> ScheduleParticipateRepository: deleteBySchedule_ScheduleId(scheduleId)
+    end
+
+    StudyService ->> StudyScheduleRepository: deleteByStudy_StudyId(studyId)
+    StudyScheduleRepository -->> StudyService: void
+
+    StudyService ->> StudyMemberRepository: deleteByStudy_StudyId(studyId)
+    StudyMemberRepository -->> StudyService: void
+
+    StudyService ->> StudyRepository: delete(study)
+    StudyRepository -->> StudyService: void
+
+    StudyService -->> StudyController: void
+    StudyController -->> User: MessageResponse("삭제 완료")
 
 ```
-스터디 리더가 일정 관리 화면에서 삭제할 일정을 선택하고 ‘삭제’ 버튼을 클릭하면 요청이 시작된다. 삭제 요청은 StudyScheduleController로 전달되며, Controller는 전달받은 일정 ID를 StudyScheduleService의 deleteSchedule 메서드로 전달한다. StudyScheduleService는 StudyScheduleRepository를 통해 해당 일정이 존재하는지 확인하고, 존재할 경우 delete 메서드를 호출하여 데이터베이스에서 해당 일정을 삭제한다. 삭제가 완료되면 StudyScheduleService는 NotificationService를 호출하여 스터디 멤버들에게 해당 일정이 삭제되었음을 알린다. 알림이 정상적으로 전송되면 StudyScheduleService는 처리 결과를 반환하고, Controller는 사용자에게 “스터디 일정이 삭제되었습니다.”라는 메시지를 표시한다. 만약 일정이 존재하지 않거나 삭제 중 오류가 발생할 경우, StudyScheduleService는 예외를 발생시키며 Controller는 사용자에게 오류 메시지를 표시하고 프로세스를 종료한다.
+사용자가 스터디를 삭제하면 Controller는 studyId와 userId를 StudyService로 전달한다.
+StudyService는 먼저 해당 스터디가 존재하는지 찾고, 요청자가 리더인지 확인한다.
+스터디에 포함된 모든 일정과 일정 참여기록, 그리고 스터디 멤버 엔티티를 순차적으로 삭제한다.
+관련된 모든 하위 데이터 삭제 후 StudyRepository를 통해 스터디 엔티티도 최종 삭제한다.
+Controller는 “스터디가 삭제되었습니다.”라는 메시지를 사용자에게 반환하며 요청을 종료한다.
 
+#### 스터디 가입 신청
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyMemberController: POST /studies/{id}/apply
+    StudyMemberController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyMemberController: userId
 
+    StudyMemberController ->> StudyMemberService: applyToStudy(studyId, userId)
+
+    StudyMemberService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyMemberService: Study
+
+    StudyMemberService ->> UserRepository: findById(userId)
+    UserRepository -->> StudyMemberService: UserEntity
+
+    StudyMemberService ->> StudyMemberRepository: existsByStudy_StudyIdAndUser_UserId(studyId, userId)
+    StudyMemberRepository -->> StudyMemberService: boolean(exists)
+
+    alt 이미 존재할 때
+        StudyMemberService -->> StudyMemberController: throw IllegalStateException
+    end
+
+    StudyMemberService ->> StudyMemberRepository: save(new StudyMember(APPLIED))
+    StudyMemberRepository -->> StudyMemberService: StudyMember
+
+    StudyMemberService -->> StudyMemberController: void
+    StudyMemberController -->> User: MessageResponse("스터디 가입 신청 완료")
+
+```
+사용자가 특정 스터디에 가입을 신청하면 Controller는 로그인한 사용자 ID와 스터디 ID를 StudyMemberService에 전달한다.
+StudyMemberService는 먼저 스터디가 존재하는지 확인하고, 신청 사용자가 실제 존재하는 사용자임을 UserRepository를 통해 검증한다.
+이미 신청했거나 가입된 기록이 있는지 StudyMemberRepository에서 중복 여부를 검사한다.
+중복이 없다면 joinStatus를 APPLIED로 설정한 StudyMember 엔티티를 생성하여 저장한다.
+Controller는 “스터디 가입 신청 완료”라는 메시지를 사용자에게 응답하며 요청이 종료된다.
+
+#### 가입 승인
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyMemberController: POST /studies/{id}/approve/{userId}
+    
+    StudyMemberController ->> StudyMemberService: approveMember(studyId, userId)
+
+    StudyMemberService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyMemberService: Study
+
+    StudyMemberService ->> UserRepository: findById(userId)
+    UserRepository -->> StudyMemberService: UserEntity
+
+    StudyMemberService ->> StudyMemberRepository: findByStudy_StudyIdAndUser_UserId(studyId, userId)
+    StudyMemberRepository -->> StudyMemberService: StudyMember
+
+    alt joinStatus != APPLIED
+        StudyMemberService -->> StudyMemberController: throw IllegalStateException
+    end
+
+    StudyMemberService ->> StudyMember: setJoinStatus(APPROVED)
+
+    StudyMemberService -->> StudyMemberController: void
+    StudyMemberController -->> User: MessageResponse("가입 승인 완료")
+
+```
+스터디장이 특정 사용자의 가입 신청을 승인하면 Controller는 studyId와 userId를 Service로 전달한다.
+StudyMemberService는 해당 스터디와 유저가 실제 존재하는지 각각 StudyRepository와 UserRepository를 통해 확인한다.
+StudyMemberRepository를 통해 요청한 멤버의 가입 신청 데이터를 조회하고, 상태가 APPLIED인지 검증한다.
+검증을 통과하면 joinStatus를 APPROVED로 변경해 승인 처리한다.
+Controller는 “가입 승인 완료”라는 메시지를 출력하며 작업은 정상적으로 완료된다.
+
+#### 가입 거절
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyMemberController: POST /studies/{id}/reject/{userId}
+
+    StudyMemberController ->> StudyMemberService: rejectMember(studyId, userId)
+
+    StudyMemberService ->> StudyMemberRepository: findByStudy_StudyIdAndUser_UserId(studyId, userId)
+    StudyMemberRepository -->> StudyMemberService: StudyMember
+
+    alt joinStatus != APPLIED
+        StudyMemberService -->> StudyMemberController: throw IllegalArgumentException
+    end
+
+    StudyMemberService ->> StudyMember: setJoinStatus(REJECTED)
+    StudyMemberService ->> StudyMemberRepository: save(member)
+
+    StudyMemberService -->> StudyMemberController: void
+    StudyMemberController -->> User: MessageResponse("가입 거절 완료")
+
+```
+스터디장이 어떤 사용자의 가입을 거절하려 할 때 Controller는 studyId와 userId 정보를 서비스로 전달한다.
+StudyMemberService는 해당 사용자가 실제로 APPLIED 상태인지 StudyMemberRepository를 통해 조회한다.
+해당 사용자가 신청 상태가 아니라면 예외가 발생하고 Controller는 오류 메시지를 반환한다.
+정상적인 신청 상태라면 joinStatus를 REJECTED로 변경하여 거절 처리한다.
+Controller는 “가입 거절 완료” 메시지를 반환하며 처리를 종료한다.
+
+#### 스터디 멤버 목록 조회
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyMemberController: GET /studies/{id}/members
+
+    StudyMemberController ->> StudyMemberService: getStudyMembers(studyId)
+
+    StudyMemberService ->> StudyMemberRepository: findByStudy_StudyIdAndJoinStatus(studyId, APPROVED)
+    StudyMemberRepository -->> StudyMemberService: List<StudyMember>
+
+    loop 각 멤버마다
+        StudyMemberService ->> StudyMemberResponse: build(dto)
+    end
+
+    StudyMemberService -->> StudyMemberController: List<StudyMemberResponse>
+    StudyMemberController -->> User: JSON
+
+```
+사용자가 스터디 멤버 목록을 조회하면 Controller는 studyId를 StudyMemberService로 전달한다.
+Service는 해당 스터디의 승인된(APPROVED) 멤버들을 StudyMemberRepository에서 조회한다.
+조회된 멤버 리스트는 StudyMemberResponse DTO로 변환되며, 멤버 ID·Github ID·역할·가입 상태 등이 담긴다.
+Service는 DTO 리스트를 Controller에 반환하고, Controller는 이를 JSON 형태로 사용자에게 전송한다.
+조회 대상이 없을 경우에도 빈 리스트로 정상 응답한다.
+
+#### 스터디 탈퇴
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyMemberController: DELETE /studies/{id}/members/me
+    StudyMemberController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyMemberController: userId
+
+    StudyMemberController ->> StudyMemberService: leaveStudy(studyId, userId)
+
+    StudyMemberService ->> StudyMemberRepository: findByStudy_StudyIdAndUser_UserId(studyId, userId)
+    StudyMemberRepository -->> StudyMemberService: StudyMember
+
+    alt member is LEADER
+        StudyMemberService ->> StudyMemberRepository: countByStudy_StudyIdAndJoinStatusIn(studyId, [APPROVED, APPLIED])
+        StudyMemberRepository -->> StudyMemberService: activeCount
+
+        alt activeCount > 1
+            StudyMemberService -->> StudyMemberController: throw IllegalArgumentException
+        end
+    end
+
+    StudyMemberService ->> StudyMember: setJoinStatus(LEFT)
+
+    StudyMemberService -->> StudyMemberController: void
+    StudyMemberController -->> User: MessageResponse("스터디 탈퇴 완료")
+
+```
+사용자가 스터디에서 탈퇴하면 Controller는 userId와 studyId를 StudyMemberService에 전달한다.
+Service는 해당 사용자가 스터디 멤버인지 StudyMemberRepository를 통해 조회한다.
+해당 사용자가 스터디 리더인 경우, 승인된 멤버가 2명 이상이면 리더는 탈퇴할 수 없도록 검증한다.
+모든 조건을 통과하면 joinStatus를 LEFT로 변경하여 탈퇴 처리한다.
+Controller는 “스터디 탈퇴가 완료되었습니다.”라는 메시지를 사용자에게 반환한다.
+
+#### 스터디 강퇴
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyMemberController: DELETE /studies/{id}/members/{targetUserId}
+    StudyMemberController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyMemberController: leaderId
+
+    StudyMemberController ->> StudyMemberService: kickMember(studyId, leaderId, targetUserId)
+
+    StudyMemberService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyMemberService: Study
+
+    alt leaderId != study.leader.userId
+        StudyMemberService -->> StudyMemberController: throw IllegalArgumentException
+    end
+
+    StudyMemberService ->> StudyMemberRepository: findByStudy_StudyIdAndUser_UserId(studyId, targetUserId)
+    StudyMemberRepository -->> StudyMemberService: StudyMember(target)
+
+    alt target.role == LEADER
+        StudyMemberService -->> StudyMemberController: throw IllegalArgumentException
+    end
+
+    alt target.joinStatus != APPROVED
+        StudyMemberService -->> StudyMemberController: throw IllegalArgumentException
+    end
+
+    StudyMemberService ->> StudyMember: setJoinStatus(LEFT)
+
+    StudyMemberService -->> StudyMemberController: void
+    StudyMemberController -->> User: MessageResponse("강퇴 완료")
+
+```
+스터디장이 특정 사용자를 강퇴하려 하면 Controller는 leaderId, studyId, targetUserId를 Service에 전달한다.
+Service는 먼저 요청자가 해당 스터디의 실제 리더인지 StudyRepository를 통해 확인한다.
+Target 사용자가 존재하는지 StudyMemberRepository로 조회하고, 리더를 강퇴하려는 요청이 아닌지 검사한다.
+또한 대상 멤버가 APPROVED 상태인지 확인하며, 신청자나 이미 탈퇴한 멤버는 강퇴할 수 없다.
+모든 조건이 충족되면 joinStatus를 LEFT로 변경하여 강퇴 처리하고, Controller는 “강퇴가 완료되었습니다.” 메시지를 반환한다.
+
+#### 스터디 일정 생성
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyScheduleController: POST /studies/{studyId}/schedules\n(request)
+    StudyScheduleController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyScheduleController: userId
+
+    StudyScheduleController ->> StudyScheduleService: createSchedule(studyId, userId, request)
+
+    StudyScheduleService ->> StudyRepository: findById(studyId)
+    StudyRepository -->> StudyScheduleService: Study
+
+    alt userId != study.leader.userId
+        StudyScheduleService -->> StudyScheduleController: throw IllegalArgumentException("스터디장만 생성 가능")
+    end
+
+    StudyScheduleService ->> StudyScheduleRepository: save(new StudySchedule)
+    StudyScheduleRepository -->> StudyScheduleService: StudySchedule(savedSchedule)
+
+    %% 스터디장 자동 참석
+    StudyScheduleService ->> ScheduleParticipateRepository: save(leaderParticipate)
+    ScheduleParticipateRepository -->> StudyScheduleService: ParticipateRecord
+
+    StudyScheduleService -->> StudyScheduleController: scheduleId
+    StudyScheduleController -->> User: MessageResponse("스터디 일정 생성 완료")
+
+```
+사용자가 특정 스터디에 일정을 생성하면 Controller는 로그인한 사용자 ID와 요청 데이터를 StudyScheduleService에 전달한다.
+Service는 StudyRepository를 통해 스터디가 실제 존재하는지 확인하고, 일정 생성자가 스터디 리더인지 검사한다.
+조건이 충족되면 요청 내용을 기반으로 새로운 StudySchedule 엔티티를 생성해 저장한다.
+또한 스터디장이기 때문에 생성된 일정에 자동으로 참석하도록 ScheduleParticipate 엔티티도 함께 저장한다.
+처리가 완료되면 Controller는 “스터디 일정 생성 완료”라는 메시지를 반환한다.
+
+#### 일정 참여
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyScheduleController: POST /studies/{studyId}/schedules/{scheduleId}/participate
+    StudyScheduleController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyScheduleController: userId
+
+    StudyScheduleController ->> StudyScheduleService: participate(studyId, scheduleId, userId)
+
+    %% 1. 멤버 여부 및 승인 확인
+    StudyScheduleService ->> StudyMemberRepository: findByStudy_StudyIdAndUser_UserId(studyId, userId)
+    StudyMemberRepository -->> StudyScheduleService: StudyMember(member)
+
+    alt member.joinStatus != APPROVED
+        StudyScheduleService -->> StudyScheduleController: throw IllegalArgumentException("승인된 멤버만 참여 가능")
+    end
+
+    %% 2. 이미 참여했는지 확인
+    StudyScheduleService ->> ScheduleParticipateRepository: existsBySchedule_ScheduleIdAndUser_UserId(scheduleId, userId)
+    ScheduleParticipateRepository -->> StudyScheduleService: boolean(alreadyJoin)
+
+    alt alreadyJoin == true
+        StudyScheduleService -->> StudyScheduleController: throw IllegalArgumentException("이미 참여한 유저")
+    end
+
+    %% 3. 스케줄 조회
+    StudyScheduleService ->> StudyScheduleRepository: findById(scheduleId)
+    StudyScheduleRepository -->> StudyScheduleService: StudySchedule(schedule)
+
+    %% 4. 참여 저장
+    StudyScheduleService ->> ScheduleParticipateRepository: save(new Participate)
+    ScheduleParticipateRepository -->> StudyScheduleService: ParticipateRecord
+
+    StudyScheduleService -->> StudyScheduleController: void
+    StudyScheduleController -->> User: MessageResponse("일정 참석 완료")
+
+```
+사용자가 특정 일정에 참석을 시도하면 Controller는 studyId, scheduleId, userId를 StudyScheduleService에 전달한다.
+Service는 먼저 사용자가 해당 스터디에 가입된 멤버이며 승인된(APPROVED) 상태인지 검증한다.
+이미 참여한 상태인지 ScheduleParticipateRepository를 통해 체크하여 중복 참여를 방지한다.
+모든 검증이 끝나면 ScheduleParticipate 엔티티를 새로 저장하여 일정 참여를 완료한다.
+Controller는 “일정 참석이 완료되었습니다.”라는 메시지를 사용자에게 응답한다.
+
+#### 일정 목록 조회
+```mermaid
+sequenceDiagram
+    actor User
+    User ->> StudyScheduleController: GET /studies/{studyId}/schedules
+    StudyScheduleController ->> SecurityUtil: getCurrentUserId()
+    SecurityUtil -->> StudyScheduleController: userId
+
+    StudyScheduleController ->> StudyScheduleService: getScheduleList(studyId, userId)
+
+    %% 1. 전체 멤버 수 조회 (APPROVED)
+    StudyScheduleService ->> StudyMemberRepository: countByStudy_StudyIdAndJoinStatus(studyId, APPROVED)
+    StudyMemberRepository -->> StudyScheduleService: totalMembers
+
+    %% 2. 일정 전체 조회
+    StudyScheduleService ->> StudyScheduleRepository: findByStudy_StudyId(studyId)
+    StudyScheduleRepository -->> StudyScheduleService: List<StudySchedule>
+
+    loop 각 일정(schedule)
+        %% 참여 인원 조회
+        StudyScheduleService ->> ScheduleParticipateRepository: countBySchedule_ScheduleId(scheduleId)
+        ScheduleParticipateRepository -->> StudyScheduleService: participateCount
+
+        %% 본인 참여 여부
+        StudyScheduleService ->> ScheduleParticipateRepository: existsBySchedule_ScheduleIdAndUser_UserId(scheduleId, userId)
+        ScheduleParticipateRepository -->> StudyScheduleService: boolean(isParticipated)
+
+        %% DTO 변환
+        StudyScheduleService ->> ScheduleListResponse: build DTO
+    end
+
+    StudyScheduleService -->> StudyScheduleController: List<ScheduleListResponse>
+    StudyScheduleController -->> User: JSON(list)
+
+```
+사용자가 특정 스터디의 전체 일정 목록을 요청하면 Controller는 studyId와 userId를 Service로 전달한다.
+StudyScheduleService는 승인된(APPROVED) 멤버의 전체 수를 조회하고, 해당 스터디의 모든 스케줄을 가져온다.
+각 스케줄마다 참여 인원 수와 현재 사용자가 참여했는지 여부를 추가로 조회하여 ScheduleListResponse 형태로 변환한다.
+이 과정에서 스케줄 ID, 시작·종료시간, 코멘트, 참여 현황 등 필요한 데이터를 모두 포함한 DTO 리스트가 생성된다.
+Controller는 이 리스트를 JSON 형태로 사용자에게 반환하며 목록 조회 요청을 완료한다.
 
 ## 게시판
 ### 게시글 작성
