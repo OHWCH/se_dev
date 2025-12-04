@@ -84,50 +84,44 @@
 
 ## 스터디 관리
 8. 스터디 생성
-9. 스터디 수정
-10. 스터디 삭제
-11. 스터디 목록 조회
-12. 스터디 상세 조회
-13. 스터디 참여 신청
-14. 스터디 참여 승인/거절
-15. 스터디 탈퇴
-16. 스터디 강퇴
-17. 스터디 일정 등록
-18. 스터디 일정 수정
-19. 스터디 일정 삭제
-20. 스터디 실시간 채팅
-21. 스터디 화상채팅방 생성
-22. 스터디 화상채팅방 종료
-23. 스터디 화상채팅방 입장
-24. 스터디 화상채팅방 퇴장
-
-## 알림
-25. 알림 내역 조회
-26. 알림 목록 삭제
+9. 전체 스터디 목록 조회
+10. 내가 가입한 스터디 목록 조회
+11. 스터디 페이지지 조회
+12. 스터디 정보 수정
+13. 스터디 메인 페이지 조회
+14. 스터디 삭제
+15. 스터디 가입 신청
+16. 스터디 가입 승인
+17. 스터디 가입 거절
+18. 스터디 멤버 리스트 조회
+19. 스터디 탈퇴
+20. 스터디 멤버 강퇴
+21. 스터디 일정 생성
+22. 스터디 일정 참여
+23. 스터디 일정 목록 조회
 
 ## 게시판
-27. 게시글 작성
-28. 게시글 수정
-29. 게시글 삭제
-30. 게시글 목록 조회
-31. 게시글 상세 조회
-32. 댓글 작성
-33. 댓글 삭제
+24. 게시글 작성
+25. 게시글 수정
+26. 게시글 삭제
+27. 게시글 목록 조회
+28. 게시글 상세 조회
+29. 댓글 작성
+30. 댓글 삭제
 
 ## 오픈소스 이슈 관리
-37. Good First Issue 이슈 목록 조회
+31. Good First Issue 이슈 목록 조회
 
 ## 기여도 및 도전과제
-38. Good First Issue 검색: GitHub API를 통해 초보자용 이슈를 검색한다.
-39. 내 기여도 조회: GitHub GraphQL API로 커밋/PR/이슈 통계를 조회하고 점수와 뱃지를 계산한다.
-40. 도전과제 목록 조회: 현재 나의 기여도에 따른 도전과제 달성 현황(진행률)을 확인한다.
-41. 도전과제 자동 달성: 기여도 갱신 시 조건이 충족된 도전과제를 자동으로 완료 처리한다.
+32. 내 기여도 조회
+33. 도전과제 목록 조회
+34. 도전과제 달성
 
 ## Todo List
-42. 할 일(Todo) 등록: 개발 목표나 할 일을 생성한다.
-43. 할 일 목록 조회: 무한 스크롤 방식으로 할 일 목록을 조회한다.
-44. 할 일 체크 토글: 할 일의 완료 여부를 변경한다.
-45. 할 일 일괄 삭제: 완료된 할 일들을 선택하여 한 번에 삭제한다.
+35. 할 일(Todo) 등록
+36. 할 일 목록 조회
+37. 할 일 체크 토글
+38. 할 일 삭제
 
 ---
 ## 회원 관리
@@ -696,7 +690,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 ---
 
 ## 스터디 관리
-### **Use case  : 스터디 생성**
+### **Use case #8 : 스터디 생성**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -770,7 +764,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case  : 전체 스터디 목록 조회**
+### **Use case #9 : 전체 스터디 목록 조회**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -841,7 +835,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case  : 내가 가입한 스터디 목록 조회**
+### **Use case #10 : 내가 가입한 스터디 목록 조회**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -910,7 +904,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 - **Due Date**:  2025. 12. 05
 
-### **Use case  : 스터디 관리 정보 조회**
+### **Use case #11 : 스터디 관리 페이지 조회**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -984,7 +978,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case : 스터디 정보 수정**
+### **Use case #12 : 스터디 정보 수정**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1055,7 +1049,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**:  2025. 12. 05
     
 
-### **Use case : 스터디 메인 페이지 조회**
+### **Use case #13 : 스터디 메인 페이지 조회**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1121,7 +1115,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**:  2025. 12. 05
     
 
-### **Use case : 스터디 삭제**
+### **Use case #14 : 스터디 삭제**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1193,7 +1187,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**:  2025. 12. 05
     
 
-### **Use case : 스터디 가입 신청**
+### **Use case #15 : 스터디 가입 신청**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1264,7 +1258,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case : 스터디 가입 승인**
+### **Use case #16 : 스터디 가입 승인**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1333,7 +1327,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 12. 05
     
 
-### **Use case : 스터디 가입 거절**
+### **Use case #17 : 스터디 가입 거절**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1401,7 +1395,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 12. 05
     
 
-### **Use case : 스터디 멤버 리스트 조회**
+### **Use case #18 : 스터디 멤버 리스트 조회**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1466,7 +1460,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case : 스터디 탈퇴**
+### **Use case #19 : 스터디 탈퇴**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1535,7 +1529,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case : 스터디 멤버 강퇴**
+### **Use case #20 : 스터디 멤버 강퇴**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1603,7 +1597,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 - **Due Date**:  2025. 12. 05
 
-### **Use case : 스터디 일정 생성**
+### **Use case #21 : 스터디 일정 생성**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1678,7 +1672,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case : 스터디 일정 참여**
+### **Use case #22 : 스터디 일정 참여**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1753,7 +1747,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
     
 
 
-### **Use case : 스터디 일정 목록 조회**
+### **Use case #23 : 스터디 일정 목록 조회**
 
 #### **GENERAL CHARACTERISTICS**
 
@@ -1825,7 +1819,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 ---
 
 ## 게시판
-### **Use case #25 : 게시글 작성**
+### **Use case #24 : 게시글 작성**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   사용자가 게시판에 새로운 게시글을 등록하는 기능이다.
@@ -1884,7 +1878,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 
 - **Due Date**: 2025. 12 .04
 
-### **Use case #26 : 게시글 수정**
+### **Use case #25 : 게시글 수정**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   게시글 작성자가 기존 게시글의 제목 또는 본문을 수정하는 기능이다.
@@ -1943,7 +1937,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 
 - **Due Date**: 2025. 12 .04
 
-### **Use case #27 : 게시글 삭제**
+### **Use case #26 : 게시글 삭제**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   게시글 작성자가 해당 게시글을 삭제하는 기능이다.
@@ -2003,7 +1997,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 
 - **Due Date**: 2025. 12 .04
  
-### **Use case #28 : 게시글 목록 조회**
+### **Use case #27 : 게시글 목록 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   사용자가 게시판에 등록된 게시글 목록을 페이지 단위로 조회하는 기능이다.
@@ -2064,7 +2058,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 
 - **Due Date**: 2025. 12 .04
 
-  ### **Use case #29 : 게시글 상세 조회**
+  ### **Use case #28 : 게시글 상세 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   사용자가 특정 게시글의 상세 내용과 해당 게시글에 달린 댓글 목록을 조회하는 기능이다.
@@ -2125,7 +2119,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 
 - **Due Date**: 2025. 12 .04 
 
-### **Use case #30 : 댓글 작성**
+### **Use case #29 : 댓글 작성**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   사용자가 특정 게시글에 새로운 댓글을 등록하는 기능이다.
@@ -2186,7 +2180,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 
 - **Due Date**: 2025. 12 .04
 
-### **Use case #32 : 댓글 삭제**
+### **Use case #30 : 댓글 삭제**
 #### GENERAL CHARACTERISTICS
 - **Summary**    
   댓글 작성자가 본인이 작성한 댓글을 삭제하는 기능이다.
@@ -2248,7 +2242,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 ---
   
 ## 오픈소스 이슈 관리
-### **Use case #37 : Good First Issue 검색**
+### **Use case #31 : Good First Issue 검색**
 #### GENERAL CHARACTERISTICS
 - **Summary** 사용자가 키워드를 입력하여 GitHub의 'good first issue' 라벨이 붙은 초보자용 이슈를 검색하는 기능
 
@@ -2293,7 +2287,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 11. 30.
 
 ## 기여도 및 도전과제
-### **Use case #38 : 내 기여도 조회**
+### **Use case #32: 내 기여도 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary** GitHub API를 통해 사용자의 최신 활동(커밋, PR, 이슈)을 조회하고, 이를 바탕으로 점수와 뱃지를 계산하여 보여주는 기능  
 
@@ -2339,7 +2333,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 11. 30.
 
 
-### **Use case #39 : 도전과제 목록 조회**
+### **Use case #33 : 도전과제 목록 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary** 사용자가 현재 도전과제의 목록과 나의 달성 현황(진행률)을 확인하는 기능  
 
@@ -2384,7 +2378,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 11. 30.
 
 
-### **Use case #40 : 도전과제 자동 달성**
+### **Use case #34 : 도전과제 달성**
 #### GENERAL CHARACTERISTICS
 - **Summary** 사용자의 기여도 정보가 갱신될 때, 조건이 충족된 도전과제를 시스템이 자동으로 ‘완료’ 처리하는 기능  
 
@@ -2429,7 +2423,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 11. 30.
 
 ## Todo 리스트
-### **Use case #41 : 할 일(Todo) 등록**
+### **Use case #35 : 할 일(Todo) 등록**
 #### GENERAL CHARACTERISTICS
 - **Summary** 사용자가 개인적인 개발 목표나 할 일을 등록하는 기능  
 
@@ -2475,7 +2469,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 11. 30.
 
 
-### **Use case #42 : 할 일 목록 조회**
+### **Use case #36 : 할 일 목록 조회**
 #### GENERAL CHARACTERISTICS
 - **Summary** 사용자가 등록한 할 일 목록을 최신순으로 조회하는 기능 (무한 스크롤 지원)  
 
@@ -2521,7 +2515,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 11. 30.
 
 
-### **Use case #43 : 할 일 체크 토글**
+### **Use case #37 : 할 일 체크 토글**
 #### GENERAL CHARACTERISTICS
 - **Summary** 사용자가 등록된 할 일의 완료 여부(Check/Uncheck)를 변경하는 기능  
 
@@ -2567,7 +2561,7 @@ DB의 users 테이블에서 현재 인증된 사용자의 UserEntity를 조회�
 - **Due Date**: 2025. 11. 30.
 
 
-### **Use case #44 : 할 일 일괄 삭제**
+### **Use case #38 : 할 일 삭제**
 #### GENERAL CHARACTERISTICS
 - **Summary** 사용자가 선택한(주로 완료된) 여러 개의 할 일을 한 번에 삭제하는 기능  
 
@@ -4982,9 +4976,9 @@ Access Token이 만료되면 프론트엔드는 자동 또는 수동으로 저�
 정상 사용자라면 기존과 동일한 방식으로 Access Token과 Refresh Token을 새로 발급한다. 즉, userId와 역할 정보를 기반으로 JWT를 새롭게 생성하고 AuthTokens 형태로 반환한다. 프론트는 새 토큰을 저장한 후, 방금 실패했던 API 요청을 다시 보내어 무중단으로 서비스를 이용할 수 있게 된다.
 
 
-### 스터디
+## 스터디
 
-#### 스터디 생성
+### 8. 스터디 생성
 ```mermaid
 sequenceDiagram
     actor User
@@ -5012,7 +5006,7 @@ StudyService는 리더 정보가 유효한지 UserRepository를 통해 조회하
 모든 처리 후 StudyService는 생성된 스터디의 ID를 반환하며, Controller는 최종적으로 “스터디 생성 완료”라는 메시지를 사용자에게 응답한다.
 만약 리더 유저 ID가 존재하지 않는다면 예외가 발생하며, Controller는 오류 메시지를 반환하고 요청을 종료한다.
 
-#### 전체 스터디 목록 조회
+### 9. 전체 스터디 목록 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5042,7 +5036,7 @@ StudyService는 StudyRepository로부터 삭제되지 않은 스터디 목록을
 Controller는 이를 다시 StudyPageResponse로 구성해 사용자에게 반환한다.
 만약 조회된 스터디가 하나도 없더라도 정상적으로 빈 목록이 응답된다.
 
-#### 내가 가입한 스터디 목록 조회
+### 10. 내가 가입한 스터디 목록 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5069,7 +5063,7 @@ StudyService는 StudyMemberRepository를 통해 승인된 상태(APPROVED)의 �
 최종적으로 Controller는 사용자가 소속된 스터디 목록을 JSON 형태로 응답한다.
 가입된 스터디가 하나도 없을 경우 빈 배열을 반환한다.
 
-#### 스터디 관리 페이지 조회
+### 11. 스터디 관리 페이지 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5103,7 +5097,7 @@ StudyService는 StudyRepository로부터 스터디 존재 여부를 확인한 �
 StudyService는 이를 StudyManageResponse로 조합해 Controller로 반환한다.
 Controller는 최종적으로 관리 페이지 전체 정보를 사용자에게 응답한다.
 
-#### 스터디 정보 수정
+### 12. 스터디 정보 수정
 ```mermaid
 sequenceDiagram
     actor User
@@ -5128,7 +5122,7 @@ StudyService는 스터디가 존재하는지 조회하고, 요청한 사용자�
 업데이트된 데이터는 StudyRepository를 통해 저장된다.
 Controller는 “스터디 정보가 수정되었습니다.”라는 메시지를 사용자에게 반환한다.
 
-#### 스터디 메인 페이지 조회
+### 13. 스터디 메인 페이지 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5157,7 +5151,7 @@ StudyService는 해당 스터디의 기본 정보와 현재 승인된 멤버 리
 StudyService는 스터디 정보, 리더 깃허브 ID, 멤버 목록, 일정 목록을 포함한 StudyMainPageResponse를 생성하여 반환한다.
 Controller는 최종 페이지 데이터를 클라이언트에 응답한다.
 
-#### 스터디 삭제
+### 14. 스터디 삭제
 ```mermaid
 sequenceDiagram
     actor User
@@ -5196,7 +5190,7 @@ StudyService는 먼저 해당 스터디가 존재하는지 찾고, 요청자가 
 관련된 모든 하위 데이터 삭제 후 StudyRepository를 통해 스터디 엔티티도 최종 삭제한다.
 Controller는 “스터디가 삭제되었습니다.”라는 메시지를 사용자에게 반환하며 요청을 종료한다.
 
-#### 스터디 가입 신청
+### 15. 스터디 가입 신청
 ```mermaid
 sequenceDiagram
     actor User
@@ -5232,7 +5226,7 @@ StudyMemberService는 먼저 스터디가 존재하는지 확인하고, 신청 �
 중복이 없다면 joinStatus를 APPLIED로 설정한 StudyMember 엔티티를 생성하여 저장한다.
 Controller는 “스터디 가입 신청 완료”라는 메시지를 사용자에게 응답하며 요청이 종료된다.
 
-#### 가입 승인
+### 16. 스터디 가입 승인
 ```mermaid
 sequenceDiagram
     actor User
@@ -5265,7 +5259,7 @@ StudyMemberRepository를 통해 요청한 멤버의 가입 신청 데이터를 �
 검증을 통과하면 joinStatus를 APPROVED로 변경해 승인 처리한다.
 Controller는 “가입 승인 완료”라는 메시지를 출력하며 작업은 정상적으로 완료된다.
 
-#### 가입 거절
+### 17. 스터디 가입 거절
 ```mermaid
 sequenceDiagram
     actor User
@@ -5293,7 +5287,7 @@ StudyMemberService는 해당 사용자가 실제로 APPLIED 상태인지 StudyMe
 정상적인 신청 상태라면 joinStatus를 REJECTED로 변경하여 거절 처리한다.
 Controller는 “가입 거절 완료” 메시지를 반환하며 처리를 종료한다.
 
-#### 스터디 멤버 목록 조회
+### 18. 스터디 멤버 목록 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5318,7 +5312,7 @@ Service는 해당 스터디의 승인된(APPROVED) 멤버들을 StudyMemberRepos
 Service는 DTO 리스트를 Controller에 반환하고, Controller는 이를 JSON 형태로 사용자에게 전송한다.
 조회 대상이 없을 경우에도 빈 리스트로 정상 응답한다.
 
-#### 스터디 탈퇴
+### 19. 스터디 탈퇴
 ```mermaid
 sequenceDiagram
     actor User
@@ -5352,7 +5346,7 @@ Service는 해당 사용자가 스터디 멤버인지 StudyMemberRepository를 �
 모든 조건을 통과하면 joinStatus를 LEFT로 변경하여 탈퇴 처리한다.
 Controller는 “스터디 탈퇴가 완료되었습니다.”라는 메시지를 사용자에게 반환한다.
 
-#### 스터디 강퇴
+### 20. 스터디 강퇴
 ```mermaid
 sequenceDiagram
     actor User
@@ -5392,7 +5386,7 @@ Target 사용자가 존재하는지 StudyMemberRepository로 조회하고, 리�
 또한 대상 멤버가 APPROVED 상태인지 확인하며, 신청자나 이미 탈퇴한 멤버는 강퇴할 수 없다.
 모든 조건이 충족되면 joinStatus를 LEFT로 변경하여 강퇴 처리하고, Controller는 “강퇴가 완료되었습니다.” 메시지를 반환한다.
 
-#### 스터디 일정 생성
+### 21. 스터디 일정 생성
 ```mermaid
 sequenceDiagram
     actor User
@@ -5426,7 +5420,7 @@ Service는 StudyRepository를 통해 스터디가 실제 존재하는지 확인�
 또한 스터디장이기 때문에 생성된 일정에 자동으로 참석하도록 ScheduleParticipate 엔티티도 함께 저장한다.
 처리가 완료되면 Controller는 “스터디 일정 생성 완료”라는 메시지를 반환한다.
 
-#### 일정 참여
+### 22. 스터디 일정 참여
 ```mermaid
 sequenceDiagram
     actor User
@@ -5470,7 +5464,7 @@ Service는 먼저 사용자가 해당 스터디에 가입된 멤버이며 승인
 모든 검증이 끝나면 ScheduleParticipate 엔티티를 새로 저장하여 일정 참여를 완료한다.
 Controller는 “일정 참석이 완료되었습니다.”라는 메시지를 사용자에게 응답한다.
 
-#### 일정 목록 조회
+### 23. 스터디 일정 목록 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5512,7 +5506,7 @@ StudyScheduleService는 승인된(APPROVED) 멤버의 전체 수를 조회하고
 Controller는 이 리스트를 JSON 형태로 사용자에게 반환하며 목록 조회 요청을 완료한다.
 
 ## 게시판
-### 게시글 작성
+### 24. 게시글 작성
 ```mermaid
 sequenceDiagram
     actor User
@@ -5542,7 +5536,7 @@ sequenceDiagram
 ```
 사용자가 GitHub ID와 게시글 데이터(title, content)를 담아 게시글 작성을 요청합니다. PostController는 가장 먼저 findOrCreateUser 헬퍼 로직을 통해 UserRepository에서 사용자를 조회하거나 없으면 생성하여 userId를 확보합니다. 확보된 userId와 요청 데이터를 PostManagementService의 createPost 메서드로 전달합니다. Service는 받은 데이터를 바탕으로 Post 엔티티를 생성하고 PostRepository에 저장합니다. 저장 완료 후 반환된 엔티티를 다시 Controller로 전달하며, Controller는 이를 PostResponse 형태로 변환하여 사용자에게 201 Created 응답과 함께 반환합니다.
 
-### 게시글 수정
+### 25. 게시글 수정
 ```mermaid
 sequenceDiagram
     actor User
@@ -5573,7 +5567,7 @@ sequenceDiagram
 ```
 사용자가 특정 postId의 게시글 수정을 요청하면, Controller는 userId를 확보하여 PostManagementService의 updatePost 메서드에 전달합니다. Service는 PostRepository를 통해 해당 게시글 엔티티를 조회하고, 요청자의 userId와 엔티티의 userId를 비교하여 수정 권한을 검증합니다. 검증에 성공하면 엔티티의 update 오퍼레이션을 호출하여 상태를 변경하고 PostRepository에 저장합니다. 최종적으로 변경된 엔티티를 Controller가 PostResponse로 변환하여 사용자에게 200 OK 응답을 반환합니다.
 
-### 게시글 삭제
+### 26. 게시글 삭제
 ```mermaid
 sequenceDiagram
     actor User
@@ -5603,7 +5597,7 @@ sequenceDiagram
 ```
 사용자가 특정 postId의 게시글 삭제를 요청하면, Controller는 userId를 확보하여 PostManagementService의 deletePost 메서드에 전달합니다. Service는 게시글을 조회하여 권한을 검증합니다. 검증에 성공하면 Post 엔티티의 softDelete() 오퍼레이션을 호출하여 deletedAt 필드에 현재 시간을 기록합니다. 이후 save를 통해 해당 변경 사항을 데이터베이스에 반영합니다. 이는 실제 데이터를 삭제하는 것이 아니라 논리적으로 삭제 처리하는 소프트 삭제 방식이며, 성공적으로 처리되면 Controller는 사용자에게 204 No Content 응답을 반환합니다.
 
-### 게시글 목록 조회
+### 27. 게시글 목록 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5634,7 +5628,7 @@ sequenceDiagram
 사용자가 게시글 목록을 요청하면, PostController는 페이징 정보를 PostQueryService의 getPostList로 전달합니다. Service는 PostRepository에서 게시글 목록을 가져온 후, 목록에 포함된 모든 게시글 ID와 작성자 ID를 추출합니다.
 성능을 위해 CommentRepository에 일괄적으로 댓글 수를 조회하고, UserRepository에 작성자 정보를 일괄 조회하여 GitHub ID를 가져옵니다. 최종적으로 이 세 가지 데이터(게시글, 댓글 수, 작성자 정보)를 합쳐 PostPageResponse DTO로 변환하여 Controller에 반환합니다. Controller는 이 DTO를 JSON 형태로 사용자에게 반환합니다.
 
-### 게시글 상세 조회
+### 28. 게시글 상세 조회
 ```mermaid
 sequenceDiagram
     actor User
@@ -5665,7 +5659,7 @@ sequenceDiagram
 ```
 사용자가 특정 postId의 상세 조회를 요청하면, PostQueryService는 PostRepository에서 게시글을 조회하는 동시에 엔티티의 incrementViewCount() 오퍼레이션을 호출하여 조회수를 증가시킵니다. 이어서 CommentRepository를 통해 해당 게시글에 달린 모든 댓글 목록을 가져옵니다. Service는 게시글 작성자와 댓글 작성자 모두의 userId를 추출하여 UserRepository에서 GitHub ID를 일괄 조회합니다. 최종적으로 모든 정보를 취합하여 댓글 목록까지 포함하는 PostDetailResponse DTO를 생성하여 Controller에 반환하며, Controller는 이를 사용자에게 반환합니다.
 
-### 댓글 작성
+### 29. 댓글 작성
 ```mermaid
 sequenceDiagram
     actor User
@@ -5695,7 +5689,7 @@ sequenceDiagram
 ```
 사용자가 특정 게시글에 댓글 작성 요청을 보내면, CommentController는 userId를 확보한 후 CommentManagementService의 createComment 메서드에 postId, userId, content를 전달합니다. Service는 받은 정보로 Comment 엔티티를 생성하고 CommentRepository에 저장합니다. 저장 후 반환된 엔티티를 Controller가 CommentResponse로 변환하여 사용자에게 201 Created 응답과 함께 반환합니다.
 
-### 댓글 삭제
+### 30. 댓글 삭제
 ```mermaid
 sequenceDiagram
     actor User
@@ -5727,7 +5721,7 @@ sequenceDiagram
 사용자가 댓글의 '삭제' 버튼을 클릭(requestDelete)하면 이 과정이 시작되며, CommentController (Boundary)는 삭제할 댓글의 commentId를 수집하고 userId를 확보하여 CommentManagementService (Control)의 deleteComment 메서드로 전달합니다.
 
 ## 오픈소스 이슈 관리
-### 굿 퍼스트 이슈 탐색
+### 31. 굿 퍼스트 이슈 탐색
 ```mermaid
 sequenceDiagram
     actor User as 사용자
@@ -5766,7 +5760,7 @@ sequenceDiagram
 사용자가 이슈 검색 화면에서 키워드를 입력하면 요청이 시작된다. 이 요청은 IssueController의 getGoodFirstIssues 메서드로 전달되어 IssueService의 searchGoodFirstIssues 메서드를 호출한다. IssueService는 GithubApiClient를 통해 GitHub Search API에 요청을 보내고, label:good first issue 조건과 키워드가 포함된 이슈 목록을 조회한다. API로부터 응답받은 데이터는 GithubIssueSearchResponseDto 형태로 반환되며, 서비스 계층에서 필요한 정보만 추출된 GithubIssueDto 리스트로 변환된다. 최종적으로 IssueController는 이 리스트를 사용자에게 JSON 형태로 반환하여 화면에 검색 결과를 표시한다.
 
 ## 기여도 및 도전과제
-### 내 기여도 조회
+### 32. 내 기여도 조회
 ```mermaid
 sequenceDiagram
     actor User as 사용자
@@ -5812,7 +5806,7 @@ sequenceDiagram
 ```
 사용자가 마이페이지에 접속하여 기여도 조회를 요청하면 ContributionController가 이를 수신하여 ContributionService의 getMyContribution 메서드를 호출한다. ContributionService는 먼저 UserRepository를 통해 현재 사용자의 GitHub ID를 조회하고, 이를 기반으로 GithubApiClient에게 GraphQL API 호출을 위임하여 커밋, PR, 이슈 통계를 가져온다. 조회된 통계 데이터는 점수로 환산되어 적절한 뱃지 등급이 산정되며, 이 최신 정보는 다시 UserRepository를 통해 데이터베이스에 저장된다. 저장이 완료되면 ContributionService는 ChallengeService를 호출하여 도전과제 달성 여부를 체크하게 하고, 최종적으로 사용자의 통계와 뱃지 정보가 담긴 MyContributionResponseDto를 반환한다.
 
-### 도전과제 목록 조회
+### 33. 도전과제 목록 조회
 ```mermaid
 sequenceDiagram
     actor User as 사용자
@@ -5846,7 +5840,7 @@ sequenceDiagram
 ```
 사용자가 도전과제 리스트 메뉴에 진입하면 요청이 ChallengeController로 전달되어 ChallengeService의 getChallengeList 메서드가 실행된다. ChallengeService는 ChallengeRepository에서 시스템에 등록된 모든 도전과제 메타데이터를 조회한 뒤, 각 과제에 대해 반복문을 수행한다. 반복문 내부에서는 UserChallengeRepository를 통해 해당 사용자가 과제를 이미 완료했는지 확인하고, 사용자의 현재 활동 횟수(커밋, PR 등)를 목표치와 매핑한다. 이 과정이 끝나면 각 도전과제의 진행률과 완료 여부가 포함된 ChallengeResponseDto 리스트가 생성되어 컨트롤러를 통해 사용자에게 반환된다.
 
-### 도전과제 달성
+### 34. 도전과제 달성
 ```mermaid
 sequenceDiagram
     participant C_Service as ContributionService
@@ -5884,7 +5878,7 @@ sequenceDiagram
 기여도 조회 로직 수행 후 최신 통계 정보가 확보되면 ContributionService에 의해 ChallengeService의 updateChallengeStatus 메서드가 내부적으로 호출된다. ChallengeService는 전체 도전과제 목록을 순회하면서, UserChallengeRepository를 통해 사용자가 아직 달성하지 않은 과제들만 선별한다. 선별된 과제들에 대해 현재 사용자의 활동 통계(Stats)가 목표 횟수(Goal)를 초과했는지 비교하고, 조건을 만족하는 경우 UserChallenge 엔티티를 생성하여 completed=true 상태로 데이터베이스에 저장함으로써 달성 처리를 완료한다.
 
 ## Todo 리스트
-### 할 일(Todo) 등록
+### 35. 할 일(Todo) 등록
 ```mermaid
  sequenceDiagram
     actor User as 사용자
@@ -5909,7 +5903,7 @@ sequenceDiagram
 ```
 사용자가 할 일 내용을 입력하고 등록 버튼을 누르면 TodoController가 POST 요청을 받아 TodoService의 createTodo 메서드를 호출한다. TodoService는 전달받은 요청 데이터(TodoRequestDto)와 사용자 ID를 기반으로 새로운 Todo 엔티티를 생성한다. 생성된 엔티티는 TodoRepository의 save 메서드를 통해 데이터베이스에 영구 저장된다. 저장이 완료되면 서비스는 생성된 할 일의 ID와 내용을 담은 TodoResponseDto를 컨트롤러에게 반환하고, 컨트롤러는 이를 사용자에게 응답하여 목록 최상단에 새 할 일이 표시되도록 한다.
 
-### 할 일 목록 조회
+### 36. 할 일 목록 조회
 ```mermaid
 sequenceDiagram
     actor User as 사용자
@@ -5936,7 +5930,7 @@ sequenceDiagram
 ```
 사용자가 할 일 목록 화면에 진입하거나 스크롤을 내려 다음 페이지를 요청하면 TodoController의 getTodos 메서드가 호출된다. 이 요청은 TodoService로 전달되며, 서비스는 TodoRepository의 findByUserIdOrderByCreatedAtDesc 메서드를 호출하여 해당 사용자의 할 일들을 생성일 역순으로 조회한다. 이때 Pageable 객체를 통해 페이징 처리가 수행되며, 데이터베이스로부터 조회된 Todo 엔티티들은 Slice<TodoResponseDto> 형태로 변환된다. 변환된 데이터는 컨트롤러를 거쳐 사용자에게 전달되어 무한 스크롤 형태의 목록으로 렌더링된다.
 
-### 할 일 체크 토글
+### 37. 할 일 체크 토글
 ```mermaid
 sequenceDiagram
     actor User as 사용자
@@ -5972,7 +5966,7 @@ sequenceDiagram
 ```
 사용자가 특정 할 일의 체크박스를 클릭하면 TodoController가 PATCH 요청을 수신하여 TodoService의 toggleTodo 메서드를 실행한다. TodoService는 TodoRepository를 통해 해당 할 일(Todo)을 조회한 뒤, 현재 로그인한 사용자가 해당 할 일의 소유자인지 검증한다. 검증이 통과되면 Todo 엔티티의 toggle 메서드를 실행하여 완료 상태(isChecked)를 반전시킨다. 별도의 save 호출 없이도 트랜잭션 종료 시점에 변경 감지(Dirty Checking)가 동작하여 데이터베이스에 변경 사항이 반영되며, 요청 처리가 성공적으로 종료된다.
 
-### 할 일 삭제
+### 38. 할 일 삭제
 ```mermaid
 sequenceDiagram
     actor User as 사용자
@@ -6315,9 +6309,6 @@ stateDiagram-v2
 ## 9. References
 이것이 취업을 위한 백엔드 개발이다.
 https://product.kyobobook.co.kr/detail/S000211834105
-
-webrtc(화상채팅)
-https://terianp.tistory.com/178
 
 스프링 시큐리티(로그인/회원가입)
 https://eunbin00.tistory.com/202
