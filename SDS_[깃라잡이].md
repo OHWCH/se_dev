@@ -70,7 +70,8 @@
 
 ## 2. Use case analysis
 - Use case diagram
-- <img width="922" height="787" alt="image" src="https://github.com/user-attachments/assets/87212baf-d21b-47d4-bc9e-6539c80e08e6" />
+<img width="1305" height="1104" alt="image" src="https://github.com/user-attachments/assets/464898f8-ae5c-4a78-86a1-3d51c64e8b2d" />
+
 
 
 ## 회원관리
