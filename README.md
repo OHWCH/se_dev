@@ -57,3 +57,6 @@
     ```bash
     git push origin feature/login
     ```
+---
+# 서버 주소
+http://3.35.246.234
