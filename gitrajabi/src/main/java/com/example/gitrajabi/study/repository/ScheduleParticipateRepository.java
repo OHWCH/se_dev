@@ -1,0 +1,16 @@
+package com.example.gitrajabi.study.repository;
+
+
+
+import com.example.gitrajabi.study.entity.ScheduleParticipate;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ScheduleParticipateRepository extends JpaRepository<ScheduleParticipate, Long> {
+    boolean existsBySchedule_ScheduleIdAndUser_UserId(Long scheduleId, Long userId);
+
+    int countBySchedule_ScheduleId(Long scheduleId);
+    void deleteBySchedule_Study_StudyId(Long studyId);
+    void deleteBySchedule_ScheduleId(Long scheduleId);
+
+
+}

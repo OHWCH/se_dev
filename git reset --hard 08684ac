@@ -1,0 +1,34 @@
+[33m8d3d77d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m HEAD@{0}: pull origin develop: Fast-forward
+[33m08684ac[m HEAD@{1}: commit: 스터디 생성/조회/수정 오류 수정
+[33m9d4da89[m HEAD@{2}: commit (merge): re
+[33m83099c2[m HEAD@{3}: commit: 스터디생성수정
+[33m9ecb425[m HEAD@{4}: commit: api수정
+[33md7809e1[m HEAD@{5}: pull origin develop: Merge made by the 'ort' strategy.
+[33m20f5412[m HEAD@{6}: pull origin develop: Merge made by the 'ort' strategy.
+[33m8bdaad8[m HEAD@{7}: pull origin develop: Merge made by the 'ort' strategy.
+[33mfa10ae4[m HEAD@{8}: commit: 카테고리 수정
+[33mb9d5fd5[m HEAD@{9}: commit (merge): Merge branch 'develop' of https://github.com/OHWCH/se_dev into develop
+[33me7bd512[m HEAD@{10}: commit: 스터디 api 작성
+[33m04adc38[m HEAD@{11}: pull origin develop: Fast-forward
+[33m4b4241c[m HEAD@{12}: reset: moving to develop
+[33m4b4241c[m HEAD@{13}: pull origin develop: Fast-forward
+[33md8b8f7d[m HEAD@{14}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{15}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{16}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{17}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{18}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{19}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{20}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{21}: reset: moving to HEAD
+[33md8b8f7d[m HEAD@{22}: pull origin develop: Fast-forward
+[33m88461a8[m HEAD@{23}: pull origin develop: Fast-forward
+[33m9c3d92e[m HEAD@{24}: pull origin develop: Fast-forward
+[33m8b43588[m HEAD@{25}: pull origin develop: Fast-forward
+[33m9a7e2ba[m HEAD@{26}: commit (merge): 프론트 추가
+[33m1bb4be0[m[33m ([m[1;32mmain[m[33m)[m HEAD@{27}: checkout: moving from main to develop
+[33m1bb4be0[m[33m ([m[1;32mmain[m[33m)[m HEAD@{28}: commit: 프론트
+[33m6bc9667[m HEAD@{29}: pull origin main: Fast-forward
+[33m11525fd[m HEAD@{30}: commit: 실시간 채팅 추가
+[33m4ad5539[m HEAD@{31}: pull origin main: Fast-forward
+[33m61e5324[m HEAD@{32}: commit: 스터디 화상채팅방 종료
+[33m6796f83[m HEAD@{33}: clone: from https://github.com/OHWCH/se_dev.git
