@@ -45,31 +45,31 @@
 | 1.8   | 계정 삭제 | 사용자가 자신의 계정을 탈퇴한다. | 사용자 요청 시 soft delete 방식으로 계정을 비활성화한다. | userId, 삭제 의사 확인 플래그(예: confirm=true) | userId 유효, 삭제 의사 확인 후 deleted_at에 현재 시간 기록 | userId 미존재, 삭제 의사 미확인(취소), DB update 실패 | - | H | |
 | 1.8.1 |  |  | 사용자가 ‘계정 삭제’를 선택하면 soft delete 방식으로 계정이 비활성화된다(deleted_at 설정). | userId, 탈퇴 요청 이벤트 | 삭제 버튼 클릭 후 userId 기준 UserEntity 조회 성공, deleted_at에 현재 시간 설정 | 삭제 요청 시 userId 미존재, 이미 deleted_at이 설정된 계정, DB 오류 | - | H | |
 | 1.8.2 |  |  | 탈퇴한 계정으로는 다시 로그인할 수 없다. | github_id, deleted_at | github_id 조회 결과 deleted_at != null 인 경우 로그인 차단 및 오류 메시지 반환 | 삭제 계정임에도 로그인 허용(로직 오류), deleted_at 값이 잘못 저장되어 상태 판단 실패 | - | H | |
-| 2     | **스터디 관리**         |                   |                                           |                                                   |                                                                                      |                                          |       |      |        |
-| 2.1   | 스터디 생성             | 신규 스터디를 개설한다.     | 사용자가 스터디명·소개·주제·정원 정보를 입력하여 신규 스터디를 생성한다. | studyName, studyDescription, category, maxMembers | studyName(1\~100자), studyDescription(0\~500자), category(ENUM 중 1개), maxMembers(1명 이상) | 빈 문자열, 음수 정원, category 미포함 값             | -     | H    |        |
-| 2.1.1 |                    |                   | 스터디 생성 시 개설자가 스터디 리더로 자동 지정된다.            | leaderId                                          | 로그인된 정상 userId                                                                       |                                          | -     | H    |        |
-| 2.1.2 |                    |                   | 생성 성공 시 스터디 상세 화면으로 이동한다.                 |                                                   |                                                                                      |                                          | -     | H    |        |
-| 2.2   | 스터디 수정(스터디장)       | 스터디 리더가 정보를 수정한다. | 리더만 스터디명·소개·정원 등의 자료를 수정할 수 있다.           |                                                   |                                                                                      |                                          | -     | H    |        |
-| 2.2.1 |                    |                   | 리더는 스터디명·소개·정원을 편집할 수 있다.                 | studyName, studyDescription, category, maxMembers | studyName(1\~100자), studyDescription(0\~100자), category(1개 이상), maxMembers(1명 이상)      | 빈 문자열, 음수 정원, category 미포함 값             | -     | H    |        |
-| 2.2.2 |                    |                   | 일반 멤버는 수정 기능 접근 불가                        | userId                                            | 리더ID == 유저ID                                                                         | 리더ID != 유저ID                             | -     | H    |        |
-| 2.2.3 |                    |                   | 수정된 정보는 DB에 즉시 반영된다.                      |                                                   |                                                                                      |                                          | -     | H    |        |
-| 2.3   | 스터디 삭제(스터디장)       | 스터디 삭제 기능         | 리더가 스터디를 삭제할 수 있다.                        | studyId, leaderId                                 | 리더ID == 유저ID                                                                         | 리더ID != 유저ID                             | -     | H    |        |
-| 2.3.1 |                    |                   | 리더 혼자 존재해야 삭제 가능                          | memberCount                                       | memberCount=1                                                                        | memberCount>1                            | -     | H    |        |
-| 2.3.2 |                    |                   | 멤버가 2명 이상일 경우 삭제/탈퇴 불가                    | memberCount                                       | memberCount=1                                                                        | memberCount≥2                            | -     | H    |        |
-| 2.4   | 스터디 목록 조회          | 모든 스터디 목록 조회      | 스터디의 이름/카테고리/정원 등을 기준으로 목록을 조회한다.         | page                                              | page>=0                                                                              | 음수 page                                  | -     | H    |        |
-| 2.4.1 |                    |                   | 목록에는 제목·소개·정원 정보가 표시된다.                   |                                                   |                                                                                      |                                          | -     | H    |        |
-| 2.5   | 스터디 상세 조회          | 특정 스터디 상세보기       | 스터디의 소개, 멤버 목록, 일정 정보 등을 확인한다.            | studyId                                           | 존재하는 studyId                                                                         | 없거나 삭제된 studyId                          | -     | H    |        |
-| 2.5.1 |                    |                   | 상세 화면에서 모든 스터디 정보가 표시된다.                  |                                                   |                                                                                      |                                          | -     | H    |        |
-| 2.6   | 스터디 참여 신청          | 사용자가 스터디 가입 신청    | 사용자가 스터디에 가입 요청(APPLIED 상태)을 한다.          | studyId, userId                                   | 존재하는 스터디, 승인 중이 아닌 유저                                                                | 이미 신청(APPLIED), 이미 승인(APPROVED), 탈퇴 LEFT | 2.7.1 | H    |        |
-| 2.6.1 |                    |                   | 목록/상세 화면에서 '가입하기' 버튼을 누르는 것으로 신청          |                                                   |                                                                                      |                                          | -     | H    |        |
-| 2.6.2 |                    |                   | 정원 초과 시 가입 불가                             | maxMembers, currentMembers                        | current<max                                                                          | current>=max                             | -     | H    |        |
-| 2.7   | 스터디 참여 관리(스터디장)    | 리더가 멤버 승인·거절·강퇴   | 스터디 리더가 신청자 승인/거절 및 멤버 강퇴를 수행한다.          | studyId, leaderId, targetUserId                   | leaderId=leader, target user존재                                                       | 리더 본인 강퇴, 없는 user, 승인 아닌 user            | -     | H    |        |
-| 2.7.1 |                    |                   | 신청자(APPLIED) 승인/거절 가능                     | joinStatus                                        | APPLIED                                                                              | APPROVED, LEFT                           | -     | H    |        |
-| 2.7.2 |                    |                   | 리더는 승인된(APPROVED) 멤버를 강퇴할 수 있다.           | joinStatus                                        | APPROVED                                                                             | LEADER, APPLIED, REJECTED                | -     | H    |        |
-| 2.8   | 스터디 일정 관리          | 일정 생성·참여·조회       | 스터디 일정 생성 및 참여 기능 제공                      |                                                   |                                                                                      |                                          | -     | H    |        |
-| 2.8.1 | 일정 생성(스터디장)        | 리더만 일정 생성         | 리더는 comment/시작/종료 시간을 입력하여 스케줄을 생성        | comment, startedAt, endAt                         | comment 1~200자, startedAt < endAt                                                    | 빈 문자열, startedAt > endAt                 | -     | H    |        |
-| 2.8.2 | 일정 참여              | 일정 참석 기능          | 스터디 멤버는 일정에 참여(출석 체크)할 수 있다.              | userId, scheduleId                                | APPROVED 멤버                                                                          | 미승인(APPLIED/REJECTED/LEFT), 중복 참여        | -     | H    |        |
-| 2.8.3 | 일정 목록 조회           | 전체 일정 조회          | 일정 목록 + 참여 인원 수 + 본인 참석 여부 반환             |                                                   |                                                                                      |                                          | -     | H    |        |
+| 2 | **스터디 관리** | | | | | | | | |
+| 2.1 | 스터디 생성 | 신규 스터디를 개설한다. | 사용자가 스터디명·소개·주제·정원 정보를 입력하여 신규 스터디를 생성한다. | studyName, studyDescription, category, maxMembers | studyName(1\~100자), studyDescription(0\~500자), category(ENUM 중 1개), maxMembers(1명 이상) | 빈 문자열, 음수 정원, category 미포함 값 | - | H | P |
+| 2.1.1 | | | 스터디 생성 시 개설자가 스터디 리더로 자동 지정된다. | leaderId | 로그인된 정상 userId | | - | H | P |
+| 2.1.2 | | | 생성 성공 시 스터디 상세 화면으로 이동한다. | | | | - | H | P |
+| 2.2 | 스터디 수정(스터디장) | 스터디 리더가 정보를 수정한다. | 리더만 스터디명·소개·정원 등의 자료를 수정할 수 있다. | | | | - | H | P |
+| 2.2.1 | | | 리더는 스터디명·소개·정원을 편집할 수 있다. | studyName, studyDescription, category, maxMembers | studyName(1\~100자), studyDescription(0\~100자), category(1개 이상), maxMembers(1명 이상) | 빈 문자열, 음수 정원, category 미포함 값 | - | H | P |
+| 2.2.2 | | | 일반 멤버는 수정 기능 접근 불가 | userId | 리더ID == 유저ID | 리더ID != 유저ID | - | H | P |
+| 2.2.3 | | | 수정된 정보는 DB에 즉시 반영된다. | | | | - | H | P |
+| 2.3 | 스터디 삭제(스터디장) | 스터디 삭제 기능 | 리더가 스터디를 삭제할 수 있다. | studyId, leaderId | 리더ID == 유저ID | 리더ID != 유저ID | - | H | P |
+| 2.3.1 | | | 리더 혼자 존재해야 삭제 가능 | memberCount | memberCount=1 | memberCount>1 | - | H | P |
+| 2.3.2 | | | 멤버가 2명 이상일 경우 삭제/탈퇴 불가 | memberCount | memberCount=1 | memberCount≥2 | - | H | P |
+| 2.4 | 스터디 목록 조회 | 모든 스터디 목록 조회 | 스터디의 이름/카테고리/정원 등을 기준으로 목록을 조회한다. | page | page>=0 | 음수 page | - | H | P |
+| 2.4.1 | | | 목록에는 제목·소개·정원 정보가 표시된다. | | | | - | H | P |
+| 2.5 | 스터디 상세 조회 | 특정 스터디 상세보기 | 스터디의 소개, 멤버 목록, 일정 정보 등을 확인한다. | studyId | 존재하는 studyId | 없거나 삭제된 studyId | - | H | P |
+| 2.5.1 | | | 상세 화면에서 모든 스터디 정보가 표시된다. | | | | - | H | P |
+| 2.6 | 스터디 참여 신청 | 사용자가 스터디 가입 신청 | 사용자가 스터디에 가입 요청(APPLIED 상태)을 한다. | studyId, userId | 존재하는 스터디, 승인 중이 아닌 유저 | 이미 신청(APPLIED), 이미 승인(APPROVED), 탈퇴 LEFT | 2.7.1 | H | P |
+| 2.6.1 | | | 목록/상세 화면에서 '가입하기' 버튼을 누르는 것으로 신청 | | | | - | H | P |
+| 2.6.2 | | | 정원 초과 시 가입 불가 | maxMembers, currentMembers | current<max | current>=max | - | H | P |
+| 2.7 | 스터디 참여 관리(스터디장) | 리더가 멤버 승인·거절·강퇴 | 스터디 리더가 신청자 승인/거절 및 멤버 강퇴를 수행한다. | studyId, leaderId, targetUserId | leaderId=leader, target user존재 | 리더 본인 강퇴, 없는 user, 승인 아닌 user | - | H | P |
+| 2.7.1 | | | 신청자(APPLIED) 승인/거절 가능 | joinStatus | APPLIED | APPROVED, LEFT | - | H | P |
+| 2.7.2 | | | 리더는 승인된(APPROVED) 멤버를 강퇴할 수 있다. | joinStatus | APPROVED | LEADER, APPLIED, REJECTED | - | H | P |
+| 2.8 | 스터디 일정 관리 | 일정 생성·참여·조회 | 스터디 일정 생성 및 참여 기능 제공 | | | | - | H | P |
+| 2.8.1 | 일정 생성(스터디장) | 리더만 일정 생성 | 리더는 comment/시작/종료 시간을 입력하여 스케줄을 생성 | comment, startedAt, endAt | comment 1~200자, startedAt < endAt | 빈 문자열, startedAt > endAt | - | H | P |
+| 2.8.2 | 일정 참여 | 일정 참석 기능 | 스터디 멤버는 일정에 참여(출석 체크)할 수 있다. | userId, scheduleId | APPROVED 멤버 | 미승인(APPLIED/REJECTED/LEFT), 중복 참여 | - | H | P |
+| 2.8.3 | 일정 목록 조회 | 전체 일정 조회 | 일정 목록 + 참여 인원 수 + 본인 참석 여부 반환 | | | | - | H | P |
 | 3 | **게시판** | | | | | | | | |
 | 3.1 | 게시글 작성 | 게시글 생성 | 사용자가 게시글을 생성하고 시스템에 등록한다. | '게시글 작성' 버튼 클릭 |  |  | UC 3.1 | H | P |
 | 3.1.1 |  |  | 사용자는 ‘게시글 작성’ 버튼을 눌러 작성 화면으로 이동한다. | 게시글 작성 버튼 |  |  | UC 3.1.1 | H | P |
